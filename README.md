@@ -23,7 +23,7 @@ Command parameters:
 * `-c` or `--config=CONFIG` — specify configuration file. Default is `build.ini`.
 * `-s` or `--section=SECTION` — specify configuration file section. Default is `build`.
 * `-l` or `--log=LOGFILE` — save script output to log file.
-* `-o` — opens local website with default browser. Could be used with `preview` command only.
+* `-b` — opens local website with default browser. Could be used with `preview` command only.
 
 Configuration file:
 
