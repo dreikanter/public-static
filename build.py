@@ -268,7 +268,10 @@ def preview(config=DEFAULT_CONF, section=DEFAULT_SECTION, logfile=DEFAULT_LOG, b
     try:
         handler = SimpleHTTPServer.SimpleHTTPRequestHandler
         httpd = SocketServer.TCPServer(("", port), handler)
-        open_in_browser("http://localhost:%s/" % port)
+
+        if browse:
+            open_in_browser("http://localhost:%s/" % port)
+
         httpd.serve_forever()
 
     except KeyboardInterrupt:
