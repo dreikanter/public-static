@@ -1,8 +1,8 @@
-# Yet another single-page static website builder
+# public-static
 
-A small Python script used to build single-page[^1] static website from [Markdown](http://daringfireball.net/projects/markdown) source, [Mustache](http://mustache.github.com) template and [Skeleton](http://getskeleton.com) CSS framework. Created <s>to maintain author's homepage</s> for fun.
+A small Python script used to build single-page¹ static website from [Markdown](http://daringfireball.net/projects/markdown) source, [Mustache](http://mustache.github.com) template and [Skeleton](http://getskeleton.com) CSS framework. Created <s>to maintain author's homepage</s> for fun. Inspired by [addmeto.cc](https://github.com/bobuk/addmeto.cc) and couple of other geeky projects.
 
-[^1] — 2 pages will be Ok too.
+¹ — 2 pages will be Ok too.
 
 ## Usage
 
@@ -16,7 +16,6 @@ Available commands:
 * `preview` — run local web server to preview generated web site.
 * `publish` — synchronize remote web server with generated content.
 * `clean` — delete all generated web content.
-* `buildblish` — same as sequential execution of `build` and `publish`.
 
 Command parameters:
 
