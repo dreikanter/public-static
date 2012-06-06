@@ -6,7 +6,11 @@ from pprint import pprint, pformat
 from configparser import ConfigParser
 import shutil
 import datetime
+import time
 import logging
+import SimpleHTTPServer
+import SocketServer
+from multiprocessing import Process
 import baker
 import markdown
 import pystache
@@ -20,6 +24,8 @@ __status__ = "Development"
 DEFAULT_SECTION = os.path.splitext(os.path.basename(__file__))[0]
 DEFAULT_CONF = "%s.ini" % DEFAULT_SECTION
 DEFAULT_LOG = "%s.log" % DEFAULT_SECTION
+DEFAULT_PORT = 8000
+DEFAULT_BROWSER_OPEN_DELAY = 2.0  # seconds
 
 COMMON_PARAMS = {
     "config": "Configuration file",
@@ -74,10 +80,15 @@ def init(conf_file, section, log_file):
     try:
         global conf
         conf = {item[0]: item[1] for item in get_params()}
+        log.info("Using configuration from %s [%s]" % (conf_file, section))
+
         conf['pages_path'] = os.path.abspath(conf['pages_path'])
         conf['static_path'] = os.path.abspath(conf['static_path'])
         conf['build_path'] = os.path.abspath(conf['build_path'])
         conf['templates_path'] = os.path.abspath(conf['templates_path'])
+        conf['browser_opening_delay'] = float(conf['browser_opening_delay']) if 'browser_opening_delay' in conf else DEFAULT_BROWSER_OPEN_DELAY
+
+        # TODO Check for mandatory parameters
 
     except Exception as e:
         log.error("Error reading configuration: " + str(e))
@@ -200,13 +211,37 @@ def get_dest_file_name(source_file):
     return base + (".html" if ext == ".md" else ext)
 
 
+def open_in_browser(url):
+    cmd = conf['run_browser_cmd'].replace('{url}', url)
+    log.info("Opening browser in %g seconds. Command: [%s]" % (conf['browser_opening_delay'], cmd))
+    p = Process(target=bg_open_browser, args=(url, cmd, conf['browser_opening_delay']))
+    p.start()
+
+
+def bg_open_browser(url, cmd, delay):
+    """Asyncronously executes default browser with specified URL."""
+    try:
+        time.sleep(delay)
+        print("Executing '%s'" % cmd)
+        os.system(cmd)
+
+    except Exception as e:
+        print("Error opening browser: " + str(e))
+
+
+def check_build_is_done():
+    """Check if the web content was built and exit if it isn't."""
+    if not os.path.isdir(conf['build_path']):
+        log.error("Web content directory not exists: [%s]" % conf['build_path'])
+        exit(1)
+
+
 # Baker commands ==============================================================
 
 @baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS, default=True)
 def build(config=DEFAULT_CONF, section=DEFAULT_SECTION, logfile=DEFAULT_LOG):
     """Generate web content"""
     init(config, section, logfile)
-    log.info("Using configuration from %s [%s]" % (os.path.basename(config), section))
 
     try:
         remake_dir(conf['build_path'])
@@ -219,17 +254,36 @@ def build(config=DEFAULT_CONF, section=DEFAULT_SECTION, logfile=DEFAULT_LOG):
         log.error("Error: " + str(e))
 
 
-@baker.command(shortopts=joind(COMMON_SHORTOPS, {"browse": "b"}),
-               params=joind(COMMON_PARAMS, {"browse": "Open in default browser"}))
-def preview(config=DEFAULT_CONF, section=DEFAULT_SECTION, logfile=DEFAULT_LOG, browse=False):
+@baker.command(shortopts=joind(COMMON_SHORTOPS, {"browse": "b", "port": "p"}),
+               params=joind(COMMON_PARAMS, {"browse": "Open in default browser", "port": "Port for local HTTP server"}))
+def preview(config=DEFAULT_CONF, section=DEFAULT_SECTION, logfile=DEFAULT_LOG, browse=False, port=DEFAULT_PORT):
     '''Run local web server to preview generated web site'''
-    return
+    init(config, section, logfile)
+    check_build_is_done()
+
+    prev_cwd = os.getcwd()
+    os.chdir(conf['build_path'])
+    log.info("Running HTTP server on port %d..." % port)
+
+    try:
+        handler = SimpleHTTPServer.SimpleHTTPRequestHandler
+        httpd = SocketServer.TCPServer(("", port), handler)
+        open_in_browser("http://localhost:%s/" % port)
+        httpd.serve_forever()
+
+    except KeyboardInterrupt:
+        log.info("Server was stopped by user")
+
+    os.chdir(prev_cwd)
 
 
 @baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS)
 def publish(config=DEFAULT_CONF, section=DEFAULT_SECTION, logfile=DEFAULT_LOG):
     '''Synchronize remote web server with generated content.'''
-    return
+    init(config, section, logfile)
+    check_build_is_done()
+
+    # TODO Execute configurable sync command
 
 
 @baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS)
@@ -248,4 +302,5 @@ def clean(config=DEFAULT_CONF, section=DEFAULT_SECTION, logfile=DEFAULT_LOG):
         log.error("Error: " + str(e))
 
 
-baker.run()
+if __name__ == '__main__':
+    baker.run()
