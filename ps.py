@@ -225,7 +225,7 @@ def bg_open_browser(url, cmd, delay):
     """Asyncronously executes default browser with specified URL."""
     try:
         time.sleep(delay)
-        print("Executing '%s'" % cmd)
+        log.info("Executing '%s'" % cmd)
         os.system(cmd)
 
     except Exception as e:
@@ -294,7 +294,7 @@ def publish(config=DEFAULT_CONF, section=DEFAULT_SECTION, logfile=DEFAULT_LOG):
 def clean(config=DEFAULT_CONF, section=DEFAULT_SECTION, logfile=DEFAULT_LOG):
     '''Delete all generated web content'''
 
-    init(conf, section, logfile)
+    init(config, section, logfile)
     log.info("Cleaning output...")
 
     try:
