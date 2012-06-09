@@ -15,15 +15,22 @@ import baker
 import markdown
 import pystache
 
-__author__ = "Alex Musayev <http://alex.musayev.com>"
-__copyright__ = "Copyright 2012, Subliminal Maintenance Lab."
+__author__ = "Alex Musayev"
+__email__ = "alex.musayev@gmail.com"
+__copyright__ = "Copyright 2012, %s <http://alex.musayev.com>" % __author__
 __license__ = "MIT"
-__version__ = "0.0.1"
+__version_info__ = (0, 0, 1)
+__version__ = ".".join(map(str, __version_info__))
 __status__ = "Development"
+__url__ = "http://github.com/dreikanter/gistopin"
 
-DEFAULT_SECTION = os.path.splitext(os.path.basename(__file__))[0]
-DEFAULT_CONF = "%s.ini" % DEFAULT_SECTION
-DEFAULT_LOG = "%s.log" % DEFAULT_SECTION
+script_name = os.path.splitext(os.path.basename(__file__))[0]
+log = logging.getLogger(__name__)
+conf = {}
+
+DEFAULT_SECTION = script_name
+DEFAULT_CONF = "%s.ini" % script_name
+DEFAULT_LOG = "%s.log" % script_name
 DEFAULT_PORT = 8000
 DEFAULT_BROWSER_OPEN_DELAY = 2.0  # seconds
 
@@ -41,12 +48,8 @@ COMMON_SHORTOPS = {
 
 TRUE_VALUES = ['1', 'true', 'yes', 'y']
 TEMPLATE_FILE_NAME = "%s.mustache.html"
-
 LOG_CONSOLE_FORMAT = ('%(asctime)s %(levelname)s: %(message)s', '%H:%M:%S')
 LOG_FILE_FORMAT = ('%(asctime)s %(levelname)s: %(message)s', '%Y/%m/%d %H:%M:%S')
-
-log = logging.getLogger(__name__)
-conf = {}
 
 
 # Initialization =============================================================
@@ -286,8 +289,6 @@ def publish(config=DEFAULT_CONF, section=DEFAULT_SECTION, logfile=DEFAULT_LOG):
     init(config, section, logfile)
     check_build_is_done()
 
-    # TODO Execute configurable sync command
-
 
 @baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS)
 def clean(config=DEFAULT_CONF, section=DEFAULT_SECTION, logfile=DEFAULT_LOG):
@@ -306,4 +307,9 @@ def clean(config=DEFAULT_CONF, section=DEFAULT_SECTION, logfile=DEFAULT_LOG):
 
 
 if __name__ == '__main__':
-    baker.run()
+    try:
+        baker.run()
+
+    except Exception as e:
+        print("Error: " + str(e))
+        exit(1)

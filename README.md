@@ -8,7 +8,7 @@ A small Python script used to build single-page¹ static website from [Markdown]
 
 Command line format:
 
-	build <command> [parameters]
+	python ps.py <command> [parameters]
 
 Available commands:
 
@@ -23,8 +23,8 @@ Available commands:
 
 Common parameters:
 
-* `-c` or `--config=CONFIG` — specify configuration file. Default is `build.ini`.
-* `-s` or `--section=SECTION` — specify configuration file section. Default is `build`.
+* `-c` or `--config=CONFIG` — specify configuration file. Default is `ps.ini`.
+* `-s` or `--section=SECTION` — specify configuration file section. Default is `[ps]`.
 * `-l` or `--logfile=LOGFILE` — save script output to log file.
 * `-h` or `--help` — show command line help.
 
@@ -33,3 +33,4 @@ Configuration file:
 To avoid over-complicated command line syntax, main site building parameters intended to be kept in configuration file with an ordinary [RFC-822](http://tools.ietf.org/html/rfc822.html) compliant syntax. As it was mentioned already default section name is `builder` but a single configuration file could contain multiple sections for different web sites to be maintained.
 
 [TBD]
+
