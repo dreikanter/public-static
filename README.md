@@ -28,9 +28,57 @@ Common parameters:
 * `-l` or `--logfile=LOGFILE` — save script output to log file.
 * `-h` or `--help` — show command line help.
 
-Configuration file:
+## Configuration file
 
-To avoid over-complicated command line syntax, main site building parameters intended to be kept in configuration file with an ordinary [RFC-822](http://tools.ietf.org/html/rfc822.html) compliant syntax. As it was mentioned already default section name is `builder` but a single configuration file could contain multiple sections for different web sites to be maintained.
+To avoid over-complicated command line syntax, main site building parameters intended to be kept in configuration file with an ordinary [RFC-822](http://tools.ietf.org/html/rfc822.html) compliant syntax. As it was mentioned already default section name is `builder` but a single 
+configuration file could contain multiple sections for different web sites to be maintained.
 
-[TBD]
+* `pages_path` — path to the page files directory.
+* `static_path` — path to static resources (graphics, JS, CSS, etc) which should be copied to the generated website as is. JS and CSS files could be optionally minified (see details below).
+* `templates_path` — [mustache](http://mustache.github.com) templates directory path.
+* `build_path` — destination path where static website should be built.
+* `minify_css` — yes/no to enable or disable CSS minification.
+* `minify_js` — same thing for JavaScript.
+* `run_browser_cmd` — OS-specific command to open an URL with a web browser. Used during generated website preview.
+* `browser_opening_delay` — number of seconds between preview webserver start and browser execution. Default value is 2.0 and it's
+ 
+Example:
+
+	[ps]
+	pages_path = ./pages
+	static_path = ./static
+	build_path = ./www
+	templates_path = ./templates
+	minify_css = yes
+	minify_js = yes
+	run_browser_cmd = start {url}
+	browser_opening_delay = 2
+
+## Page file format
+
+title: Demo page
+ctime: 2012-06-05 13:49:38
+utime: 2012-06-05 13:49:38
+template: default
+
+# Hello world!
+
+Each page is a plain text/markdown file complemented with a basic metadata in header. The format is pretty straightforward. Here is a self explaining example:
+
+	title: Hello World!
+	ctime: 2012-06-05 13:49:38
+	utime: 2012-06-05 13:49:38
+	template: default
+
+	# Hello world!
+
+	The format is pretty straightforward.
+
+Few comments:
+
+* All header fields are optional and could omitted. But it's good to have at least a title for each page.
+* Template value will be transformed to `[templates_path]\[template_name].mustache.html` file name`.
+* All matadata parameters are available from templates. E.g. `{{title}}`.
+* Everything beneath the header is treated as page content. Template name for this section is `{{content}}`.
+
 
