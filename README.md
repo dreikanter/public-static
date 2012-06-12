@@ -24,7 +24,7 @@ Available commands:
 Common parameters:
 
 * `-c` or `--config=CONFIG` — specify configuration file. Default is `ps.ini`.
-* `-s` or `--section=SECTION` — specify configuration file section. Default is `[ps]`.
+* `-s` or `--section=SECTION` — specify configuration file section. Default is the first one in the file.
 * `-l` or `--logfile=LOGFILE` — save script output to log file.
 * `-h` or `--help` — show command line help.
 
@@ -56,18 +56,11 @@ Example:
 
 ## Page file format
 
-title: Demo page
-ctime: 2012-06-05 13:49:38
-utime: 2012-06-05 13:49:38
-template: default
-
-# Hello world!
-
 Each page is a plain text/markdown file complemented with a basic metadata in header. The format is pretty straightforward. Here is a self explaining example:
 
 	title: Hello World!
 	ctime: 2012-06-05 13:49:38
-	utime: 2012-06-05 13:49:38
+	mtime: 2012-06-05 13:49:38
 	template: default
 
 	# Hello world!
@@ -81,4 +74,20 @@ Few comments:
 * All matadata parameters are available from templates. E.g. `{{title}}`.
 * Everything beneath the header is treated as page content. Template name for this section is `{{content}}`.
 
+## Dependencies
 
+* `baker`
+* `python-markdown`
+* `pystache`
+* `yuicompressor`
+
+# TODO
+
+* Implement synchronization.
+* Validate configuration.
+
+# Changes
+
+* 2012-06-10 — The first configuration file section will be used as default instead of `[<script name>]`.
+* 2012-06-10 — CSS/JS miminization with yuicompressor.
+* 2012-06-09 — `build.py` renamed to `ps.py`. Default section renamed to `[ps]`.
