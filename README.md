@@ -81,13 +81,14 @@ Few comments:
 * `pystache`
 * `yuicompressor`
 
-# TODO
+## TODO
 
+* Page template.
 * Implement synchronization.
-* Validate configuration.
-
-# Changes
-
-* 2012-06-10 — The first configuration file section will be used as default instead of `[<script name>]`.
-* 2012-06-10 — CSS/JS miminization with yuicompressor.
-* 2012-06-09 — `build.py` renamed to `ps.py`. Default section renamed to `[ps]`.
+* Dependencies details.
+* Format finalization.
+* Format description.
+* Templates description.
+* Markdown extension for QR.
+* Markdown extension for smater images.
+* Code highlighting.

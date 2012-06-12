@@ -227,36 +227,40 @@ def process_files(src_path, build_path, min_js_cmd, min_css_cmd, templates_path)
 def build_page(source_file, dest_file, templates_path):
     """Builds a page from markdown source amd mustache template."""
 
+    def get_md_h1(text):
+        matches = re.match("^\s*#\s*(.*)", text)
+        return matches.groups() if matches else None
+
+    def purify_time(page, time_parm, default):
+        if time_parm in page:
+            page[time_parm] = time.strptime(page[time_parm], TIME_FORMAT)
+        else:
+            page[time_parm] = datetime.fromtimestamp(default)
+
     def read_page_source(source_file):
         try:
             page = {}
-
-            cnt = 0
             with codecs.open(source_file, mode='r', encoding='utf8') as f:
-                for line in f.readlines():
-                    cnt = cnt + 1
-                    print(cnt)
-                    if cnt > 9:
-                        print("Rest of text: %d" % len(f.read()))
+                # Extract page metadata if there are some header lines
+                lines = f.readlines()
+                param = re.compile("^\s*([\w\d_-]+)\s*[:=]{1}(.*)")
+                for i in range(0, len(lines)):
+                    match = param.match(lines[i])
+                    if match:
+                        page[match.group(1)] = match.group(2).strip()
+                    else:
+                        page['content'] = "\n".join(lines[i:])
                         break
-                    print(len(line))
-                exit()
-                # parts = .split(f.read(), maxsplit=1)
-                # pprint(len(parts))
-                # exit()
-                # parser.readfp(io.BufferedIOBase("[meta]\n" + parts[0]))
-                # page = dict(parser.items(parser.sections()[0]))
-                # pprint(page)
 
-                page['content'] = parts[1] if len(parts) > 1 else ''
-                page.update({
-                    'ctime': time.strptime(page['ctime'], TIME_FORMAT) if 'ctime' in page else datetime.fromtimestamp(os.path.getctime(source_file)),
-                    'mtime': time.strptime(page['mtime'], TIME_FORMAT) if 'mtime' in page else datetime.fromtimestamp(os.path.getmtime(source_file)),
-                    'title': page.get('title', '').strip(),
-                    'template': page.get('template', DEFAULT_TEMPLATE).strip(),
-                    'content': page.get('content', '').strip(),
-                })
-                return page
+            page['content'] = markdown.markdown(page.get('content', '').strip())
+            page['title'] = page.get('title', get_md_h1(page['content'])).strip()
+            page['template'] = page.get('template', DEFAULT_TEMPLATE).strip()
+
+            # Take date/time from file system if not explicitly defined
+            purify_time(page, 'ctime', os.path.getctime(source_file))
+            purify_time(page, 'mtime', os.path.getmtime(source_file))
+
+            return page
 
         except Exception as e:
             log.error("Page source parsing error [%s]: %s" % (os.path.basename(source_file), str(e)))
@@ -272,8 +276,6 @@ def build_page(source_file, dest_file, templates_path):
 
     try:
         page = read_page_source(source_file)
-        page['content'] = markdown.markdown(page['content'])
-
         with codecs.open(dest_file, mode='w', encoding='utf8') as f:
             f.write(pystache.render(get_template(page['template'], templates_path), page))
 
