@@ -39,6 +39,7 @@ DEFAULT_STATIC_PATH = './static'
 DEFAULT_BUILD_PATH = './www'
 DEFAULT_TEMPLATES_PATH = './templates'
 DEFAULT_TEMPLATE = 'default'
+DEFAULT_GENERATOR = "{name} {version}"
 
 # Minification command templates for str.format() function.
 # {source} is used in both for source file and {dest} is for processed result.
@@ -130,6 +131,8 @@ def init(conf_file, section, log_file):
         conf['build_path'] = os.path.abspath(conf.get('build_path', DEFAULT_BUILD_PATH))
         conf['templates_path'] = os.path.abspath(conf.get('templates_path', DEFAULT_TEMPLATES_PATH))
         conf['browser_opening_delay'] = float(conf.get('browser_opening_delay', DEFAULT_BROWSER_OPEN_DELAY))
+        conf['default_author'] = conf.get('default_author', '')
+        conf['generator'] = conf.get('generator', DEFAULT_GENERATOR).strip().format(name=script_name, version=__version__)
 
         enabled = get_bool(conf.get('minify_js', 'yes'))
         conf['minify_js_cmd'] = conf.get('minify_js_cmd', DEFAULT_MINIFY_JS_CMD) if enabled else None
@@ -184,103 +187,117 @@ def check_build_is_done(build_path):
         exit(1)
 
 
+def drop_build_dir(build_path, create_new=False):
+    """Drops the build if it exists."""
+    if os.path.isdir(build_path):
+        shutil.rmtree(build_path, ignore_errors=True)
+    if create_new and not os.path.isdir(build_path):
+        os.makedirs(build_path)
+
+
 # Website building ============================================================
 
-def process_files(src_path, build_path, min_js_cmd, min_css_cmd, templates_path):
+def process_files(conf):
     """Walk through source files and process one by one."""
 
-    def get_dest_file_name(source_file):
-        """Returns built file name w/o path."""
-        base, ext = os.path.splitext(os.path.basename(source_file))
-        return base + (".html" if ext == ".md" else ext)
+    def process_dir(message, src_path):
+        log.info("Processing %s from [%s]..." % (message, src_path))
 
-    def process_file(source_file, dest_file, minify_css_cmd, minify_js_cmd, templates_path):
+        for cur_dir, dirs, files in os.walk(src_path):
+            dest_path = os.path.join(conf['build_path'], cur_dir[len(src_path):].strip("\\/"))
+            ensure_dir_exists(dest_path)
+
+            for file_name in files:
+                source_file = os.path.join(cur_dir, file_name)
+                base, ext = os.path.splitext(os.path.basename(source_file))
+                dest_file = os.path.join(conf['build_path'], base + (".html" if ext == ".md" else ext))
+                process_file(source_file, dest_file)
+
+    def process_file(source_file, dest_file):
         """Process single file."""
+
         # Take file extension w/o leading dot
         ext = os.path.splitext(source_file)[1][1:].lower()
+
         if ext == "md":
             log.info(" * Building page: " + os.path.basename(source_file))
-            build_page(source_file, dest_file, templates_path)
+            build_page(source_file, dest_file, conf['templates_path'])
 
-        elif ext == "css" and minify_css_cmd:
+        elif ext == "css" and conf['minify_css_cmd']:
             log.info(" * Minifying CSS: " + os.path.basename(source_file))
-            execute(minify_css_cmd.format(source=source_file, dest=dest_file))
+            execute(conf['minify_css_cmd'].format(source=source_file, dest=dest_file))
 
-        elif ext == "js" and minify_js_cmd:
+        elif ext == "js" and conf['minify_js_cmd']:
             log.info(" * Minifying JS: " + os.path.basename(source_file))
-            execute(minify_js_cmd.format(source=source_file, dest=dest_file))
+            execute(conf['minify_js_cmd'].format(source=source_file, dest=dest_file))
 
         else:
             log.info(" * Copying: " + os.path.basename(source_file))
             shutil.copyfile(source_file, dest_file)
 
-    for cur_dir, dirs, files in os.walk(src_path):
-        dest_path = os.path.join(build_path, cur_dir[len(src_path):].strip("\\/"))
-        ensure_dir_exists(dest_path)
+    def build_page(source_file, dest_file, templates_path):
+        """Builds a page from markdown source amd mustache template."""
 
-        for file_name in files:
-            source_file = os.path.join(cur_dir, file_name)
-            dest_file = get_dest_file_name(source_file)
-            process_file(source_file, os.path.join(dest_path, dest_file), min_css_cmd, min_js_cmd, templates_path)
+        def get_md_h1(text):
+            matches = re.match("^\s*#\s*(.*)", text)
+            return matches.groups() if matches else None
 
+        def purify_time(page, time_parm, default):
+            if time_parm in page:
+                page[time_parm] = time.strptime(page[time_parm], TIME_FORMAT)
+            else:
+                page[time_parm] = datetime.fromtimestamp(default)
 
-def build_page(source_file, dest_file, templates_path):
-    """Builds a page from markdown source amd mustache template."""
+        def read_page_source(source_file):
+            """Reads a page file to dictionary."""
 
-    def get_md_h1(text):
-        matches = re.match("^\s*#\s*(.*)", text)
-        return matches.groups() if matches else None
+            try:
+                page = {}
+                with codecs.open(source_file, mode='r', encoding='utf8') as f:
+                    # Extract page metadata if there are some header lines
+                    lines = f.readlines()
+                    param = re.compile("^\s*([\w\d_-]+)\s*[:=]{1}(.*)")
+                    for i in range(0, len(lines)):
+                        match = param.match(lines[i])
+                        if match:
+                            page[match.group(1)] = match.group(2).strip()
+                        else:
+                            page['content'] = "\n".join(lines[i:])
+                            break
 
-    def purify_time(page, time_parm, default):
-        if time_parm in page:
-            page[time_parm] = time.strptime(page[time_parm], TIME_FORMAT)
-        else:
-            page[time_parm] = datetime.fromtimestamp(default)
+                page['content'] = markdown.markdown(page.get('content', '').strip())
+                page['title'] = page.get('title', get_md_h1(page['content'])).strip()
+                page['template'] = page.get('template', DEFAULT_TEMPLATE).strip()
+                page['author'] = page.get('author', conf['default_author']).strip()
 
-    def read_page_source(source_file):
+                # Take date/time from file system if not explicitly defined
+                purify_time(page, 'ctime', os.path.getctime(source_file))
+                purify_time(page, 'mtime', os.path.getmtime(source_file))
+
+                return page
+
+            except Exception as e:
+                log.error("Page source parsing error [%s]: %s" % (os.path.basename(source_file), str(e)))
+                return {}
+
+        def get_template(tpl_name, templates_path):
+            file_name = os.path.join(templates_path, TEMPLATE_FILE_NAME % tpl_name)
+            if os.path.exists(file_name):
+                with codecs.open(file_name, mode='r', encoding='utf8') as f:
+                    return f.read()
+
+            raise Exception("Error reading template: %s (%s)" % (tpl_name, file_name))
+
         try:
-            page = {}
-            with codecs.open(source_file, mode='r', encoding='utf8') as f:
-                # Extract page metadata if there are some header lines
-                lines = f.readlines()
-                param = re.compile("^\s*([\w\d_-]+)\s*[:=]{1}(.*)")
-                for i in range(0, len(lines)):
-                    match = param.match(lines[i])
-                    if match:
-                        page[match.group(1)] = match.group(2).strip()
-                    else:
-                        page['content'] = "\n".join(lines[i:])
-                        break
-
-            page['content'] = markdown.markdown(page.get('content', '').strip())
-            page['title'] = page.get('title', get_md_h1(page['content'])).strip()
-            page['template'] = page.get('template', DEFAULT_TEMPLATE).strip()
-
-            # Take date/time from file system if not explicitly defined
-            purify_time(page, 'ctime', os.path.getctime(source_file))
-            purify_time(page, 'mtime', os.path.getmtime(source_file))
-
-            return page
+            page = read_page_source(source_file)
+            with codecs.open(dest_file, mode='w', encoding='utf8') as f:
+                f.write(pystache.render(get_template(page['template'], templates_path), page))
 
         except Exception as e:
-            log.error("Page source parsing error [%s]: %s" % (os.path.basename(source_file), str(e)))
-            return {}
+            log.error("Error building page: " + str(e))
 
-    def get_template(tpl_name, templates_path):
-        file_name = os.path.join(templates_path, TEMPLATE_FILE_NAME % tpl_name)
-        if os.path.exists(file_name):
-            with codecs.open(file_name, mode='r', encoding='utf8') as f:
-                return f.read()
-
-        raise Exception("Error reading template: %s (%s)" % (tpl_name, file_name))
-
-    try:
-        page = read_page_source(source_file)
-        with codecs.open(dest_file, mode='w', encoding='utf8') as f:
-            f.write(pystache.render(get_template(page['template'], templates_path), page))
-
-    except Exception as e:
-        log.error("Error building page: " + str(e))
+    process_dir("static files", conf['static_path'])
+    process_dir("pages", conf['pages_path'])
 
 
 # Baker commands ==============================================================
@@ -291,15 +308,9 @@ def build(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG):
     conf = init(config, section, logfile)
 
     try:
-        if os.path.isdir(conf['build_path']):
-            shutil.rmtree(conf['build_path'], ignore_errors=True)
-        if not os.path.isdir(conf['build_path']):
-            os.makedirs(conf['build_path'])
+        drop_build_dir(conf['build_path'])
         log.info("Building path: [%s]" % conf['build_path'])
-        log.info("Processing static content from [%s]..." % conf['static_path'])
-        process_files(conf['static_path'], conf['build_path'], conf['minify_js_cmd'], conf['minify_css_cmd'], conf['templates_path'])
-        log.info("Processing pages from [%s]..." % conf['pages_path'])
-        process_files(conf['pages_path'], conf['build_path'], conf['minify_js_cmd'], conf['minify_css_cmd'], conf['templates_path'])
+        process_files(conf)
         log.info("Done")
 
     except Exception as e:
@@ -310,17 +321,9 @@ def build(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG):
                params=joind(COMMON_PARAMS, {"browse": "Open in default browser", "port": "Port for local HTTP server"}))
 def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, browse=False, port=DEFAULT_PORT):
     """Run local web server to preview generated web site"""
-
-    def open_in_browser(url, run_browser_cmd, browser_opening_delay):
-        cmd = run_browser_cmd.format(url=url)
-        log.info("Opening browser in %g seconds. Command: [%s]" % (browser_opening_delay, cmd))
-        log.info("Use Ctrl-Break to stop webserver")
-        p = Process(target=delayed_execute, args=(cmd, browser_opening_delay))
-        p.start()
-
     conf = init(config, section, logfile)
-    check_build_is_done(conf['build_path'])
 
+    check_build_is_done(conf['build_path'])
     prev_cwd = os.getcwd()
     os.chdir(conf['build_path'])
     log.info("Running HTTP server on port %d..." % port)
@@ -330,14 +333,19 @@ def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, browse=False
         httpd = SocketServer.TCPServer(("", port), handler)
 
         if browse:
-            open_in_browser("http://localhost:%s/" % port, conf['run_browser_cmd'], conf['browser_opening_delay'])
+            cmd = conf['run_browser_cmd'].format(url=("http://localhost:%s/" % port))
+            log.info("Opening browser in %g seconds. Command: [%s]" % (conf['browser_opening_delay'], cmd))
+            log.info("Use Ctrl-Break to stop webserver")
+            p = Process(target=delayed_execute, args=(cmd, conf['browser_opening_delay']))
+            p.start()
 
         httpd.serve_forever()
 
     except KeyboardInterrupt:
         log.info("Server was stopped by user")
 
-    os.chdir(prev_cwd)
+    finally:
+        os.chdir(prev_cwd)
 
 
 @baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS)
@@ -355,11 +363,10 @@ def publish(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG):
 def clean(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG):
     """Delete all generated web content"""
     conf = init(config, section, logfile)
-    log.info("Cleaning output...")
 
     try:
-        if os.path.exists(conf['build_path']):
-            shutil.rmtree(conf['build_path'])
+        log.info("Cleaning output...")
+        drop_build_dir(conf['build_path'])
         log.info("Done")
 
     except Exception as e:
