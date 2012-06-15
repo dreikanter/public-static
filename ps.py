@@ -49,14 +49,16 @@ DEFAULT_MINIFY_CSS_CMD = "yuicompressor --type css -o {dest} {source}"
 COMMON_PARAMS = {
     "config": "Configuration file",
     "section": "Configuration file section",
-    "logfile": "Log file"
-    }
+    "logfile": "Log file",
+    "verbose": "Enable detailed logging"
+}
 
 COMMON_SHORTOPS = {
     "config": "c",
     "section": "s",
-    "logfile": "l"
-    }
+    "logfile": "l",
+    "verbose": "v"
+}
 
 TRUE_VALUES = ['1', 'true', 'yes', 'y']
 TEMPLATE_FILE_NAME = "%s.mustache.html"
@@ -67,8 +69,9 @@ TIME_FORMAT = "%Y/%m/%d %H:%M:%S"
 
 # Initialization =============================================================
 
-def init(conf_file, section, log_file):
+def init(conf_file, section, log_file, verbose=False):
     """Gets the configuration values or termanates execution in case of errors"""
+
     def get_params(conf_file, section):
         print("Using configuration from: %s (section: %s)" % (conf_file, section if section else "default"))
 
@@ -95,12 +98,12 @@ def init(conf_file, section, log_file):
                 return f.readline().strip()
         return pwd_str
 
-    def init_logging(log_file):
+    def init_logging(log_file, verbose):
         global log
         log.setLevel(logging.DEBUG)
 
         channel = logging.StreamHandler()
-        channel.setLevel(logging.INFO)
+        channel.setLevel(logging.DEBUG if verbose else logging.INFO)
         channel.setFormatter(logging.Formatter(LOG_CONSOLE_FORMAT[0], LOG_CONSOLE_FORMAT[1]))
 
         log.addHandler(channel)
@@ -115,7 +118,7 @@ def init(conf_file, section, log_file):
             log.addHandler(channel)
 
     try:
-        init_logging(log_file)
+        init_logging(log_file, verbose)
 
     except Exception as e:
         print("Error initializing loggign: " + str(e))
@@ -146,7 +149,7 @@ def init(conf_file, section, log_file):
         return conf
 
     except Exception as e:
-        log.critical("Error reading configuration: " + str(e))
+        log.exception("Error reading configuration")
         log.info("Use --help parameter for command line help")
         exit(1)
 
@@ -183,7 +186,7 @@ def delayed_execute(cmd, delay):
 def check_build_is_done(build_path):
     """Check if the web content was built and exit if it isn't."""
     if not os.path.isdir(build_path):
-        log.critical("Web content directory not exists: [%s]" % build_path)
+        log.exception("Web content directory not exists: [%s]" % build_path)
         exit(1)
 
 
@@ -200,21 +203,28 @@ def drop_build_dir(build_path, create_new=False):
 def process_files(conf):
     """Walk through source files and process one by one."""
 
-    def process_dir(message, src_path):
-        log.info("Processing %s from [%s]..." % (message, src_path))
+    def process_dir(message, source_root):
+        log.info("Processing %s from [%s]..." % (message, source_root))
 
-        for cur_dir, dirs, files in os.walk(src_path):
-            dest_path = os.path.join(conf['build_path'], cur_dir[len(src_path):].strip("\\/"))
+        for cur_dir, dirs, files in os.walk(source_root):
+            dest_path = os.path.join(conf['build_path'], cur_dir[len(source_root):].strip("\\/"))
             ensure_dir_exists(dest_path)
 
             for file_name in files:
                 source_file = os.path.join(cur_dir, file_name)
-                base, ext = os.path.splitext(os.path.basename(source_file))
-                dest_file = os.path.join(conf['build_path'], base + (".html" if ext == ".md" else ext))
+
+                def get_new_file_name(source_file):
+                    rel_path = os.path.relpath(source_file, source_root)
+                    base, ext = os.path.splitext(rel_path)
+                    return base + (".html" if ext == ".md" else ext)
+
+                dest_file = os.path.join(conf['build_path'], get_new_file_name(source_file))
                 process_file(source_file, dest_file)
 
     def process_file(source_file, dest_file):
         """Process single file."""
+        log.debug("%s => %s" % (source_file, dest_file))
+        return
 
         # Take file extension w/o leading dot
         ext = os.path.splitext(source_file)[1][1:].lower()
@@ -303,9 +313,9 @@ def process_files(conf):
 # Baker commands ==============================================================
 
 @baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS, default=True)
-def build(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG):
+def build(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=False):
     """Generate web content"""
-    conf = init(config, section, logfile)
+    conf = init(config, section, logfile, verbose)
 
     try:
         drop_build_dir(conf['build_path'])
@@ -314,14 +324,14 @@ def build(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG):
         log.info("Done")
 
     except Exception as e:
-        log.critical("Error: " + str(e))
+        log.exception(e)
 
 
 @baker.command(shortopts=joind(COMMON_SHORTOPS, {"browse": "b", "port": "p"}),
                params=joind(COMMON_PARAMS, {"browse": "Open in default browser", "port": "Port for local HTTP server"}))
-def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, browse=False, port=DEFAULT_PORT):
+def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=False, browse=False, port=DEFAULT_PORT):
     """Run local web server to preview generated web site"""
-    conf = init(config, section, logfile)
+    conf = init(config, section, logfile, verbose)
 
     check_build_is_done(conf['build_path'])
     prev_cwd = os.getcwd()
@@ -349,9 +359,9 @@ def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, browse=False
 
 
 @baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS)
-def publish(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG):
+def publish(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=False):
     """Synchronize remote web server with generated content."""
-    conf = init(config, section, logfile)
+    conf = init(config, section, logfile, verbose)
     check_build_is_done(conf['build_path'])
 
     # TODO ...
@@ -360,9 +370,9 @@ def publish(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG):
 
 
 @baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS)
-def clean(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG):
+def clean(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=False):
     """Delete all generated web content"""
-    conf = init(config, section, logfile)
+    conf = init(config, section, logfile, verbose)
 
     try:
         log.info("Cleaning output...")
@@ -370,7 +380,7 @@ def clean(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG):
         log.info("Done")
 
     except Exception as e:
-        log.critical("Error: " + str(e))
+        log.exception(e)
 
 
 if __name__ == '__main__':

@@ -83,7 +83,7 @@ Few comments:
 
 ## TODO
 
-* Page template.
+* ~~Page template.~~
 * Implement synchronization.
 * Dependencies details.
 * Format finalization.
@@ -92,3 +92,4 @@ Few comments:
 * Markdown extension for QR.
 * Markdown extension for smater images.
 * Code highlighting.
+* `-v` for debug output.
