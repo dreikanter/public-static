@@ -137,11 +137,15 @@ def init(conf_file, section, log_file, verbose=False):
         conf['default_author'] = conf.get('default_author', '')
         conf['generator'] = conf.get('generator', DEFAULT_GENERATOR).strip().format(name=script_name, version=__version__)
 
-        enabled = get_bool(conf.get('minify_js', 'yes'))
-        conf['minify_js_cmd'] = conf.get('minify_js_cmd', DEFAULT_MINIFY_JS_CMD) if enabled else None
+        conf['minify_js'] = get_bool(conf.get('minify_js', 'y'))
+        conf['minify_js_cmd'] = conf.get('minify_js_cmd', DEFAULT_MINIFY_JS_CMD).strip()
+        if conf['minify_js'] and not conf['minify_js_cmd']:
+            log.warn("JS minification enabled but [minify_js_cmd] is not defined.")
         
-        enabled = get_bool(conf.get('minify_css', 'yes'))
-        conf['minify_css_cmd'] = conf.get('minify_css_cmd', DEFAULT_MINIFY_CSS_CMD) if enabled else None
+        conf['minify_css'] = get_bool(conf.get('minify_css', 'y'))
+        conf['minify_css_cmd'] = conf.get('minify_css_cmd', DEFAULT_MINIFY_CSS_CMD).strip()
+        if conf['minify_css'] and not conf['minify_css_cmd']:
+            log.warn("CSS minification enabled but [minify_css_cmd] is not defined.")
 
         for param in conf:
             log.debug("%s = [%s]" % (param, conf[param]))
@@ -211,46 +215,38 @@ def process_files(conf):
             ensure_dir_exists(dest_path)
 
             for file_name in files:
-                source_file = os.path.join(cur_dir, file_name)
+                process_file(source_root, os.path.join(cur_dir, file_name))
 
-                def get_new_file_name(source_file):
-                    rel_path = os.path.relpath(source_file, source_root)
-                    base, ext = os.path.splitext(rel_path)
-                    return base + (".html" if ext == ".md" else ext)
-
-                dest_file = os.path.join(conf['build_path'], get_new_file_name(source_file))
-                process_file(source_file, dest_file)
-
-    def process_file(source_file, dest_file):
+    def process_file(source_root, source_file):
         """Process single file."""
-        log.debug("%s => %s" % (source_file, dest_file))
-        return
+        rel_source_file = os.path.relpath(source_file, source_root)
+        base, ext = os.path.splitext(rel_source_file)
+        rel_dest_file = base + (".html" if ext == ".md" else ext)
+        dest_file = os.path.join(conf['build_path'], rel_dest_file)
 
-        # Take file extension w/o leading dot
-        ext = os.path.splitext(source_file)[1][1:].lower()
-
-        if ext == "md":
-            log.info(" * Building page: " + os.path.basename(source_file))
+        if ext == ".md":
+            log.info(" * Building page: %s => %s" % (rel_source_file, rel_dest_file))
             build_page(source_file, dest_file, conf['templates_path'])
 
-        elif ext == "css" and conf['minify_css_cmd']:
-            log.info(" * Minifying CSS: " + os.path.basename(source_file))
+        elif ext == ".css" and conf['minify_css'] and conf['minify_css_cmd']:
+            log.info(" * Minifying CSS: " + rel_source_file)
             execute(conf['minify_css_cmd'].format(source=source_file, dest=dest_file))
 
-        elif ext == "js" and conf['minify_js_cmd']:
-            log.info(" * Minifying JS: " + os.path.basename(source_file))
+        elif ext == ".js" and conf['minify_js'] and conf['minify_js_cmd']:
+            log.info(" * Minifying JS: " + rel_source_file)
             execute(conf['minify_js_cmd'].format(source=source_file, dest=dest_file))
 
         else:
-            log.info(" * Copying: " + os.path.basename(source_file))
+            log.info(" * Copying: " + rel_source_file)
             shutil.copyfile(source_file, dest_file)
 
     def build_page(source_file, dest_file, templates_path):
         """Builds a page from markdown source amd mustache template."""
 
         def get_md_h1(text):
-            matches = re.match("^\s*#\s*(.*)", text)
-            return matches.groups() if matches else None
+            """Extracts the first h1-header from markdown text."""
+            matches = re.search(r"^\s*#\s*(.*)\s*", text, re.I|re.M|re.U)
+            return matches.group(1) if matches else ""
 
         def purify_time(page, time_parm, default):
             if time_parm in page:
@@ -275,10 +271,10 @@ def process_files(conf):
                             page['content'] = "\n".join(lines[i:])
                             break
 
-                page['content'] = markdown.markdown(page.get('content', '').strip())
                 page['title'] = page.get('title', get_md_h1(page['content'])).strip()
                 page['template'] = page.get('template', DEFAULT_TEMPLATE).strip()
                 page['author'] = page.get('author', conf['default_author']).strip()
+                page['content'] = markdown.markdown(page.get('content', '').strip())
 
                 # Take date/time from file system if not explicitly defined
                 purify_time(page, 'ctime', os.path.getctime(source_file))
@@ -287,7 +283,7 @@ def process_files(conf):
                 return page
 
             except Exception as e:
-                log.error("Page source parsing error [%s]: %s" % (os.path.basename(source_file), str(e)))
+                log.exception("Page source parsing error [%s]" % source_file)
                 return {}
 
         def get_template(tpl_name, templates_path):
@@ -304,7 +300,7 @@ def process_files(conf):
                 f.write(pystache.render(get_template(page['template'], templates_path), page))
 
         except Exception as e:
-            log.error("Error building page: " + str(e))
+            log.exception("Content processing error")
 
     process_dir("static files", conf['static_path'])
     process_dir("pages", conf['pages_path'])
