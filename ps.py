@@ -140,12 +140,16 @@ def init(conf_file, section, log_file, verbose=False):
         conf['minify_js'] = get_bool(conf.get('minify_js', 'y'))
         conf['minify_js_cmd'] = conf.get('minify_js_cmd', DEFAULT_MINIFY_JS_CMD).strip()
         if conf['minify_js'] and not conf['minify_js_cmd']:
-            log.warn("JS minification enabled but [minify_js_cmd] is not defined.")
+            log.warn("JS minification enabled but [minify_js_cmd] is not defined by configuration.")
         
         conf['minify_css'] = get_bool(conf.get('minify_css', 'y'))
         conf['minify_css_cmd'] = conf.get('minify_css_cmd', DEFAULT_MINIFY_CSS_CMD).strip()
         if conf['minify_css'] and not conf['minify_css_cmd']:
-            log.warn("CSS minification enabled but [minify_css_cmd] is not defined.")
+            log.warn("CSS minification enabled but [minify_css_cmd] is not defined by configuration.")
+
+        conf['publish_cmd'] = conf.get('publish_cmd', '').strip()
+        if not conf['publish_cmd']:
+            log.warn("Publishing command (publish_cmd) is not defined by configuration.")
 
         for param in conf:
             log.debug("%s = [%s]" % (param, conf[param]))
@@ -360,9 +364,17 @@ def publish(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=Fals
     conf = init(config, section, logfile, verbose)
     check_build_is_done(conf['build_path'])
 
-    # TODO ...
-    
-    log.info("Done")
+    if conf['publish_cmd']:
+        try:
+            log.info("Publishing...")
+            execute(conf['publish_cmd'].format(path=conf['build_path']))
+            log.info("Done")
+
+        except Exception as e:
+            log.exception("Publishing error")
+
+    else:
+        log.error("Publishing command (publish_cmd) is not defined by configuration")
 
 
 @baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS)
