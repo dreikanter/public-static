@@ -62,34 +62,58 @@ Each page is a plain text/markdown file complemented with a basic metadata in he
 	ctime: 2012-06-05 13:49:38
 	mtime: 2012-06-05 13:49:38
 	template: default
+	custom-description: Custom section.
 
 	# Hello world!
 
-	The format is pretty straightforward.
+	This is the main page contents section.
 
-Few comments:
+	-- left-column.md --
+
+	Additional named section.
+
+	-- right-column.md --
+
+	Another named section.
+
+The format is pretty straightforward, but here are few important details:
 
 * All header fields are optional and could omitted. But it's good to have at least a title for each page.
+* `ctime`/`mtime` should comply the default format which is `YYYY-MM-DD HH:MM:SS`.
 * Template value will be transformed to `[templates_path]\[template_name].mustache.html` file name`.
-* All matadata parameters are available from templates. E.g. `{{title}}`.
+* All header fields are available from templates by names (names are case-sensitives). E.g. `{{title}}`.
+* Any number of custom header fields could be added.
+* Custom field names should comply the ordinary convention: they should sonsist of alphanumeric characters, dashes and underscores.
+* Page header fields could have single-line values only. For multiline values use named sections.
 * Everything beneath the header is treated as page content. Template name for this section is `{{content}}`.
+* Page content could be optionally separated by named sections. Example above has two of them: `{{left-column}}` and `{{right-column}}`.
+* Each section name should be placed in a separate line and be surrounded with double dashes.
+* Custom field names and section names could be complemented with a sequence of processors. [TBD]
+
 
 ## Dependencies
 
-* `baker`
-* `python-markdown`
-* `pystache`
-* `yuicompressor`
+* `baker` — command line library.
+* `python-markdown` — [Markdown](http://daringfireball.net/projects/markdown/) parser for Python.
+* `pystache` — Mustache template parser implementation for Python.
+* `yuicompressor` — CSS/Javascript Minificator.
+
+Everything could be installed by `pip install {module name}`.
 
 ## TODO
 
 * ~~Page template.~~
-* Implement synchronization.
-* Dependencies details.
-* Format finalization.
-* Format description.
-* Templates description.
+* ~~Implement synchronization.~~
+* ~~Dependencies details.~~
+* ~~Format finalization.~~
+* ~~Format description.~~
+* ~~Templates description.~~
 * Markdown extension for QR.
 * Markdown extension for smater images.
 * Code highlighting.
-* `-v` for debug output.
+* ~~`-v` for debug output.~~
+* Named content sections support.
+* Page sections and header fields processor.
+* Implement markdown as content processor.
+* Add `default_processors` multivaue (CSV) parameter to configuration.
+* Describe processors.
