@@ -7,5 +7,6 @@ template: default
 
 The format is pretty straightforward.
 
+* [Two-column example](two-columns.html)
 * [Sample post 1](/2012/06/15/)
 * [Sample post 2](/2012/06/16/)
