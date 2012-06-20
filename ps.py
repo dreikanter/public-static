@@ -272,13 +272,15 @@ def process_files(conf):
                         if match:
                             page[match.group(1)] = match.group(2).strip()
                         else:
-                            page['content'] = "\n".join(lines[i:])
+                            page['content'] = ''.join(lines[i:])
                             break
 
                 page['title'] = page.get('title', get_md_h1(page['content'])).strip()
                 page['template'] = page.get('template', DEFAULT_TEMPLATE).strip()
                 page['author'] = page.get('author', conf['default_author']).strip()
-                page['content'] = markdown.markdown(page.get('content', '').strip())
+
+                content = page.get('content', '').strip()
+                page['content'] = markdown.markdown(content, extensions=['extra', 'nl2br'])
 
                 # Take date/time from file system if not explicitly defined
                 purify_time(page, 'ctime', os.path.getctime(source_file))
