@@ -22,10 +22,10 @@ __author__ = "Alex Musayev"
 __email__ = "alex.musayev@gmail.com"
 __copyright__ = "Copyright 2012, %s <http://alex.musayev.com>" % __author__
 __license__ = "MIT"
-__version_info__ = (0, 0, 1)
+__version_info__ = (0, 1, 1)
 __version__ = ".".join(map(str, __version_info__))
 __status__ = "Development"
-__url__ = "http://github.com/dreikanter/gistopin"
+__url__ = "http://github.com/dreikanter/public-static"
 
 script_name = os.path.splitext(os.path.basename(__file__))[0]
 log = logging.getLogger(__name__)
@@ -266,13 +266,15 @@ def process_files(conf):
                 with codecs.open(source_file, mode='r', encoding='utf8') as f:
                     # Extract page metadata if there are some header lines
                     lines = f.readlines()
-                    param = re.compile("^\s*([\w\d_-]+)\s*[:=]{1}(.*)")
+                    param_pattern = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", re.I|re.M|re.U)
+                    # section_pattern = re.compile(r"^$", re.I|re.M|re.U)
+
                     for i in range(0, len(lines)):
-                        match = param.match(lines[i])
+                        match = param_pattern.match(lines[i])
                         if match:
                             page[match.group(1)] = match.group(2).strip()
                         else:
-                            page['content'] = "\n".join(lines[i:])
+                            page['content'] = ''.join(lines[i:])
                             break
 
                 page['title'] = page.get('title', get_md_h1(page['content'])).strip()

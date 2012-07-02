@@ -108,12 +108,8 @@ Everything could be installed by `pip install {module name}`.
 * ~~Format finalization.~~
 * ~~Format description.~~
 * ~~Templates description.~~
+* ~~`-v` for debug output.~~
+* Use Markdown Grid
+* Switch to Twitter Bootstrap
 * Markdown extension for QR.
 * Markdown extension for smater images.
-* Code highlighting.
-* ~~`-v` for debug output.~~
-* Named content sections support.
-* Page sections and header fields processor.
-* Implement markdown as content processor.
-* Add `default_processors` multivaue (CSV) parameter to configuration.
-* Describe processors.
