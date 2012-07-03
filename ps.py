@@ -9,11 +9,8 @@ import shutil
 import codecs
 import logging
 from datetime import datetime
-from pprint import pprint, pformat
 from multiprocessing import Process
 from configparser import RawConfigParser
-import SimpleHTTPServer
-import SocketServer
 import baker
 import markdown
 import pystache
@@ -27,12 +24,11 @@ __version__ = ".".join(map(str, __version_info__))
 __status__ = "Development"
 __url__ = "http://github.com/dreikanter/public-static"
 
-script_name = os.path.splitext(os.path.basename(__file__))[0]
-log = logging.getLogger(__name__)
-conf = {}
 
-DEFAULT_CONF = "%s.ini" % script_name
-DEFAULT_LOG = "%s.log" % script_name
+SCRIPT_NAME = os.path.splitext(os.path.basename(__file__))[0]
+
+DEFAULT_CONF = "%s.ini" % SCRIPT_NAME
+DEFAULT_LOG = "%s.log" % SCRIPT_NAME
 DEFAULT_PORT = 8000
 DEFAULT_BROWSER_OPEN_DELAY = 2.0  # seconds
 DEFAULT_PAGES_PATH = './pages'
@@ -70,57 +66,14 @@ RE_FLAGS = re.I | re.M | re.U
 PARAM_PATTERN = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", RE_FLAGS)
 MD = markdown.Markdown(extensions=['nl2br', 'grid'])
 
+log = logging.getLogger(SCRIPT_NAME)
+conf = {}
+
 
 # Initialization =============================================================
 
 def init(conf_file, section, log_file, verbose=False):
     """Gets the configuration values or termanates execution in case of errors"""
-
-    def get_params(conf_file, section):
-        print("Configuration: %s [%s]" % (conf_file, section or "default"))
-
-        parser = RawConfigParser()
-        with codecs.open(conf_file, mode='r', encoding='utf8') as f:
-            parser.readfp(f)
-
-        if section and not section in parser.sections():
-            raise Exception("%s not found" % (("section [%s]" % section) if section else "first section"))
-
-        try:
-            section = section if section else parser.sections()[0]
-            return {item[0]: item[1] for item in parser.items(section)}
-        except:
-            raise Exception(("section [%s] not found" % section) if section else "no sections defined")
-
-    def get_bool(bool_str):
-        return True if bool_str.lower() in TRUE_VALUES else False
-
-    def get_pwd(pwd_str):
-        file_prefix = 'file://'
-        if pwd_str.startswith(file_prefix):
-            with open(pwd_str[len(file_prefix):], 'rt') as f:
-                return f.readline().strip()
-        return pwd_str
-
-    def init_logging(log_file, verbose):
-        global log
-        log.setLevel(logging.DEBUG)
-
-        channel = logging.StreamHandler()
-        channel.setLevel(logging.DEBUG if verbose else logging.INFO)
-        channel.setFormatter(logging.Formatter(LOG_CONSOLE_FORMAT[0], LOG_CONSOLE_FORMAT[1]))
-
-        log.addHandler(channel)
-
-        if log_file:
-            dir_path = os.path.dirname(log_file)
-            if dir_path:
-                ensure_dir_exists(dir_path)
-            channel = logging.FileHandler(log_file)
-            channel.setLevel(logging.DEBUG)
-            channel.setFormatter(logging.Formatter(LOG_FILE_FORMAT[0], LOG_FILE_FORMAT[1]))
-            log.addHandler(channel)
-
     try:
         init_logging(log_file, verbose)
 
@@ -128,9 +81,8 @@ def init(conf_file, section, log_file, verbose=False):
         print("Error initializing loggign: " + str(e))
         exit(1)
 
-    global conf
-
     try:
+        global conf
         conf = get_params(conf_file, section)
 
         log.info("Using configuration from %s [%s]" % (conf_file, section))
@@ -141,7 +93,7 @@ def init(conf_file, section, log_file, verbose=False):
         conf['templates_path'] = os.path.abspath(conf.get('templates_path', DEFAULT_TEMPLATES_PATH))
         conf['browser_opening_delay'] = float(conf.get('browser_opening_delay', DEFAULT_BROWSER_OPEN_DELAY))
         conf['default_author'] = conf.get('default_author', '')
-        conf['generator'] = conf.get('generator', DEFAULT_GENERATOR).strip().format(name=script_name, version=__version__)
+        conf['generator'] = conf.get('generator', DEFAULT_GENERATOR).strip().format(name=SCRIPT_NAME, version=__version__)
 
         conf['minify_js'] = get_bool(conf.get('minify_js', 'y'))
         conf['minify_js_cmd'] = conf.get('minify_js_cmd', DEFAULT_MINIFY_JS_CMD).strip()
@@ -166,7 +118,152 @@ def init(conf_file, section, log_file, verbose=False):
         exit(1)
 
 
-# Helper functions ============================================================
+def init_logging(log_file, verbose):
+    global log
+    log.setLevel(logging.DEBUG)
+
+    channel = logging.StreamHandler()
+    channel.setLevel(logging.DEBUG if verbose else logging.INFO)
+    channel.setFormatter(logging.Formatter(LOG_CONSOLE_FORMAT[0], LOG_CONSOLE_FORMAT[1]))
+
+    log.addHandler(channel)
+
+    if log_file:
+        dir_path = os.path.dirname(log_file)
+        if dir_path:
+            ensure_dir_exists(dir_path)
+        channel = logging.FileHandler(log_file)
+        channel.setLevel(logging.DEBUG)
+        channel.setFormatter(logging.Formatter(LOG_FILE_FORMAT[0], LOG_FILE_FORMAT[1]))
+        log.addHandler(channel)
+
+
+# Website building ============================================================
+
+def process_files():
+    """Walk through source files and process one by one."""
+    process_dir("static files", conf['static_path'])
+    process_dir("pages", conf['pages_path'])
+
+
+def process_dir(message, source_root):
+    log.info("Processing %s from [%s]..." % (message, source_root))
+
+    for cur_dir, dirs, files in os.walk(source_root):
+        rel_path = cur_dir[len(source_root):].strip("\\/")
+        dest_path = os.path.join(conf['build_path'], rel_path)
+        ensure_dir_exists(dest_path)
+
+        for file_name in files:
+            process_file(source_root, os.path.join(cur_dir, file_name))
+
+
+def process_file(source_root, source_file):
+    """Process single file."""
+    rel_source = os.path.relpath(source_file, source_root)
+    base, ext = os.path.splitext(rel_source)
+    rel_dest = base + ('.html' if ext == '.md' else ext)
+    dest_file = os.path.join(conf['build_path'], rel_dest)
+
+    if ext == '.md':
+        log.info(" * Building page: %s => %s" % (rel_source, rel_dest))
+        build_page(source_file, dest_file, conf['templates_path'])
+
+    elif ext == '.css' and conf['minify_css'] and conf['minify_css_cmd']:
+        log.info(' * Minifying CSS: ' + rel_source)
+        execute(conf['minify_css_cmd'].format(source=source_file, dest=dest_file))
+
+    elif ext == '.js' and conf['minify_js'] and conf['minify_js_cmd']:
+        log.info(' * Minifying JS: ' + rel_source)
+        execute(conf['minify_js_cmd'].format(source=source_file, dest=dest_file))
+
+    else:
+        log.info(' * Copying: ' + rel_source)
+        shutil.copyfile(source_file, dest_file)
+
+
+def build_page(source_file, dest_file, templates_path):
+    """Builds a page from markdown source amd mustache template."""
+    try:
+        page = read_page_source(source_file)
+        with codecs.open(dest_file, mode='w', encoding='utf8') as f:
+            f.write(pystache.render(get_template(page['template'], templates_path), page))
+    except Exception as e:
+        log.exception("Content processing error")
+
+
+def read_page_source(source_file):
+    """Reads a page file to dictionary.
+
+    TODO: Describe page format here."""
+    try:
+        page = {}
+        with codecs.open(source_file, mode='r', encoding='utf8') as f:
+            # Extract page metadata if there are some header lines
+            lines = f.readlines()
+            for num, line in enumerate(lines):
+                match = PARAM_PATTERN.match(line)
+                if match:
+                    page[match.group(1)] = match.group(2).strip()
+                else:
+                    page['content'] = ''.join(lines[num:])
+                    break
+
+        page['title'] = page.get('title', get_md_h1(page['content'])).strip()
+        page['template'] = page.get('template', DEFAULT_TEMPLATE).strip()
+        page['author'] = page.get('author', conf['default_author']).strip()
+        page['content'] = MD.convert(page.get('content', '').strip())
+
+        # Take date/time from file system if not explicitly defined
+        purify_time(page, 'ctime', os.path.getctime(source_file))
+        purify_time(page, 'mtime', os.path.getmtime(source_file))
+
+        return page
+
+    except Exception as e:
+        log.exception("Page source parsing error [%s]" % source_file)
+        return {}
+
+
+def get_template(tpl_name, templates_path):
+    file_name = os.path.join(templates_path, TEMPLATE_FILE_NAME % tpl_name)
+    if os.path.exists(file_name):
+        with codecs.open(file_name, mode='r', encoding='utf8') as f:
+            return f.read()
+
+    raise Exception("Error reading template: %s (%s)" % (tpl_name, file_name))
+
+
+# General helpers =============================================================
+
+def get_params(conf_file, section):
+    print("Configuration: %s [%s]" % (conf_file, section or "default"))
+
+    parser = RawConfigParser()
+    with codecs.open(conf_file, mode='r', encoding='utf8') as f:
+        parser.readfp(f)
+
+    if section and not section in parser.sections():
+        raise Exception("%s not found" % (("section [%s]" % section) if section else "first section"))
+
+    try:
+        section = section if section else parser.sections()[0]
+        return {item[0]: item[1] for item in parser.items(section)}
+    except:
+        raise Exception(("section [%s] not found" % section) if section else "no sections defined")
+
+
+def get_bool(bool_str):
+    return True if bool_str.lower() in TRUE_VALUES else False
+
+
+def get_pwd(pwd_str):
+    file_prefix = 'file://'
+    if pwd_str.startswith(file_prefix):
+        with open(pwd_str[len(file_prefix):], 'rt') as f:
+            return f.readline().strip()
+    return pwd_str
+
 
 def joind(d1, d2):
     """Joins two dictionaries"""
@@ -210,8 +307,6 @@ def drop_build_dir(build_path, create_new=False):
         os.makedirs(build_path)
 
 
-# Website building ============================================================
-
 def get_md_h1(text):
     """Extracts the first h1-header from markdown text."""
     matches = re.search(r"^\s*#\s*(.*)\s*", text, RE_FLAGS)
@@ -227,101 +322,6 @@ def purify_time(page, time_parm, default):
         page[time_parm] = datetime.fromtimestamp(default)
 
 
-def read_page_source(source_file):
-    """Reads a page file to dictionary.
-
-    TODO: Describe page format here."""
-    try:
-        page = {}
-        with codecs.open(source_file, mode='r', encoding='utf8') as f:
-            # Extract page metadata if there are some header lines
-            lines = f.readlines()
-            for num, line in enumerate(lines):
-                match = PARAM_PATTERN.match(line)
-                if match:
-                    page[match.group(1)] = match.group(2).strip()
-                else:
-                    page['content'] = ''.join(lines[num:])
-                    break
-
-        page['title'] = page.get('title', get_md_h1(page['content'])).strip()
-        page['template'] = page.get('template', DEFAULT_TEMPLATE).strip()
-        page['author'] = page.get('author', conf['default_author']).strip()
-        page['content'] = MD.convert(page.get('content', '').strip())
-
-        # Take date/time from file system if not explicitly defined
-        purify_time(page, 'ctime', os.path.getctime(source_file))
-        purify_time(page, 'mtime', os.path.getmtime(source_file))
-
-        return page
-
-    except Exception as e:
-        log.exception("Page source parsing error [%s]" % source_file)
-        return {}
-
-
-def process_dir(message, source_root):
-    log.info("Processing %s from [%s]..." % (message, source_root))
-
-    for cur_dir, dirs, files in os.walk(source_root):
-        rel_path = cur_dir[len(source_root):].strip("\\/")
-        dest_path = os.path.join(conf['build_path'], rel_path)
-        ensure_dir_exists(dest_path)
-
-        for file_name in files:
-            process_file(source_root, os.path.join(cur_dir, file_name))
-
-
-def process_file(source_root, source_file):
-    """Process single file."""
-    rel_source = os.path.relpath(source_file, source_root)
-    base, ext = os.path.splitext(rel_source)
-    rel_dest = base + ('.html' if ext == '.md' else ext)
-    dest_file = os.path.join(conf['build_path'], rel_dest)
-
-    if ext == '.md':
-        log.info(" * Building page: %s => %s" % (rel_source, rel_dest))
-        build_page(source_file, dest_file, conf['templates_path'])
-
-    elif ext == '.css' and conf['minify_css'] and conf['minify_css_cmd']:
-        log.info(' * Minifying CSS: ' + rel_source)
-        execute(conf['minify_css_cmd'].format(source=source_file, dest=dest_file))
-
-    elif ext == '.js' and conf['minify_js'] and conf['minify_js_cmd']:
-        log.info(' * Minifying JS: ' + rel_source)
-        execute(conf['minify_js_cmd'].format(source=source_file, dest=dest_file))
-
-    else:
-        log.info(' * Copying: ' + rel_source)
-        shutil.copyfile(source_file, dest_file)
-
-
-def get_template(tpl_name, templates_path):
-    file_name = os.path.join(templates_path, TEMPLATE_FILE_NAME % tpl_name)
-    if os.path.exists(file_name):
-        with codecs.open(file_name, mode='r', encoding='utf8') as f:
-            return f.read()
-
-    raise Exception("Error reading template: %s (%s)" % (tpl_name, file_name))
-
-
-def build_page(source_file, dest_file, templates_path):
-    """Builds a page from markdown source amd mustache template."""
-    try:
-        page = read_page_source(source_file)
-        with codecs.open(dest_file, mode='w', encoding='utf8') as f:
-            f.write(pystache.render(get_template(page['template'], templates_path), page))
-
-    except Exception as e:
-        log.exception("Content processing error")
-
-
-def process_files():
-    """Walk through source files and process one by one."""
-    process_dir("static files", conf['static_path'])
-    process_dir("pages", conf['pages_path'])
-
-
 # Baker commands ==============================================================
 
 @baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS, default=True)
@@ -334,7 +334,6 @@ def build(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=False)
         log.info("Building path: [%s]" % conf['build_path'])
         process_files()
         log.info("Done")
-
     except Exception as e:
         log.exception(e)
 
@@ -351,6 +350,9 @@ def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=Fals
     log.info("Running HTTP server on port %d..." % port)
 
     try:
+        import SimpleHTTPServer
+        import SocketServer
+
         handler = SimpleHTTPServer.SimpleHTTPRequestHandler
         httpd = SocketServer.TCPServer(("", port), handler)
 
@@ -365,7 +367,6 @@ def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=Fals
 
     except KeyboardInterrupt:
         log.info("Server was stopped by user")
-
     finally:
         os.chdir(prev_cwd)
 
@@ -381,10 +382,8 @@ def publish(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=Fals
             log.info("Publishing...")
             execute(conf['publish_cmd'].format(path=conf['build_path']))
             log.info("Done")
-
         except Exception as e:
             log.exception("Publishing error")
-
     else:
         log.error("Publishing command (publish_cmd) is not defined by configuration")
 
@@ -398,7 +397,6 @@ def clean(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=False)
         log.info("Cleaning output...")
         drop_build_dir(conf['build_path'])
         log.info("Done")
-
     except Exception as e:
         log.exception(e)
 
@@ -406,7 +404,6 @@ def clean(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=False)
 if __name__ == '__main__':
     try:
         baker.run()
-
     except Exception as e:
         print("Error: " + str(e))
         exit(1)
