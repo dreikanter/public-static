@@ -102,14 +102,6 @@ Everything could be installed by `pip install {module name}`.
 
 ## TODO
 
-* ~~Page template.~~
-* ~~Implement synchronization.~~
-* ~~Dependencies details.~~
-* ~~Format finalization.~~
-* ~~Format description.~~
-* ~~Templates description.~~
-* ~~`-v` for debug output.~~
-* Use Markdown Grid
 * Switch to Twitter Bootstrap
 * Markdown extension for QR.
 * Markdown extension for smater images.

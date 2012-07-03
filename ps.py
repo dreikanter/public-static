@@ -15,33 +15,51 @@ import baker
 import markdown
 import pystache
 
+
 __author__ = "Alex Musayev"
 __email__ = "alex.musayev@gmail.com"
 __copyright__ = "Copyright 2012, %s <http://alex.musayev.com>" % __author__
 __license__ = "MIT"
-__version_info__ = (0, 1, 1)
+__version_info__ = (0, 2, 0)
 __version__ = ".".join(map(str, __version_info__))
 __status__ = "Development"
 __url__ = "http://github.com/dreikanter/public-static"
 
 
 SCRIPT_NAME = os.path.splitext(os.path.basename(__file__))[0]
-
 DEFAULT_CONF = "%s.ini" % SCRIPT_NAME
 DEFAULT_LOG = "%s.log" % SCRIPT_NAME
-DEFAULT_PORT = 8000
-DEFAULT_BROWSER_OPEN_DELAY = 2.0  # seconds
-DEFAULT_PAGES_PATH = './pages'
-DEFAULT_STATIC_PATH = './static'
-DEFAULT_BUILD_PATH = './www'
-DEFAULT_TEMPLATES_PATH = './templates'
-DEFAULT_TEMPLATE = 'default'
-DEFAULT_GENERATOR = "{name} {version}"
 
-# Minification command templates for str.format() function.
-# {source} is used in both for source file and {dest} is for processed result.
-DEFAULT_MINIFY_JS_CMD = "yuicompressor --type js --nomunge -o {dest} {source}"
-DEFAULT_MINIFY_CSS_CMD = "yuicompressor --type css -o {dest} {source}"
+CONF = {
+    # Default port value (overridable with command line param)
+    'port': '8000',
+
+    # Amount of seconds between starting local web server
+    # and opening a browser
+    'browser_opening_delay': '2.0',
+
+    'pages_path': './pages',
+    'static_path': './static',
+    'build_path': './www',
+    'templates_path': './templates',
+
+    # Default template neme (overridable with page header 'template' parameter)
+    'template': 'default',
+
+    # Default author name (overridable with page header 'author' parmeter)
+    'author': '',
+
+    'minify_js': 'y',
+    'minify_css': 'y',
+
+    # Minification command templates for str.format() function.
+    # {source} is used in both for source file and {dest} is for processed result.
+    'minify_js_cmd': "yuicompressor --type js --nomunge -o {dest} {source}",
+    'minify_css_cmd': "yuicompressor --type css -o {dest} {source}",
+
+    'publish_cmd': '',
+    'generator': "{name} {version}",
+}
 
 COMMON_PARAMS = {
     "config": "Configuration file",
@@ -74,44 +92,20 @@ conf = {}
 
 def init(conf_file, section, log_file, verbose=False):
     """Gets the configuration values or termanates execution in case of errors"""
-    try:
-        init_logging(log_file, verbose)
-
-    except Exception as e:
-        print("Error initializing loggign: " + str(e))
-        exit(1)
+    init_logging(log_file, verbose)
 
     try:
         global conf
-        conf = get_params(conf_file, section)
-
+        conf = CONF
         log.info("Using configuration from %s [%s]" % (conf_file, section))
 
-        conf['pages_path'] = os.path.abspath(conf.get('pages_path', DEFAULT_PAGES_PATH))
-        conf['static_path'] = os.path.abspath(conf.get('static_path', DEFAULT_STATIC_PATH))
-        conf['build_path'] = os.path.abspath(conf.get('build_path', DEFAULT_BUILD_PATH))
-        conf['templates_path'] = os.path.abspath(conf.get('templates_path', DEFAULT_TEMPLATES_PATH))
-        conf['browser_opening_delay'] = float(conf.get('browser_opening_delay', DEFAULT_BROWSER_OPEN_DELAY))
-        conf['default_author'] = conf.get('default_author', '')
-        conf['generator'] = conf.get('generator', DEFAULT_GENERATOR).strip().format(name=SCRIPT_NAME, version=__version__)
+        conf.update(get_params(conf_file, section))
+        purify_conf()
+        verify_conf()
 
-        conf['minify_js'] = get_bool(conf.get('minify_js', 'y'))
-        conf['minify_js_cmd'] = conf.get('minify_js_cmd', DEFAULT_MINIFY_JS_CMD).strip()
-        if conf['minify_js'] and not conf['minify_js_cmd']:
-            log.warn("JS minification enabled but [minify_js_cmd] is not defined by configuration.")
-
-        conf['minify_css'] = get_bool(conf.get('minify_css', 'y'))
-        conf['minify_css_cmd'] = conf.get('minify_css_cmd', DEFAULT_MINIFY_CSS_CMD).strip()
-        if conf['minify_css'] and not conf['minify_css_cmd']:
-            log.warn("CSS minification enabled but [minify_css_cmd] is not defined by configuration.")
-
-        conf['publish_cmd'] = conf.get('publish_cmd', '').strip()
-        if not conf['publish_cmd']:
-            log.warn("Publishing command (publish_cmd) is not defined by configuration.")
-
+        # Dumping configuration to debug log
         for param in conf:
             log.debug("%s = [%s]" % (param, conf[param]))
-
     except Exception as e:
         log.exception("Error reading configuration")
         log.info("Use --help parameter for command line help")
@@ -119,23 +113,52 @@ def init(conf_file, section, log_file, verbose=False):
 
 
 def init_logging(log_file, verbose):
-    global log
-    log.setLevel(logging.DEBUG)
+    try:
+        global log
+        log.setLevel(logging.DEBUG)
 
-    channel = logging.StreamHandler()
-    channel.setLevel(logging.DEBUG if verbose else logging.INFO)
-    channel.setFormatter(logging.Formatter(LOG_CONSOLE_FORMAT[0], LOG_CONSOLE_FORMAT[1]))
-
-    log.addHandler(channel)
-
-    if log_file:
-        dir_path = os.path.dirname(log_file)
-        if dir_path:
-            ensure_dir_exists(dir_path)
-        channel = logging.FileHandler(log_file)
-        channel.setLevel(logging.DEBUG)
-        channel.setFormatter(logging.Formatter(LOG_FILE_FORMAT[0], LOG_FILE_FORMAT[1]))
+        channel = logging.StreamHandler()
+        channel.setLevel(logging.DEBUG if verbose else logging.INFO)
+        channel.setFormatter(logging.Formatter(LOG_CONSOLE_FORMAT[0], LOG_CONSOLE_FORMAT[1]))
         log.addHandler(channel)
+
+        if log_file:
+            dir_path = os.path.dirname(log_file)
+            if dir_path:
+                ensure_dir_exists(dir_path)
+            channel = logging.FileHandler(log_file)
+            channel.setLevel(logging.DEBUG)
+            channel.setFormatter(logging.Formatter(LOG_FILE_FORMAT[0], LOG_FILE_FORMAT[1]))
+            log.addHandler(channel)
+    except Exception as e:
+        print("Error initializing loggign: " + str(e))
+        exit(1)
+
+
+def purify_conf():
+    """Updates configuration parameters requiring processing."""
+    conf['pages_path'] = os.path.abspath(conf['pages_path'])
+    conf['static_path'] = os.path.abspath(conf['static_path'])
+    conf['build_path'] = os.path.abspath(conf['build_path'])
+    conf['templates_path'] = os.path.abspath(conf['templates_path'])
+    conf['browser_opening_delay'] = float(conf['browser_opening_delay'])
+    conf['generator'] = conf['generator'].strip().format(name=SCRIPT_NAME, version=__version__)
+    conf['minify_js'] = get_bool(conf['minify_js'])
+    conf['minify_css'] = get_bool(conf['minify_css'])
+    conf['minify_js_cmd'] = conf['minify_js_cmd'].strip()
+    conf['minify_css_cmd'] = conf['minify_css_cmd'].strip()
+    conf['publish_cmd'] = conf['publish_cmd'].strip()
+    conf['port'] = int(conf['port'])
+
+
+def verify_conf():
+    """Checks if configuration is correct."""
+    if conf['minify_js'] and not conf['minify_js_cmd']:
+        log.warn("JS minification enabled but [minify_js_cmd] is not defined by configuration.")
+    if conf['minify_css'] and not conf['minify_css_cmd']:
+        log.warn("CSS minification enabled but [minify_css_cmd] is not defined by configuration.")
+    if not conf['publish_cmd']:
+        log.warn("Publishing command (publish_cmd) is not defined by configuration.")
 
 
 # Website building ============================================================
@@ -210,8 +233,8 @@ def read_page_source(source_file):
                     break
 
         page['title'] = page.get('title', get_md_h1(page['content'])).strip()
-        page['template'] = page.get('template', DEFAULT_TEMPLATE).strip()
-        page['author'] = page.get('author', conf['default_author']).strip()
+        page['template'] = page.get('template', conf['template']).strip()
+        page['author'] = page.get('author', conf['author']).strip()
         page['content'] = MD.convert(page.get('content', '').strip())
 
         # Take date/time from file system if not explicitly defined
@@ -340,13 +363,14 @@ def build(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=False)
 
 @baker.command(shortopts=joind(COMMON_SHORTOPS, {"browse": "b", "port": "p"}),
                params=joind(COMMON_PARAMS, {"browse": "Open in default browser", "port": "Port for local HTTP server"}))
-def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=False, browse=False, port=DEFAULT_PORT):
+def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=False, browse=False, port=None):
     """Run local web server to preview generated web site"""
     init(config, section, logfile, verbose)
 
     check_build_is_done(conf['build_path'])
     prev_cwd = os.getcwd()
     os.chdir(conf['build_path'])
+    port = port or conf['port']
     log.info("Running HTTP server on port %d..." % port)
 
     try:
@@ -371,6 +395,7 @@ def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=Fals
         os.chdir(prev_cwd)
 
 
+# TODO: Add --dry-run mode.
 @baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS)
 def publish(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=False):
     """Synchronize remote web server with generated content."""
