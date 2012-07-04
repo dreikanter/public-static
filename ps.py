@@ -91,7 +91,7 @@ conf = {}
 # Initialization =============================================================
 
 def init(conf_file, section, log_file, verbose=False):
-    """Gets the configuration values or termanates execution in case of errors"""
+    """Gets the configuration values."""
     init_logging(log_file, verbose)
 
     try:
@@ -102,6 +102,9 @@ def init(conf_file, section, log_file, verbose=False):
         conf.update(get_params(conf_file, section))
         purify_conf()
         verify_conf()
+
+        from pprint import pprint
+        pprint(conf)
 
         # Dumping configuration to debug log
         for param in conf:
@@ -119,16 +122,16 @@ def init_logging(log_file, verbose):
 
         channel = logging.StreamHandler()
         channel.setLevel(logging.DEBUG if verbose else logging.INFO)
-        channel.setFormatter(logging.Formatter(LOG_CONSOLE_FORMAT[0], LOG_CONSOLE_FORMAT[1]))
+        fmt = logging.Formatter(LOG_CONSOLE_FORMAT[0], LOG_CONSOLE_FORMAT[1])
+        channel.setFormatter(fmt)
         log.addHandler(channel)
 
         if log_file:
-            dir_path = os.path.dirname(log_file)
-            if dir_path:
-                ensure_dir_exists(dir_path)
+            ensure_dir_exists(os.path.dirname(log_file))
             channel = logging.FileHandler(log_file)
             channel.setLevel(logging.DEBUG)
-            channel.setFormatter(logging.Formatter(LOG_FILE_FORMAT[0], LOG_FILE_FORMAT[1]))
+            fmt = logging.Formatter(LOG_FILE_FORMAT[0], LOG_FILE_FORMAT[1])
+            channel.setFormatter(fmt)
             log.addHandler(channel)
     except Exception as e:
         print("Error initializing loggign: " + str(e))
@@ -295,7 +298,7 @@ def joind(d1, d2):
 
 def ensure_dir_exists(dir_path):
     """Creates directory if it not exists"""
-    if not os.path.exists(dir_path):
+    if dir_path and not os.path.exists(dir_path):
         os.makedirs(dir_path)
 
 
