@@ -52,8 +52,8 @@ CONF = {
     'minify_js': 'y',
     'minify_css': 'y',
 
-    # Minification command templates for str.format() function.
-    # {source} is used in both for source file and {dest} is for processed result.
+    # Minification commands: {source} is used in both for source file
+    # and {dest} is for processed output
     'minify_js_cmd': "yuicompressor --type js --nomunge -o {dest} {source}",
     'minify_css_cmd': "yuicompressor --type css -o {dest} {source}",
 
@@ -77,9 +77,9 @@ COMMON_SHORTOPS = {
 
 TRUE_VALUES = ['1', 'true', 'yes', 'y']
 TEMPLATE_FILE_NAME = "%s.mustache.html"
-LOG_CONSOLE_FORMAT = ('%(asctime)s %(levelname)s: %(message)s', '%H:%M:%S')
-LOG_FILE_FORMAT = ('%(asctime)s %(levelname)s: %(message)s', '%Y/%m/%d %H:%M:%S')
-TIME_FORMAT = "%Y/%m/%d %H:%M:%S"
+LOG_CONSOLE_FMT = ('%(asctime)s %(levelname)s: %(message)s', '%H:%M:%S')
+LOG_FILE_FMT = ('%(asctime)s %(levelname)s: %(message)s', '%Y/%m/%d %H:%M:%S')
+TIME_FMT = "%Y/%m/%d %H:%M:%S"
 RE_FLAGS = re.I | re.M | re.U
 PARAM_PATTERN = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", RE_FLAGS)
 MD = markdown.Markdown(extensions=['nl2br', 'grid'])
@@ -101,17 +101,13 @@ def init(conf_file, section, log_file, verbose=False):
 
         conf.update(get_params(conf_file, section))
         purify_conf()
-        verify_conf()
-
-        from pprint import pprint
-        pprint(conf)
 
         # Dumping configuration to debug log
         for param in conf:
             log.debug("%s = [%s]" % (param, conf[param]))
     except Exception as e:
-        log.exception("Error reading configuration")
-        log.info("Use --help parameter for command line help")
+        log.error("Error reading configuration: " + str(e))
+        log.debug(e)
         exit(1)
 
 
@@ -122,7 +118,7 @@ def init_logging(log_file, verbose):
 
         channel = logging.StreamHandler()
         channel.setLevel(logging.DEBUG if verbose else logging.INFO)
-        fmt = logging.Formatter(LOG_CONSOLE_FORMAT[0], LOG_CONSOLE_FORMAT[1])
+        fmt = logging.Formatter(LOG_CONSOLE_FMT[0], LOG_CONSOLE_FMT[1])
         channel.setFormatter(fmt)
         log.addHandler(channel)
 
@@ -130,7 +126,7 @@ def init_logging(log_file, verbose):
             ensure_dir_exists(os.path.dirname(log_file))
             channel = logging.FileHandler(log_file)
             channel.setLevel(logging.DEBUG)
-            fmt = logging.Formatter(LOG_FILE_FORMAT[0], LOG_FILE_FORMAT[1])
+            fmt = logging.Formatter(LOG_FILE_FMT[0], LOG_FILE_FMT[1])
             channel.setFormatter(fmt)
             log.addHandler(channel)
     except Exception as e:
@@ -145,7 +141,8 @@ def purify_conf():
     conf['build_path'] = os.path.abspath(conf['build_path'])
     conf['templates_path'] = os.path.abspath(conf['templates_path'])
     conf['browser_opening_delay'] = float(conf['browser_opening_delay'])
-    conf['generator'] = conf['generator'].strip().format(name=SCRIPT_NAME, version=__version__)
+    gen = conf['generator'].strip()
+    conf['generator'] = gen.format(name=SCRIPT_NAME, version=__version__)
     conf['minify_js'] = get_bool(conf['minify_js'])
     conf['minify_css'] = get_bool(conf['minify_css'])
     conf['minify_js_cmd'] = conf['minify_js_cmd'].strip()
@@ -157,11 +154,11 @@ def purify_conf():
 def verify_conf():
     """Checks if configuration is correct."""
     if conf['minify_js'] and not conf['minify_js_cmd']:
-        log.warn("JS minification enabled but [minify_js_cmd] is not defined by configuration.")
+        log.warn("JS minification enabled but 'minify_js_cmd' is undefined.")
     if conf['minify_css'] and not conf['minify_css_cmd']:
-        log.warn("CSS minification enabled but [minify_css_cmd] is not defined by configuration.")
+        log.warn("CSS minification enabled but 'minify_css_cmd' is undefined.")
     if not conf['publish_cmd']:
-        log.warn("Publishing command (publish_cmd) is not defined by configuration.")
+        log.warn("Publishing command 'publish_cmd' is undefined.")
 
 
 # Website building ============================================================
@@ -185,7 +182,11 @@ def process_dir(message, source_root):
 
 
 def process_file(source_root, source_file):
-    """Process single file."""
+    """Process single file.
+
+    Arguments:
+        source_root -- root files directory (e.g. 'pages').
+        source_file -- source file abs path to process."""
     rel_source = os.path.relpath(source_file, source_root)
     base, ext = os.path.splitext(rel_source)
     rel_dest = base + ('.html' if ext == '.md' else ext)
@@ -197,11 +198,13 @@ def process_file(source_root, source_file):
 
     elif ext == '.css' and conf['minify_css'] and conf['minify_css_cmd']:
         log.info(' * Minifying CSS: ' + rel_source)
-        execute(conf['minify_css_cmd'].format(source=source_file, dest=dest_file))
+        cmd = conf['minify_css_cmd'].format(source=source_file, dest=dest_file)
+        execute(cmd)
 
     elif ext == '.js' and conf['minify_js'] and conf['minify_js_cmd']:
         log.info(' * Minifying JS: ' + rel_source)
-        execute(conf['minify_js_cmd'].format(source=source_file, dest=dest_file))
+        cmd = conf['minify_js_cmd'].format(source=source_file, dest=dest_file)
+        execute(cmd)
 
     else:
         log.info(' * Copying: ' + rel_source)
@@ -213,9 +216,11 @@ def build_page(source_file, dest_file, templates_path):
     try:
         page = read_page_source(source_file)
         with codecs.open(dest_file, mode='w', encoding='utf8') as f:
-            f.write(pystache.render(get_template(page['template'], templates_path), page))
+            tpl = get_template(page['template'], templates_path)
+            f.write(pystache.render(tpl, page))
     except Exception as e:
-        log.exception("Content processing error")
+        log.error("Content processing error: " + str(e))
+        log.debug(e)
 
 
 def read_page_source(source_file):
@@ -247,7 +252,8 @@ def read_page_source(source_file):
         return page
 
     except Exception as e:
-        log.exception("Page source parsing error [%s]" % source_file)
+        log.error("Page source parsing error [%s]: %s" % (source_file, str(e)))
+        log.debug(e)
         return {}
 
 
@@ -263,20 +269,20 @@ def get_template(tpl_name, templates_path):
 # General helpers =============================================================
 
 def get_params(conf_file, section):
-    print("Configuration: %s [%s]" % (conf_file, section or "default"))
-
     parser = RawConfigParser()
     with codecs.open(conf_file, mode='r', encoding='utf8') as f:
         parser.readfp(f)
 
     if section and not section in parser.sections():
-        raise Exception("%s not found" % (("section [%s]" % section) if section else "first section"))
+        sect = ("section [%s]" % section) if section else "first section"
+        raise Exception("%s not found" % sect)
 
     try:
         section = section if section else parser.sections()[0]
         return {item[0]: item[1] for item in parser.items(section)}
     except:
-        raise Exception(("section [%s] not found" % section) if section else "no sections defined")
+        message = section and ("section [%s] not found" % section)
+        raise Exception(message or "no sections defined")
 
 
 def get_bool(bool_str):
@@ -321,7 +327,7 @@ def delayed_execute(cmd, delay):
 def check_build_is_done(build_path):
     """Check if the web content was built and exit if it isn't."""
     if not os.path.isdir(build_path):
-        log.exception("Web content directory not exists: [%s]" % build_path)
+        log.error("Web content directory not exists: [%s]" % build_path)
         exit(1)
 
 
@@ -343,7 +349,7 @@ def purify_time(page, time_parm, default):
     """Returns time value from page dict. If there is no
     specified value, default will be returned."""
     if time_parm in page:
-        page[time_parm] = time.strptime(page[time_parm], TIME_FORMAT)
+        page[time_parm] = time.strptime(page[time_parm], TIME_FMT)
     else:
         page[time_parm] = datetime.fromtimestamp(default)
 
@@ -351,7 +357,8 @@ def purify_time(page, time_parm, default):
 # Baker commands ==============================================================
 
 @baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS, default=True)
-def build(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=False):
+def build(config=DEFAULT_CONF, section=None,
+          logfile=DEFAULT_LOG, verbose=False):
     """Generate web content"""
     init(config, section, logfile, verbose)
 
@@ -359,14 +366,22 @@ def build(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=False)
         drop_build_dir(conf['build_path'])
         log.info("Building path: [%s]" % conf['build_path'])
         process_files()
-        log.info("Done")
+        log.info("Build succeeded.")
     except Exception as e:
-        log.exception(e)
+        log.error("Build failed: " + str(e))
+        log.debug(e)
 
 
-@baker.command(shortopts=joind(COMMON_SHORTOPS, {"browse": "b", "port": "p"}),
-               params=joind(COMMON_PARAMS, {"browse": "Open in default browser", "port": "Port for local HTTP server"}))
-def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=False, browse=False, port=None):
+@baker.command(shortopts=joind(COMMON_SHORTOPS, {
+                    "browse": "b",
+                    "port": "p"
+                }),
+               params=joind(COMMON_PARAMS, {
+                    "browse": "Open in default browser",
+                    "port": "Port for local HTTP server"
+                }))
+def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG,
+            verbose=False, browse=False, port=None):
     """Run local web server to preview generated web site"""
     init(config, section, logfile, verbose)
 
@@ -384,10 +399,15 @@ def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=Fals
         httpd = SocketServer.TCPServer(("", port), handler)
 
         if browse:
-            cmd = conf['run_browser_cmd'].format(url=("http://localhost:%s/" % port))
-            log.info("Opening browser in %g seconds. Command: [%s]" % (conf['browser_opening_delay'], cmd))
+            url = "http://localhost:%s/" % port
+            cmd = conf['run_browser_cmd'].format(url=url)
+            delay = conf['browser_opening_delay']
+
+            log.info("Opening browser in %g seconds." % delay)
+            log.debug(" Command: [%s]" % cmd)
             log.info("Use Ctrl-Break to stop webserver")
-            p = Process(target=delayed_execute, args=(cmd, conf['browser_opening_delay']))
+
+            p = Process(target=delayed_execute, args=(cmd, delay))
             p.start()
 
         httpd.serve_forever()
@@ -400,7 +420,8 @@ def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=Fals
 
 # TODO: Add --dry-run mode.
 @baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS)
-def publish(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=False):
+def publish(config=DEFAULT_CONF, section=None,
+            logfile=DEFAULT_LOG, verbose=False):
     """Synchronize remote web server with generated content."""
     init(config, section, logfile, verbose)
     check_build_is_done(conf['build_path'])
@@ -411,13 +432,15 @@ def publish(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=Fals
             execute(conf['publish_cmd'].format(path=conf['build_path']))
             log.info("Done")
         except Exception as e:
-            log.exception("Publishing error")
+            log.error("Publishing error: " + str(e))
+            log.debug(e)
     else:
-        log.error("Publishing command (publish_cmd) is not defined by configuration")
+        log.error("Publishing command is not defined by configuration.")
 
 
 @baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS)
-def clean(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=False):
+def clean(config=DEFAULT_CONF, section=None,
+          logfile=DEFAULT_LOG, verbose=False):
     """Delete all generated web content"""
     init(config, section, logfile, verbose)
 
@@ -426,7 +449,8 @@ def clean(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG, verbose=False)
         drop_build_dir(conf['build_path'])
         log.info("Done")
     except Exception as e:
-        log.exception(e)
+        log.error("Cleaning failed: " + str(e))
+        log.debug(e)
 
 
 if __name__ == '__main__':
