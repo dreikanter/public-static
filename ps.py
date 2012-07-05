@@ -104,7 +104,7 @@ def init(conf_file, section, log_file, verbose=False):
 
         # Dumping configuration to debug log
         for param in conf:
-            log.debug("%s = [%s]" % (param, conf[param]))
+            log.debug("%s = '%s'" % (param, conf[param]))
     except Exception as e:
         log.error("Error reading configuration: " + str(e))
         log.debug(e)
@@ -170,7 +170,7 @@ def process_files():
 
 
 def process_dir(message, source_root):
-    log.info("Processing %s from [%s]..." % (message, source_root))
+    log.info("Processing %s from '%s'..." % (message, source_root))
 
     for cur_dir, dirs, files in os.walk(source_root):
         rel_path = cur_dir[len(source_root):].strip("\\/")
@@ -252,7 +252,7 @@ def read_page_source(source_file):
         return page
 
     except Exception as e:
-        log.error("Page source parsing error [%s]: %s" % (source_file, str(e)))
+        log.error("Page source parsing error '%s': %s" % (source_file, str(e)))
         log.debug(e)
         return {}
 
@@ -274,14 +274,14 @@ def get_params(conf_file, section):
         parser.readfp(f)
 
     if section and not section in parser.sections():
-        sect = ("section [%s]" % section) if section else "first section"
+        sect = ("section '%s'" % section) if section else "first section"
         raise Exception("%s not found" % sect)
 
     try:
         section = section if section else parser.sections()[0]
         return {item[0]: item[1] for item in parser.items(section)}
     except:
-        message = section and ("section [%s] not found" % section)
+        message = section and ("section '%s' not found" % section)
         raise Exception(message or "no sections defined")
 
 
@@ -327,7 +327,7 @@ def delayed_execute(cmd, delay):
 def check_build_is_done(build_path):
     """Check if the web content was built and exit if it isn't."""
     if not os.path.isdir(build_path):
-        log.error("Web content directory not exists: [%s]" % build_path)
+        log.error("Web content directory not exists: '%s'" % build_path)
         exit(1)
 
 
@@ -364,7 +364,7 @@ def build(config=DEFAULT_CONF, section=None,
 
     try:
         drop_build_dir(conf['build_path'])
-        log.info("Building path: [%s]" % conf['build_path'])
+        log.info("Building path: '%s'" % conf['build_path'])
         process_files()
         log.info("Build succeeded.")
     except Exception as e:
@@ -404,7 +404,7 @@ def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG,
             delay = conf['browser_opening_delay']
 
             log.info("Opening browser in %g seconds." % delay)
-            log.debug(" Command: [%s]" % cmd)
+            log.debug(" Command: '%s'" % cmd)
             log.info("Use Ctrl-Break to stop webserver")
 
             p = Process(target=delayed_execute, args=(cmd, delay))
