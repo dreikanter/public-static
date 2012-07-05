@@ -52,6 +52,7 @@ CONF = {
 
     'minify_js': 'y',
     'minify_css': 'y',
+    'minify_less': 'y',
 
     # Minification commands: {source} is used in both for source file
     # and {dest} is for processed output
@@ -149,6 +150,7 @@ def purify_conf():
     conf['generator'] = gen.format(name=SCRIPT_NAME, version=__version__)
     conf['minify_js'] = get_bool(conf['minify_js'])
     conf['minify_css'] = get_bool(conf['minify_css'])
+    conf['minify_less'] = get_bool(conf['minify_less'])
     conf['minify_js_cmd'] = conf['minify_js_cmd'].strip()
     conf['minify_css_cmd'] = conf['minify_css_cmd'].strip()
     conf['publish_cmd'] = conf['publish_cmd'].strip()
@@ -159,7 +161,7 @@ def verify_conf():
     """Checks if configuration is correct."""
     if conf['minify_js'] and not conf['minify_js_cmd']:
         log.warn("JS minification enabled but 'minify_js_cmd' is undefined.")
-    if conf['minify_css'] and not conf['minify_css_cmd']:
+    if conf['minify_less'] or conf['minify_css'] and not conf['minify_css_cmd']:
         log.warn("CSS minification enabled but 'minify_css_cmd' is undefined.")
     if not conf['publish_cmd']:
         log.warn("Publishing command 'publish_cmd' is undefined.")
@@ -210,8 +212,16 @@ def process_file(source_root, source_file):
 
     elif ext == '.less':
         log.info(' * Compiling LESS: ' + rel_source)
-        cmd = conf['less_cmd'].format(source=source_file, dest=dest_file)
-        execute(cmd)
+        if conf['minify_less']:
+            tmp_file = dest_file + '.tmp'
+            cmd = conf['less_cmd'].format(source=source_file, dest=tmp_file)
+            execute(cmd)
+            cmd = conf['minify_css_cmd'].format(source=tmp_file, dest=dest_file)
+            execute(cmd)
+            os.remove(tmp_file)
+        else:
+            cmd = conf['less_cmd'].format(source=source_file, dest=dest_file)
+            execute(cmd)
 
     elif ext == '.css' and conf['minify_css'] and conf['minify_css_cmd']:
         log.info(' * Minifying CSS: ' + rel_source)
