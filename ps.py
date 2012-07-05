@@ -31,17 +31,18 @@ DEFAULT_CONF = "%s.ini" % SCRIPT_NAME
 DEFAULT_LOG = "%s.log" % SCRIPT_NAME
 
 CONF = {
+    'generator': "{name} {version}",
+    'pages_path': './pages',
+    'static_path': './static',
+    'build_path': './www',
+    'templates_path': './templates',
+
     # Default port value (overridable with command line param)
     'port': '8000',
 
     # Amount of seconds between starting local web server
     # and opening a browser
     'browser_opening_delay': '2.0',
-
-    'pages_path': './pages',
-    'static_path': './static',
-    'build_path': './www',
-    'templates_path': './templates',
 
     # Default template neme (overridable with page header 'template' parameter)
     'template': 'default',
@@ -57,8 +58,11 @@ CONF = {
     'minify_js_cmd': "yuicompressor --type js --nomunge -o {dest} {source}",
     'minify_css_cmd': "yuicompressor --type css -o {dest} {source}",
 
+    # Command to sync build_path to web server
     'publish_cmd': '',
-    'generator': "{name} {version}",
+
+    # LESS compiler command ({source} and {dest} will be replaced)
+    'less_cmd': "lessc -x {source} > {dest}",
 }
 
 COMMON_PARAMS = {
@@ -159,6 +163,8 @@ def verify_conf():
         log.warn("CSS minification enabled but 'minify_css_cmd' is undefined.")
     if not conf['publish_cmd']:
         log.warn("Publishing command 'publish_cmd' is undefined.")
+    if not conf['less_cmd']:
+        log.warn("LESS processing command 'less_cmd' is undefined.")
 
 
 # Website building ============================================================
@@ -189,12 +195,23 @@ def process_file(source_root, source_file):
         source_file -- source file abs path to process."""
     rel_source = os.path.relpath(source_file, source_root)
     base, ext = os.path.splitext(rel_source)
-    rel_dest = base + ('.html' if ext == '.md' else ext)
+
+    new_ext = {
+        '.md': '.html',
+        '.less': '.css',
+    }
+
+    rel_dest = base + (new_ext[ext] if ext in new_ext else ext)
     dest_file = os.path.join(conf['build_path'], rel_dest)
 
     if ext == '.md':
         log.info(" * Building page: %s => %s" % (rel_source, rel_dest))
         build_page(source_file, dest_file, conf['templates_path'])
+
+    elif ext == '.less':
+        log.info(' * Compiling LESS: ' + rel_source)
+        cmd = conf['less_cmd'].format(source=source_file, dest=dest_file)
+        execute(cmd)
 
     elif ext == '.css' and conf['minify_css'] and conf['minify_css_cmd']:
         log.info(' * Minifying CSS: ' + rel_source)
