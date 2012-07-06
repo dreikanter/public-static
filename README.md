@@ -105,3 +105,4 @@ Everything could be installed by `pip install {module name}`.
 * Switch to Twitter Bootstrap
 * Markdown extension for QR.
 * Markdown extension for smater images.
+* Add note: To use yuicompressor for CSS/JS comression on Windows, Java should be installed and added to system path. Eitherway there will be meaningless error message during attempt to run yuicompressor.

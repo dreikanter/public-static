@@ -8,8 +8,8 @@ import time
 import shutil
 import codecs
 import logging
+import traceback
 from datetime import datetime
-from multiprocessing import Process
 from configparser import RawConfigParser
 import baker
 import markdown
@@ -20,7 +20,7 @@ __author__ = "Alex Musayev"
 __email__ = "alex.musayev@gmail.com"
 __copyright__ = "Copyright 2012, %s <http://alex.musayev.com>" % __author__
 __license__ = "MIT"
-__version_info__ = (0, 2, 0)
+__version_info__ = (0, 3, 0)
 __version__ = ".".join(map(str, __version_info__))
 __status__ = "Development"
 __url__ = "http://github.com/dreikanter/public-static"
@@ -103,17 +103,11 @@ def init(conf_file, section, log_file, verbose=False):
         global conf
         conf = CONF
         log.info("Using configuration from %s [%s]" % (conf_file, section))
-
         conf.update(get_params(conf_file, section))
         purify_conf()
-
-        # Dumping configuration to debug log
-        for param in conf:
-            log.debug("%s = '%s'" % (param, conf[param]))
     except Exception as e:
-        log.error("Error reading configuration: " + str(e))
-        log.debug(e)
-        exit(1)
+        log.debug(traceback.format_exc())
+        raise Exception(getxm('Configuration parsing failed', e))
 
 
 def init_logging(log_file, verbose):
@@ -135,8 +129,8 @@ def init_logging(log_file, verbose):
             channel.setFormatter(fmt)
             log.addHandler(channel)
     except Exception as e:
-        print("Error initializing loggign: " + str(e))
-        exit(1)
+        log.debug(traceback.format_exc())
+        raise Exception(getxm('Logging initialization failed', e))
 
 
 def purify_conf():
@@ -173,8 +167,8 @@ def verify_conf():
 
 def process_files():
     """Walk through source files and process one by one."""
-    process_dir("static files", conf['static_path'])
-    process_dir("pages", conf['pages_path'])
+    process_dir('static files', conf['static_path'])
+    process_dir('pages', conf['pages_path'])
 
 
 def process_dir(message, source_root):
@@ -214,10 +208,8 @@ def process_file(source_root, source_file):
         log.info(' * Compiling LESS: ' + rel_source)
         if conf['minify_less']:
             tmp_file = dest_file + '.tmp'
-            cmd = conf['less_cmd'].format(source=source_file, dest=tmp_file)
-            execute(cmd)
-            cmd = conf['minify_css_cmd'].format(source=tmp_file, dest=dest_file)
-            execute(cmd)
+            execute_proc('less_cmd', source_file, tmp_file)
+            execute_proc('minify_css_cmd', tmp_file, dest_file)
             os.remove(tmp_file)
         else:
             cmd = conf['less_cmd'].format(source=source_file, dest=dest_file)
@@ -225,13 +217,11 @@ def process_file(source_root, source_file):
 
     elif ext == '.css' and conf['minify_css'] and conf['minify_css_cmd']:
         log.info(' * Minifying CSS: ' + rel_source)
-        cmd = conf['minify_css_cmd'].format(source=source_file, dest=dest_file)
-        execute(cmd)
+        execute_proc('minify_css_cmd', source_file, dest_file)
 
     elif ext == '.js' and conf['minify_js'] and conf['minify_js_cmd']:
         log.info(' * Minifying JS: ' + rel_source)
-        cmd = conf['minify_js_cmd'].format(source=source_file, dest=dest_file)
-        execute(cmd)
+        execute_proc('minify_js_cmd', source_file, dest_file)
 
     else:
         log.info(' * Copying: ' + rel_source)
@@ -246,14 +236,13 @@ def build_page(source_file, dest_file, templates_path):
             tpl = get_template(page['template'], templates_path)
             f.write(pystache.render(tpl, page))
     except Exception as e:
-        log.error("Content processing error: " + str(e))
-        log.debug(e)
+        log.debug(traceback.format_exc())
+        log.error('Content processing error')
 
 
 def read_page_source(source_file):
     """Reads a page file to dictionary.
-
-    TODO: Describe page format here."""
+    Refer readme for page format description."""
     try:
         page = {}
         with codecs.open(source_file, mode='r', encoding='utf8') as f:
@@ -279,21 +268,32 @@ def read_page_source(source_file):
         return page
 
     except Exception as e:
-        log.error("Page source parsing error '%s': %s" % (source_file, str(e)))
-        log.debug(e)
+        log.debug(traceback.format_exc())
+        log.error("Page source parsing error '%s'" % source_file)
         return {}
 
 
 def get_template(tpl_name, templates_path):
+    """Gets template file contents.
+
+    Arguments:
+        tpl_name -- template name (will be complemented
+            to file name using TEMPLATE_FILE_NAME).
+        templates_path -- template files path."""
     file_name = os.path.join(templates_path, TEMPLATE_FILE_NAME % tpl_name)
     if os.path.exists(file_name):
         with codecs.open(file_name, mode='r', encoding='utf8') as f:
             return f.read()
 
-    raise Exception("Error reading template: %s (%s)" % (tpl_name, file_name))
+    raise Exception("Template not exists: '%s'" % file_name)
 
 
 # General helpers =============================================================
+
+def getxm(message, exception):
+    """Returns annotated exception messge."""
+    return ("%s: %s" % (message, str(exception))) if exception else message
+
 
 def get_params(conf_file, section):
     parser = RawConfigParser()
@@ -301,15 +301,16 @@ def get_params(conf_file, section):
         parser.readfp(f)
 
     if section and not section in parser.sections():
-        sect = ("section '%s'" % section) if section else "first section"
+        sect = ("section '%s'" % section) if section else 'first section'
         raise Exception("%s not found" % sect)
 
     try:
         section = section if section else parser.sections()[0]
         return {item[0]: item[1] for item in parser.items(section)}
     except:
+        log.debug(traceback.format_exc())
         message = section and ("section '%s' not found" % section)
-        raise Exception(message or "no sections defined")
+        raise Exception(message or 'no sections defined')
 
 
 def get_bool(bool_str):
@@ -335,14 +336,21 @@ def ensure_dir_exists(dir_path):
         os.makedirs(dir_path)
 
 
+def execute_proc(cmd_name, source, dest):
+    """Executes one of the preconfigured commands
+    with {source} and {dest} parameters replacement."""
+    cmd = conf[cmd_name].format(source=source, dest=dest)
+    execute(cmd)
+
+
 def execute(cmd):
     """Execute system command."""
     try:
         log.debug("Executing '%s'" % cmd)
         os.system(cmd)
-
-    except Exception as e:
-        print("Error executing system command: " + str(e))
+    except:
+        log.debug(traceback.format_exc())
+        log.error('Error executing system command')
 
 
 def delayed_execute(cmd, delay):
@@ -354,8 +362,7 @@ def delayed_execute(cmd, delay):
 def check_build_is_done(build_path):
     """Check if the web content was built and exit if it isn't."""
     if not os.path.isdir(build_path):
-        log.error("Web content directory not exists: '%s'" % build_path)
-        exit(1)
+        raise Exception("Web content directory not exists: '%s'" % build_path)
 
 
 def drop_build_dir(build_path, create_new=False):
@@ -369,7 +376,7 @@ def drop_build_dir(build_path, create_new=False):
 def get_md_h1(text):
     """Extracts the first h1-header from markdown text."""
     matches = re.search(r"^\s*#\s*(.*)\s*", text, RE_FLAGS)
-    return matches.group(1) if matches else ""
+    return matches.group(1) if matches else ''
 
 
 def purify_time(page, time_parm, default):
@@ -388,43 +395,35 @@ def build(config=DEFAULT_CONF, section=None,
           logfile=DEFAULT_LOG, verbose=False):
     """Generate web content"""
     init(config, section, logfile, verbose)
-
-    try:
-        drop_build_dir(conf['build_path'])
-        log.info("Building path: '%s'" % conf['build_path'])
-        process_files()
-        log.info("Build succeeded.")
-    except Exception as e:
-        log.error("Build failed: " + str(e))
-        log.debug(e)
+    drop_build_dir(conf['build_path'])
+    log.info("Building path: '%s'" % conf['build_path'])
+    process_files()
+    log.info("Build succeeded.")
 
 
 @baker.command(shortopts=joind(COMMON_SHORTOPS, {
-                    "browse": "b",
-                    "port": "p"
+                    'browse': 'b',
+                    'port': 'p'
                 }),
                params=joind(COMMON_PARAMS, {
-                    "browse": "Open in default browser",
-                    "port": "Port for local HTTP server"
+                    'browse': 'Open in default browser',
+                    'port': 'Port for local HTTP server'
                 }))
 def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG,
             verbose=False, browse=False, port=None):
     """Run local web server to preview generated web site"""
     init(config, section, logfile, verbose)
-
     check_build_is_done(conf['build_path'])
-    prev_cwd = os.getcwd()
-    os.chdir(conf['build_path'])
+    original_cwd = os.getcwd()
     port = port or conf['port']
     log.info("Running HTTP server on port %d..." % port)
 
+    from SimpleHTTPServer import SimpleHTTPServer
+    from SocketServer import TCPServer
+    handler = SimpleHTTPRequestHandler
+    httpd = TCPServer(('', port), handler)
+
     try:
-        import SimpleHTTPServer
-        import SocketServer
-
-        handler = SimpleHTTPServer.SimpleHTTPRequestHandler
-        httpd = SocketServer.TCPServer(("", port), handler)
-
         if browse:
             url = "http://localhost:%s/" % port
             cmd = conf['run_browser_cmd'].format(url=url)
@@ -432,17 +431,20 @@ def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG,
 
             log.info("Opening browser in %g seconds." % delay)
             log.debug(" Command: '%s'" % cmd)
-            log.info("Use Ctrl-Break to stop webserver")
+            log.info('Use Ctrl-Break to stop webserver')
 
+            os.chdir(conf['build_path'])
+            from multiprocessing import Process
             p = Process(target=delayed_execute, args=(cmd, delay))
             p.start()
 
         httpd.serve_forever()
 
     except KeyboardInterrupt:
-        log.info("Server was stopped by user")
+        log.info('Server was stopped by user')
     finally:
-        os.chdir(prev_cwd)
+        if browse:
+            os.chdir(original_cwd)
 
 
 # TODO: Add --dry-run mode.
@@ -453,16 +455,12 @@ def publish(config=DEFAULT_CONF, section=None,
     init(config, section, logfile, verbose)
     check_build_is_done(conf['build_path'])
 
-    if conf['publish_cmd']:
-        try:
-            log.info("Publishing...")
-            execute(conf['publish_cmd'].format(path=conf['build_path']))
-            log.info("Done")
-        except Exception as e:
-            log.error("Publishing error: " + str(e))
-            log.debug(e)
-    else:
-        log.error("Publishing command is not defined by configuration.")
+    if not conf['publish_cmd']:
+        raise Exception('Publishing command is not defined by configuration')
+
+    log.info('Publishing...')
+    execute(conf['publish_cmd'].format(path=conf['build_path']))
+    log.info('Done')
 
 
 @baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS)
@@ -470,19 +468,18 @@ def clean(config=DEFAULT_CONF, section=None,
           logfile=DEFAULT_LOG, verbose=False):
     """Delete all generated web content"""
     init(config, section, logfile, verbose)
-
-    try:
-        log.info("Cleaning output...")
-        drop_build_dir(conf['build_path'])
-        log.info("Done")
-    except Exception as e:
-        log.error("Cleaning failed: " + str(e))
-        log.debug(e)
+    log.info('Cleaning output...')
+    drop_build_dir(conf['build_path'])
+    log.info('Done')
 
 
 if __name__ == '__main__':
     try:
         baker.run()
     except Exception as e:
-        print("Error: " + str(e))
+        message = str(e)
+        if log:
+            log.error(message)
+        else:
+            print(message)
         exit(1)
