@@ -11,6 +11,7 @@ import logging
 import traceback
 from datetime import datetime
 from configparser import RawConfigParser
+from multiprocessing import Process
 import baker
 import markdown
 import pystache
@@ -418,7 +419,7 @@ def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG,
     port = port or conf['port']
     log.info("Running HTTP server on port %d..." % port)
 
-    from SimpleHTTPServer import SimpleHTTPServer
+    from SimpleHTTPServer import SimpleHTTPRequestHandler
     from SocketServer import TCPServer
     handler = SimpleHTTPRequestHandler
     httpd = TCPServer(('', port), handler)
@@ -430,11 +431,10 @@ def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG,
             delay = conf['browser_opening_delay']
 
             log.info("Opening browser in %g seconds." % delay)
-            log.debug(" Command: '%s'" % cmd)
             log.info('Use Ctrl-Break to stop webserver')
+            log.debug(" Command: '%s'" % cmd)
 
             os.chdir(conf['build_path'])
-            from multiprocessing import Process
             p = Process(target=delayed_execute, args=(cmd, delay))
             p.start()
 
