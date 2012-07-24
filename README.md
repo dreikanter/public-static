@@ -102,10 +102,3 @@ There is a great tool to export Wordpress data to PS-compatible files: [wp2md](h
 * `yuicompressor` — CSS/Javascript Minificator.
 
 Everything could be installed by `pip install {module name}`.
-
-## TODO
-
-* Switch to Twitter Bootstrap
-* Markdown extension for QR.
-* Markdown extension for smater images.
-* Add note: To use yuicompressor for CSS/JS comression on Windows, Java should be installed and added to system path. Eitherway there will be meaningless error message during attempt to run yuicompressor.
