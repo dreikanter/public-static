@@ -90,6 +90,9 @@ The format is pretty straightforward, but here are few important details:
 * Each section name should be placed in a separate line and be surrounded with double dashes.
 * Custom field names and section names could be complemented with a sequence of processors. [TBD]
 
+## Migrating from Wordpress
+
+There is a great tool to export Wordpress data to PS-compatible files: [wp2md](https://github.com/dreikanter/wp2md).
 
 ## Dependencies
 
