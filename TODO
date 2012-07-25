@@ -1,11 +1,25 @@
 Blog generation.
 
-Switch to Twitter Bootstrap
+Switch to Twitter Bootstrap (update readme).
+
+Typography processing.
+
+Readme: To use yuicompressor for CSS/JS comression on Windows, Java should be installed and added to system path. Eitherway there will be meaningless error message during attempt to run yuicompressor.
+
+Add log file name to configuration (overridable with command line argument).
+
+Add verbose logging flag to configuration (overridable with command line argument).
+
+Packaging (update the readme).
+
+Default configuration file name from CWD.
+
+Generate PDF versions for CV (link file defining name and location OR destination in metadata options)
+	http://www.verypdf.com/pdfcamp/convert-html-to-pdf.html
+	https://github.com/chrisglass/xhtml2pdf
+
+Data and plain text snippets.
 
 Markdown extension for QR.
 
 Markdown extension for smater images.
-
-Typography processing.
-
-Add note: To use yuicompressor for CSS/JS comression on Windows, Java should be installed and added to system path. Eitherway there will be meaningless error message during attempt to run yuicompressor.
