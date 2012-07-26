@@ -33,10 +33,10 @@ DEFAULT_CONF = 'build.conf'
 
 CONF = {
     'generator': "{name} {version}",
-    'pages_path': './pages',
-    'static_path': './static',
-    'build_path': './www',
-    'templates_path': './templates',
+    'pages_path': 'pages',
+    'static_path': 'static',
+    'build_path': 'www',
+    'templates_path': 'templates',
 
     # Default port value (overridable with command line param)
     'port': '8000',
