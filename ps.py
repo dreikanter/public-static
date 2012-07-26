@@ -21,7 +21,7 @@ __author__ = 'Alex Musayev'
 __email__ = 'alex.musayev@gmail.com'
 __copyright__ = "Copyright 2012, %s <http://alex.musayev.com>" % __author__
 __license__ = 'MIT'
-__version_info__ = (0, 4, 0)
+__version_info__ = (0, 4, 1)
 __version__ = '.'.join(map(str, __version_info__))
 __status__ = 'Development'
 __url__ = 'http://github.com/dreikanter/public-static'
@@ -108,7 +108,7 @@ def init(conf_file, section, log_file, verbose=False):
         conf = CONF
         log.info("Using configuration from %s [%s]" % (conf_file, section))
         conf.update(get_params(conf_file, section))
-        purify_conf()
+        purify_conf(conf_file)
     except Exception as e:
         log.debug(traceback.format_exc())
         raise Exception(getxm('Configuration parsing failed', e))
@@ -137,12 +137,12 @@ def init_logging(log_file, verbose):
         raise Exception(getxm('Logging initialization failed', e))
 
 
-def purify_conf():
+def purify_conf(conf_file):
     """Updates configuration parameters requiring processing."""
-    conf['pages_path'] = os.path.abspath(conf['pages_path'])
-    conf['static_path'] = os.path.abspath(conf['static_path'])
-    conf['build_path'] = os.path.abspath(conf['build_path'])
-    conf['templates_path'] = os.path.abspath(conf['templates_path'])
+    conf['pages_path'] = get_conf_path(conf_file, conf['pages_path'])
+    conf['static_path'] = get_conf_path(conf_file, conf['static_path'])
+    conf['build_path'] = get_conf_path(conf_file, conf['build_path'])
+    conf['templates_path'] = get_conf_path(conf_file, conf['templates_path'])
     conf['browser_opening_delay'] = float(conf['browser_opening_delay'])
     gen = conf['generator'].strip()
     conf['generator'] = gen.format(name=SCRIPT_NAME, version=__version__)
@@ -391,6 +391,16 @@ def purify_time(page, time_parm, default):
         page[time_parm] = time.strptime(page[time_parm], TIME_FMT)
     else:
         page[time_parm] = datetime.fromtimestamp(default)
+
+
+def get_conf_path(conf_file, path):
+    """Expands relative pathes using configuration file
+    location as base directory. Absolute pathes will be
+    returned as is."""
+    if os.path.isabs(path):
+        return path
+    base_path = os.path.dirname(os.path.abspath(conf_file))
+    return os.path.join(base_path, path)
 
 
 # Baker commands ==============================================================
