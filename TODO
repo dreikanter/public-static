@@ -1,5 +1,3 @@
-Use .mustache instead of .mustache.html.
-
 Readme: To use yuicompressor for CSS/JS comression on Windows, Java should be installed and added to system path. Eitherway there will be meaningless error message during attempt to run yuicompressor.
 
 Switch template to Twitter Bootstrap (update readme).

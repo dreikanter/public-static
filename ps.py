@@ -82,7 +82,7 @@ COMMON_SHORTOPS = {
 }
 
 TRUE_VALUES = ['1', 'true', 'yes', 'y']
-TEMPLATE_FILE_NAME = "%s.mustache.html"
+TEMPLATE_FILE_NAME = "%s.mustache"
 LOG_CONSOLE_FMT = ('%(asctime)s %(levelname)s: %(message)s', '%H:%M:%S')
 LOG_FILE_FMT = ('%(asctime)s %(levelname)s: %(message)s', '%Y/%m/%d %H:%M:%S')
 TIME_FMT = "%Y/%m/%d %H:%M:%S"
