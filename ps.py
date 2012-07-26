@@ -45,7 +45,7 @@ CONF = {
     # and opening a browser
     'browser_opening_delay': '2.0',
 
-    # Default template neme (overridable with page header 'template' parameter)
+    # Default template name (overridable with page header 'template' parameter)
     'template': 'default',
 
     # Default author name (overridable with page header 'author' parmeter)
@@ -62,6 +62,9 @@ CONF = {
 
     # Command to sync build_path to web server
     'publish_cmd': '',
+
+    # Command to open an URL with a web browser
+    'run_browser_cmd': 'start {url}',
 
     # LESS compiler command ({source} and {dest} will be replaced)
     'less_cmd': "lessc -x {source} > {dest}",
@@ -149,6 +152,7 @@ def purify_conf():
     conf['minify_js_cmd'] = conf['minify_js_cmd'].strip()
     conf['minify_css_cmd'] = conf['minify_css_cmd'].strip()
     conf['publish_cmd'] = conf['publish_cmd'].strip()
+    conf['run_browser_cmd'] = conf['run_browser_cmd'].strip()
     conf['port'] = int(conf['port'])
 
 
