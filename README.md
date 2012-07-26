@@ -1,27 +1,27 @@
 # public-static
 
-A small Python script used to build single-page¹ static website from [Markdown](http://daringfireball.net/projects/markdown) source, [Mustache](http://mustache.github.com) template and [Skeleton](http://getskeleton.com) CSS framework. Created ~~to maintain author's homepage~~ for fun. Inspired by [addmeto.cc](https://github.com/bobuk/addmeto.cc) and couple of other geeky projects.
+A small Python script used to build static websites from [Markdown](http://daringfireball.net/projects/markdown) source, [Mustache](http://mustache.github.com) template and [Twitter Bootstrap](http://getskeleton.com) framework.
 
-¹ — two pages will be Ok too.
+Inspired by [Jekyll](http://jekyllrb.com), [addmeto.cc](https://github.com/bobuk/addmeto.cc) and couple of other geeky projects.
 
 ## Installation
 
-The script could be installed by command:
+The script could be installed directly from GitHub:
 
 	pip install -e git+git://github.com/dreikanter/wp2md#egg=wp2md
 
-It will install `ps` script itself and the following dependencies:
+Dependencies will be installed automatically:
 
 * `baker` — command line library.
 * `pystache` — Mustache template parser implementation for Python.
 * `python-markdown` — [Markdown](http://daringfireball.net/projects/markdown/) parser for Python.
 * `yuicompressor` — CSS/Javascript Minificator.
 
-Example website sources could be downloaded directly from GitHub:
+Example website sources could be cloned from repository:
 
 	git clone git://github.com/dreikanter/public-static.git
 
-Please keep in mind that the example website configuration uses Yahoo's yuicompressor for CSS/JS minification. To use this tool Java runtime should be properly installed in addition to Python's package. Eitherway there will be meaningless error message during attempt to run yuicompressor.
+Please keep in mind that the example website configuration uses Yahoo's yuicompressor for CSS and JavaScript minification. To use this tool Java runtime should be properly installed in addition to Python package. Either way there will be meaningless error message during attempt to run yuicompressor.
 
 ## Usage
 
@@ -59,19 +59,28 @@ As it was mentioned script takes the first section from configuration file if th
 
 Build configuration parameters:
 
-* `pages_path` — path to the page files directory.
-* `static_path` — path to static resources (graphics, JS, CSS, etc) which should be copied to the generated website as is. JS and CSS files could be optionally minified (see details below).
-* `templates_path` — [mustache](http://mustache.github.com) templates directory path.
-* `build_path` — destination path where static website should be built.
-* `minify_css` — yes/no to enable or disable CSS minification.
-* `minify_js` — same thing for JavaScript.
-* `run_browser_cmd` — OS-specific command to open an URL with a web browser. Used during generated website preview.
-* `browser_opening_delay` — number of seconds between preview webserver start and browser execution. Default value is 2.0 and it's
- 
+* `pages_path` — path to the page files directory. Default: `./pages`.
+* `static_path` — path to static resources including graphics, JS, CSS, etc. These files will be be copied to the `build_path` as is. JS and CSS files could optionally be minified (see details below). Default: `./static`.
+* `build_path` — destination path where static website should be built. Default: `./www`.
+* `templates_path` — [Mustache](http://mustache.github.com) templates directory path. Default: `./templates`.
+* `port` — port value to be used for local web-server during site preview (overridable with command line parameter). Default: `8000`.
+* `browser_opening_delay` — amount of seconds between starting local web server and opening a browser (floating point value). Default: `2.0`.
+* `template` — template name to be used for all pages which header not defines `template` parameter explicitly. Default: `default` (which maps to _default.mustache_).
+* `author` — default author name (overridable by `author` field in the header). Default: [empty].
+* `minify_js` — `yes/no` to enable or disable JavaScript minification. Default: `y`.
+* `minify_css` — `yes/no` to enable or disable CSS minification. Default: `y`.
+* `minify_less` — `yes/no` to enable or disable LESS minification. Default: `y`.
+* `minify_js_cmd` — minification commands for JavaScript files. Default: `yuicompressor --type js --nomunge -o {dest} {source}`  (`{source}` and `{dest}` will be replaced with actual source and destination file names).
+* `minify_css_cmd` — minification commands for CSS files. Default: `yuicompressor --type css -`.{dest} {source}",
+* `publish_cmd` — command to sync `build_path` to web server (will be executed by `publish` command). Default:` `.
+* `less_cmd` — LESS compiler command. Default: `lessc -x {source} > {dest}`.
+* `run_browser_cmd` — OS-specific command to open an URL with a web browser. Intended to be used during website preview.
+* `generator` — page generator name. Default: `{name} {version}` (where name and version are actual script name and version).
+
 Example:
 
 	[example.com]
-	author = Vasiliy Pupkin
+	author = Hal Ninethousand
 	pages_path = ./pages
 	static_path = ./static
 	build_path = ./www
