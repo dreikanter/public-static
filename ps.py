@@ -28,8 +28,8 @@ __url__ = "http://github.com/dreikanter/public-static"
 
 
 SCRIPT_NAME = os.path.splitext(os.path.basename(__file__))[0]
-DEFAULT_CONF = "%s.ini" % SCRIPT_NAME
 DEFAULT_LOG = "%s.log" % SCRIPT_NAME
+DEFAULT_CONF = "build.conf"
 
 CONF = {
     'generator': "{name} {version}",
