@@ -1,12 +1,4 @@
-Readme: To use yuicompressor for CSS/JS comression on Windows, Java should be installed and added to system path. Eitherway there will be meaningless error message during attempt to run yuicompressor.
-
 Switch template to Twitter Bootstrap (update readme).
-
-Take default configuration file from CWD.
-
-Add log file name to configuration (overridable with command line argument).
-
-Add verbose logging flag to configuration (overridable with command line argument).
 
 Packaging (update the readme).
 

@@ -17,19 +17,19 @@ import markdown
 import pystache
 
 
-__author__ = "Alex Musayev"
-__email__ = "alex.musayev@gmail.com"
+__author__ = 'Alex Musayev'
+__email__ = 'alex.musayev@gmail.com'
 __copyright__ = "Copyright 2012, %s <http://alex.musayev.com>" % __author__
-__license__ = "MIT"
+__license__ = 'MIT'
 __version_info__ = (0, 3, 0)
-__version__ = ".".join(map(str, __version_info__))
-__status__ = "Development"
-__url__ = "http://github.com/dreikanter/public-static"
+__version__ = '.'.join(map(str, __version_info__))
+__status__ = 'Development'
+__url__ = 'http://github.com/dreikanter/public-static'
 
 
 SCRIPT_NAME = os.path.splitext(os.path.basename(__file__))[0]
-DEFAULT_LOG = "%s.log" % SCRIPT_NAME
-DEFAULT_CONF = "build.conf"
+DEFAULT_LOG = 'build.log'
+DEFAULT_CONF = 'build.conf'
 
 CONF = {
     'generator': "{name} {version}",
