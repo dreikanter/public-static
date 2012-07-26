@@ -477,7 +477,7 @@ def clean(config=DEFAULT_CONF, section=None,
     log.info('Done')
 
 
-if __name__ == '__main__':
+def main():
     try:
         baker.run()
     except Exception as e:
@@ -487,3 +487,7 @@ if __name__ == '__main__':
         else:
             print(message)
         exit(1)
+
+
+if __name__ == '__main__':
+    main()
