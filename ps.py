@@ -242,7 +242,7 @@ def build_page(source_file, dest_file, templates_path):
             f.write(pystache.render(tpl, page))
     except Exception as e:
         log.debug(traceback.format_exc())
-        log.error('Content processing error')
+        log.error('Content processing error: ' + str(e))
 
 
 def read_page_source(source_file):
