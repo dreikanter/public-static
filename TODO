@@ -1,10 +1,10 @@
-Blog generation.
-
-Switch to Twitter Bootstrap (update readme).
-
-Typography processing.
+Use .mustache instead of .mustache.html.
 
 Readme: To use yuicompressor for CSS/JS comression on Windows, Java should be installed and added to system path. Eitherway there will be meaningless error message during attempt to run yuicompressor.
+
+Switch template to Twitter Bootstrap (update readme).
+
+Take default configuration file from CWD.
 
 Add log file name to configuration (overridable with command line argument).
 
@@ -12,7 +12,13 @@ Add verbose logging flag to configuration (overridable with command line argumen
 
 Packaging (update the readme).
 
-Default configuration file name from CWD.
+--
+
+Blog generation.
+
+--
+
+Typography processing.
 
 Generate PDF versions for CV (link file defining name and location OR destination in metadata options)
 	http://www.verypdf.com/pdfcamp/convert-html-to-pdf.html
