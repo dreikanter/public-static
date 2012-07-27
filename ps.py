@@ -12,10 +12,9 @@ import traceback
 from datetime import datetime
 from configparser import RawConfigParser
 from multiprocessing import Process
-import baker
 import markdown
 import pystache
-
+import baker
 
 __author__ = 'Alex Musayev'
 __email__ = 'alex.musayev@gmail.com'
@@ -26,13 +25,11 @@ __version__ = '.'.join(map(str, __version_info__))
 __status__ = 'Development'
 __url__ = 'http://github.com/dreikanter/public-static'
 
-
-SCRIPT_NAME = os.path.splitext(os.path.basename(__file__))[0]
 DEFAULT_LOG = 'build.log'
 DEFAULT_CONF = 'build.conf'
 
 CONF = {
-    'generator': "{name} {version}",
+    'generator': "public-static {version}",
     'pages_path': 'pages',
     'static_path': 'static',
     'build_path': 'www',
@@ -64,36 +61,36 @@ CONF = {
     'publish_cmd': '',
 
     # Command to open an URL with a web browser
-    'run_browser_cmd': 'start {url}',
+    'run_browser_cmd': "start {url}",
 
     # LESS compiler command ({source} and {dest} will be replaced)
     'less_cmd': "lessc -x {source} > {dest}",
 }
 
 COMMON_PARAMS = {
-    "config": "Configuration file",
-    "section": "Configuration file section",
-    "logfile": "Log file",
-    "verbose": "Enable detailed logging"
+    'config': 'Configuration file',
+    'section': 'Configuration file section',
+    'logfile': 'Log file',
+    'verbose': 'Enable detailed logging'
 }
 
 COMMON_SHORTOPS = {
-    "config": "c",
-    "section": "s",
-    "logfile": "l",
-    "verbose": "v"
+    'config': 'c',
+    'section': 's',
+    'logfile': 'l',
+    'verbose': 'v'
 }
 
-TRUE_VALUES = ['1', 'true', 'yes', 'y']
 TEMPLATE_FILE_NAME = "%s.mustache"
-LOG_CONSOLE_FMT = ('%(asctime)s %(levelname)s: %(message)s', '%H:%M:%S')
-LOG_FILE_FMT = ('%(asctime)s %(levelname)s: %(message)s', '%Y/%m/%d %H:%M:%S')
+LOG_CONSOLE_FMT = ("%(asctime)s %(levelname)s: %(message)s", "%H:%M:%S")
+LOG_FILE_FMT = ("%(asctime)s %(levelname)s: %(message)s", "%Y/%m/%d %H:%M:%S")
 TIME_FMT = "%Y/%m/%d %H:%M:%S"
+MD_EXTENSIONS = ['nl2br', 'grid']
 RE_FLAGS = re.I | re.M | re.U
 PARAM_PATTERN = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", RE_FLAGS)
-MD = markdown.Markdown(extensions=['nl2br', 'grid'])
+H1_PATTERN = re.compile(r"^\s*#\s*(.*)\s*", RE_FLAGS)
 
-log = logging.getLogger(SCRIPT_NAME)
+log = logging.getLogger('ps')
 conf = {}
 
 
@@ -106,12 +103,14 @@ def init(conf_file, section, log_file, verbose=False):
     try:
         global conf
         conf = CONF
-        log.info("Using configuration from %s [%s]" % (conf_file, section))
+        sect = ("[%s]" % section) if section else '(first section)'
+        log.info("Using configuration from %s %s" % (conf_file, sect))
         conf.update(get_params(conf_file, section))
         purify_conf(conf_file)
-    except Exception as e:
-        log.debug(traceback.format_exc())
-        raise Exception(getxm('Configuration parsing failed', e))
+        verify_conf()
+    except:
+        log.error('Configuration failed')
+        raise
 
 
 def init_logging(log_file, verbose):
@@ -132,23 +131,31 @@ def init_logging(log_file, verbose):
             fmt = logging.Formatter(LOG_FILE_FMT[0], LOG_FILE_FMT[1])
             channel.setFormatter(fmt)
             log.addHandler(channel)
-    except Exception as e:
-        log.debug(traceback.format_exc())
-        raise Exception(getxm('Logging initialization failed', e))
+    except:
+        logging.error('Logging initialization failed')
+        raise
+
+
+def get_params(conf_file, section):
+    """Reads configuration file section to a dictionary."""
+    parser = RawConfigParser()
+    with codecs.open(conf_file, mode='r', encoding='utf8') as f:
+        parser.readfp(f)
+    section = section or parser.sections()[0]
+    return {item[0]: item[1] for item in parser.items(section)}
 
 
 def purify_conf(conf_file):
-    """Updates configuration parameters requiring processing."""
+    """Preprocess configuration parameters."""
     conf['pages_path'] = get_conf_path(conf_file, conf['pages_path'])
     conf['static_path'] = get_conf_path(conf_file, conf['static_path'])
     conf['build_path'] = get_conf_path(conf_file, conf['build_path'])
     conf['templates_path'] = get_conf_path(conf_file, conf['templates_path'])
     conf['browser_opening_delay'] = float(conf['browser_opening_delay'])
-    gen = conf['generator'].strip()
-    conf['generator'] = gen.format(name=SCRIPT_NAME, version=__version__)
-    conf['minify_js'] = get_bool(conf['minify_js'])
-    conf['minify_css'] = get_bool(conf['minify_css'])
-    conf['minify_less'] = get_bool(conf['minify_less'])
+    conf['generator'] = conf['generator'].strip().format(version=__version__)
+    conf['minify_js'] = str2bool(conf['minify_js'])
+    conf['minify_css'] = str2bool(conf['minify_css'])
+    conf['minify_less'] = str2bool(conf['minify_less'])
     conf['minify_js_cmd'] = conf['minify_js_cmd'].strip()
     conf['minify_css_cmd'] = conf['minify_css_cmd'].strip()
     conf['publish_cmd'] = conf['publish_cmd'].strip()
@@ -217,8 +224,7 @@ def process_file(source_root, source_file):
             execute_proc('minify_css_cmd', tmp_file, dest_file)
             os.remove(tmp_file)
         else:
-            cmd = conf['less_cmd'].format(source=source_file, dest=dest_file)
-            execute(cmd)
+            execute_proc('less_cmd', source_file, dest_file)
 
     elif ext == '.css' and conf['minify_css'] and conf['minify_css_cmd']:
         log.info(' * Minifying CSS: ' + rel_source)
@@ -264,7 +270,7 @@ def read_page_source(source_file):
         page['title'] = page.get('title', get_md_h1(page['content'])).strip()
         page['template'] = page.get('template', conf['template']).strip()
         page['author'] = page.get('author', conf['author']).strip()
-        page['content'] = MD.convert(page.get('content', '').strip())
+        page['content'] = md(page.get('content', ''))
 
         # Take date/time from file system if not explicitly defined
         purify_time(page, 'ctime', os.path.getctime(source_file))
@@ -300,34 +306,18 @@ def getxm(message, exception):
     return ("%s: %s" % (message, str(exception))) if exception else message
 
 
-def get_params(conf_file, section):
-    parser = RawConfigParser()
-    with codecs.open(conf_file, mode='r', encoding='utf8') as f:
-        parser.readfp(f)
-
-    if section and not section in parser.sections():
-        sect = ("section '%s'" % section) if section else 'first section'
-        raise Exception("%s not found" % sect)
-
-    try:
-        section = section if section else parser.sections()[0]
-        return {item[0]: item[1] for item in parser.items(section)}
-    except:
-        log.debug(traceback.format_exc())
-        message = section and ("section '%s' not found" % section)
-        raise Exception(message or 'no sections defined')
+def str2int(value, default=None):
+    """Safely converts string value to integer. Returns
+    default value if the first argument is not numeric.
+    Whitespaces are ok."""
+    if type(value) is not int:
+        value = str(value).strip()
+        value = int(value) if value.isdigit() else default
+    return value
 
 
-def get_bool(bool_str):
-    return True if bool_str.lower() in TRUE_VALUES else False
-
-
-def get_pwd(pwd_str):
-    file_prefix = 'file://'
-    if pwd_str.startswith(file_prefix):
-        with open(pwd_str[len(file_prefix):], 'rt') as f:
-            return f.readline().strip()
-    return pwd_str
+def str2bool(bool_str, true_values=['1', 'true', 'yes', 'y']):
+    return True if bool_str.lower() in true_values else False
 
 
 def joind(d1, d2):
@@ -348,20 +338,23 @@ def execute_proc(cmd_name, source, dest):
     execute(cmd)
 
 
-def execute(cmd):
+def execute(cmd, critical=False):
     """Execute system command."""
     try:
         log.debug("Executing '%s'" % cmd)
         os.system(cmd)
     except:
-        log.debug(traceback.format_exc())
         log.error('Error executing system command')
+        if critical:
+            raise
+        else:
+            log.debug(traceback.format_exc())
 
 
-def delayed_execute(cmd, delay):
+def execute_after(cmd, delay):
     """This function intended to execute system command asyncronously."""
     time.sleep(delay)
-    execute(cmd)
+    execute(cmd, True)
 
 
 def check_build_is_done(build_path):
@@ -380,7 +373,7 @@ def drop_build_dir(build_path, create_new=False):
 
 def get_md_h1(text):
     """Extracts the first h1-header from markdown text."""
-    matches = re.search(r"^\s*#\s*(.*)\s*", text, RE_FLAGS)
+    matches = H1_PATTERN.search(text)
     return matches.group(1) if matches else ''
 
 
@@ -401,6 +394,14 @@ def get_conf_path(conf_file, path):
         return path
     base_path = os.path.dirname(os.path.abspath(conf_file))
     return os.path.join(base_path, path)
+
+
+def md(text):
+    """Converts markdown formatted text to HTML."""
+    # New Markdown instanse works faster on large amounts of text
+    # than reused one (for some reason)
+    mkdn = markdown.Markdown(extensions=MD_EXTENSIONS)
+    return mkdn.convert(text.strip())
 
 
 # Baker commands ==============================================================
@@ -430,7 +431,7 @@ def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG,
     init(config, section, logfile, verbose)
     check_build_is_done(conf['build_path'])
     original_cwd = os.getcwd()
-    port = port or conf['port']
+    port = str2int(port, conf['port'])
     log.info("Running HTTP server on port %d..." % port)
 
     from SimpleHTTPServer import SimpleHTTPRequestHandler
@@ -449,7 +450,7 @@ def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG,
             log.debug(" Command: '%s'" % cmd)
 
             os.chdir(conf['build_path'])
-            p = Process(target=delayed_execute, args=(cmd, delay))
+            p = Process(target=execute_after, args=(cmd, delay))
             p.start()
 
         httpd.serve_forever()
@@ -461,7 +462,6 @@ def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG,
             os.chdir(original_cwd)
 
 
-# TODO: Add --dry-run mode.
 @baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS)
 def publish(config=DEFAULT_CONF, section=None,
             logfile=DEFAULT_LOG, verbose=False):
@@ -473,7 +473,7 @@ def publish(config=DEFAULT_CONF, section=None,
         raise Exception('Publishing command is not defined by configuration')
 
     log.info('Publishing...')
-    execute(conf['publish_cmd'].format(path=conf['build_path']))
+    execute(conf['publish_cmd'].format(path=conf['build_path']), True)
     log.info('Done')
 
 
@@ -487,16 +487,12 @@ def clean(config=DEFAULT_CONF, section=None,
     log.info('Done')
 
 
-def main():
+def main():  # For setuptools
     try:
         baker.run()
     except Exception as e:
-        message = str(e)
-        if log:
-            log.error(message)
-        else:
-            print(message)
-        exit(1)
+        l = log if len(log.handlers) else logging
+        l.debug(traceback.format_exc())
 
 
 if __name__ == '__main__':
