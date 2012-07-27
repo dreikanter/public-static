@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 
 from setuptools import setup, find_packages
-import sys
 import ps
-
-sys.path.insert(0, '.')
 
 setup(
     name=ps.__name__,
@@ -35,7 +32,4 @@ setup(
        'Programming Language :: Python :: 2.7',
        # TODO: Test and add other versions
     ],
-    # dependency_links=[
-    #     'https://github.com/aaronsw/html2text/tarball/master#egg=html2text'
-    # ],
 )
