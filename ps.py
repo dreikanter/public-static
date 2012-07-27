@@ -167,7 +167,7 @@ def verify_conf():
     """Checks if configuration is correct."""
     if conf['minify_js'] and not conf['minify_js_cmd']:
         log.warn("JS minification enabled but 'minify_js_cmd' is undefined.")
-    if conf['minify_less'] or conf['minify_css'] and not conf['minify_css_cmd']:
+    if (conf['minify_less'] or conf['minify_css']) and not conf['minify_css_cmd']:
         log.warn("CSS minification enabled but 'minify_css_cmd' is undefined.")
     if not conf['publish_cmd']:
         log.warn("Publishing command 'publish_cmd' is undefined.")
