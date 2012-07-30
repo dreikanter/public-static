@@ -29,7 +29,9 @@ Please keep in mind that the example website configuration uses Yahoo's yuicompr
 
 Command line format:
 
-	python ps.py <command> [parameters]
+	ps <command> [parameters]
+
+`ps` command becomes available after proper package installation. If you prefer "xcopy install" or don't have enough privileges on destination system, you should use `python ps.py` command instead of shortcut.
 
 Available commands:
 
