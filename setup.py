@@ -17,9 +17,11 @@ setup(
     py_modules=['ps'],
     install_requires=[
         'markdown',
+        'markdown-grid',
+        'mdx_smartypants',
         'pystache',
         'baker',
-        'yuicompressor'
+        'yuicompressor',
     ],
     entry_points={'console_scripts': ['ps = ps:main']},
     include_package_data=True,
@@ -31,5 +33,8 @@ setup(
        'Programming Language :: Python',
        'Programming Language :: Python :: 2.7',
        # TODO: Test and add other versions
+    ],
+    dependency_links=[
+        'https://github.com/dreikanter/markdown-grid/tarball/master#egg=markdown-grid'
     ],
 )

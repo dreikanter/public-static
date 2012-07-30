@@ -15,6 +15,8 @@ Dependencies will be installed automatically:
 * `baker` — command line library.
 * `pystache` — Mustache template parser implementation for Python.
 * `python-markdown` — [Markdown](http://daringfireball.net/projects/markdown/) parser for Python.
+* `markdown-grid` — Python-Markdown [extension](https://github.com/dreikanter/markdown-grid) to generate Twitter Bootstrap layout
+* `mdx_smartypants` — [original](http://daringfireball.net/projects/smartypants/) SmartyPants [port](http://pypi.python.org/pypi/mdx_smartypants/) for Python-Markdown
 * `yuicompressor` — CSS/Javascript Minificator.
 
 Example website sources could be cloned from repository:

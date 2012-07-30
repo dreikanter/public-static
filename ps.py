@@ -85,7 +85,7 @@ TEMPLATE_FILE_NAME = "%s.mustache"
 LOG_CONSOLE_FMT = ("%(asctime)s %(levelname)s: %(message)s", "%H:%M:%S")
 LOG_FILE_FMT = ("%(asctime)s %(levelname)s: %(message)s", "%Y/%m/%d %H:%M:%S")
 TIME_FMT = "%Y/%m/%d %H:%M:%S"
-MD_EXTENSIONS = ['nl2br', 'grid']
+MD_EXTENSIONS = ['nl2br', 'grid', 'smartypants']
 RE_FLAGS = re.I | re.M | re.U
 PARAM_PATTERN = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", RE_FLAGS)
 H1_PATTERN = re.compile(r"^\s*#\s*(.*)\s*", RE_FLAGS)
