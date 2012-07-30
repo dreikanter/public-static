@@ -2,7 +2,7 @@
 
 A small Python script used to build static websites from [Markdown](http://daringfireball.net/projects/markdown) source, [Mustache](http://mustache.github.com) template and [Twitter Bootstrap](http://getskeleton.com) framework.
 
-Inspired by [Jekyll](http://jekyllrb.com), [addmeto.cc](https://github.com/bobuk/addmeto.cc) and couple of other geeky projects.
+Inspired by [Jekyll](http://jekyllrb.com), [Octopress](http://octopress.org), [addmeto.cc](https://github.com/bobuk/addmeto.cc), and couple of other geeky projects.
 
 ## Installation
 
@@ -15,8 +15,8 @@ Dependencies will be installed automatically:
 * `baker` — command line library.
 * `pystache` — Mustache template parser implementation for Python.
 * `python-markdown` — [Markdown](http://daringfireball.net/projects/markdown/) parser for Python.
-* `markdown-grid` — Python-Markdown [extension](https://github.com/dreikanter/markdown-grid) to generate Twitter Bootstrap layout
-* `mdx_smartypants` — [original](http://daringfireball.net/projects/smartypants/) SmartyPants [port](http://pypi.python.org/pypi/mdx_smartypants/) for Python-Markdown
+* `markdown-grid` — Python-Markdown [extension](https://github.com/dreikanter/markdown-grid) to generate Twitter Bootstrap layout.
+* `mdx_smartypants` — [original](http://daringfireball.net/projects/smartypants/) SmartyPants [port](http://pypi.python.org/pypi/mdx_smartypants/) for Python-Markdown.
 * `yuicompressor` — CSS/Javascript Minificator.
 
 Example website sources could be cloned from repository:
@@ -128,3 +128,10 @@ Few important details:
 ## Migrating from Wordpress
 
 There is a great tool to export Wordpress data to PS-compatible files: [wp2md](https://github.com/dreikanter/wp2md).
+
+## Copyright and licensing
+
+Copyright &copy; 2012 by [Alex Musayev](http://alex.musayev.com).  
+License: MIT (see [LICENSE](https://raw.github.com/dreikanter/public-static/master/LICENSE)).
+
+Project home: [https://github.com/dreikanter/public-static](https://github.com/dreikanter/public-static).  
