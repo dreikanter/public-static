@@ -29,9 +29,9 @@ Please keep in mind that the example website configuration uses Yahoo's yuicompr
 
 Command line format:
 
-	ps <command> [parameters]
+	pub <command> [parameters]
 
-`ps` command becomes available after proper package installation. If you prefer "xcopy install" or don't have enough privileges on destination system, you should use `python ps.py` command instead of shortcut.
+`pub` command becomes available after proper package installation. If you prefer "xcopy install" or don't have enough privileges on destination system, you should use `python pub.py` command instead of shortcut.
 
 Available commands:
 
@@ -46,7 +46,7 @@ Available commands:
 
 Common parameters:
 
-* `-c` or `--config=CONFIG` — specify configuration file. Default is `ps.ini`.
+* `-c` or `--config=CONFIG` — specify configuration file. Default is `build.conf` in the current working directory.
 * `-s` or `--section=SECTION` — specify configuration file section. Default is the first one.
 * `-l` or `--logfile=LOGFILE` — save script output to log file.
 * `-h` or `--help` — show command line help.
@@ -55,7 +55,7 @@ Common parameters:
 
 To avoid over-complicated command line syntax, main site building parameters intended to be kept in configuration file with an ordinary [RFC-822](http://www.ietf.org/rfc/rfc0822) compliant syntax.
 
-By default `ps` command uses default configuration file `build.conf` located in the current working directory (not necessarily the directory where script itself resides!). Nevertheless the configuration file name and location could be changed arbitrary from the command line.
+By default `pub` command uses default configuration file `build.conf` located in the current working directory (not necessarily the directory where script itself resides!). Nevertheless the configuration file name and location could be changed arbitrary from the command line.
 
 A single configuration file could contain more than one section. This allows to keep building configuration for multiple web sites or different building profiles for a single one — e.g. production and debug versions.
 

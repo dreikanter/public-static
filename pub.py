@@ -90,7 +90,7 @@ RE_FLAGS = re.I | re.M | re.U
 PARAM_PATTERN = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", RE_FLAGS)
 H1_PATTERN = re.compile(r"^\s*#\s*(.*)\s*", RE_FLAGS)
 
-log = logging.getLogger('ps')
+log = logging.getLogger(__name__)
 conf = {}
 
 

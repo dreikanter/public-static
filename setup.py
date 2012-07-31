@@ -1,29 +1,29 @@
 #!/usr/bin/env python
 
 from setuptools import setup, find_packages
-import ps
+import pub
 
 setup(
-    name=ps.__name__,
-    description=ps.__doc__,
-    version=ps.__version__,
-    license=ps.__license__,
-    author=ps.__author__,
-    author_email=ps.__email__,
-    url=ps.__url__,
+    name=pub.__name__,
+    description=pub.__doc__,
+    version=pub.__version__,
+    license=pub.__license__,
+    author=pub.__author__,
+    author_email=pub.__email__,
+    url=pub.__url__,
     long_description=open('README.md').read(),
     platforms=['any'],
     packages=find_packages(),
-    py_modules=['ps'],
+    py_modules=['pub'],
     install_requires=[
         'markdown',
-        'markdown-grid',
+        'mdx_grid',
         'mdx_smartypants',
         'pystache',
         'baker',
         'yuicompressor',
     ],
-    entry_points={'console_scripts': ['ps = ps:main']},
+    entry_points={'console_scripts': ['pub = pub:main']},
     include_package_data=True,
     zip_safe=False,
     classifiers=[
@@ -35,6 +35,6 @@ setup(
        # TODO: Test and add other versions
     ],
     dependency_links=[
-        'https://github.com/dreikanter/markdown-grid/tarball/master#egg=markdown-grid'
+        'https://github.com/dreikanter/markdown-grid/tarball/master#egg=mdx_grid'
     ],
 )
