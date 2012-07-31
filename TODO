@@ -1,5 +1,6 @@
 Blog generation.
 Consider to add --dry-run mode.
+Update "Last update" field in static/humans.txt
 
 --
 
