@@ -234,6 +234,10 @@ def process_file(source_root, source_file):
         log.info(' * Minifying JS: ' + rel_source)
         execute_proc('minify_js_cmd', source_file, dest_file)
 
+    elif os.path.basename(rel_source) == 'humans.txt':
+        log.info(' * Copying: %s (updated)' % rel_source)
+        update_humans(source_file, dest_file)
+
     else:
         log.info(' * Copying: ' + rel_source)
         shutil.copyfile(source_file, dest_file)
@@ -404,6 +408,30 @@ def md(text):
     return mkdn.convert(text.strip())
 
 
+def update_humans(source_file, dest_file):
+    """Updates 'Last update' field in humans.txt file and saves the result
+    to specified location.
+
+    Arguments:
+        source_file -- original humans.txt file. See http://humanstxt.org
+            for the format details.
+        dest_file -- location to save updated humans.txt. File name should
+            be included."""
+
+    try:
+        with codecs.open(source_file, mode='r', encoding='utf8') as f:
+            text = f.read()
+        repl = r"\1 " + time.strftime("%Y/%m/%d", time.gmtime())
+        text = re.sub(r"^(\s*Last\s+update\s*\:).*", repl, text,
+                      flags=RE_FLAGS, count=1)
+        with codecs.open(dest_file, mode='w', encoding='utf8') as f:
+            f.write(text)
+    except:
+        message = "humans.txt processing failed ('%s' to '%s')"
+        log.error(message % (source_file, dest_file))
+        raise
+
+
 # Baker commands ==============================================================
 
 @baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS, default=True)
@@ -447,19 +475,17 @@ def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG,
 
             log.info("Opening browser in %g seconds." % delay)
             log.info('Use Ctrl-Break to stop webserver')
-            log.debug(" Command: '%s'" % cmd)
-
-            os.chdir(conf['build_path'])
+            log.debug("Command: '%s'" % cmd)
             p = Process(target=execute_after, args=(cmd, delay))
             p.start()
 
+        os.chdir(conf['build_path'])
         httpd.serve_forever()
 
     except KeyboardInterrupt:
         log.info('Server was stopped by user')
     finally:
-        if browse:
-            os.chdir(original_cwd)
+        os.chdir(original_cwd)
 
 
 @baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS)

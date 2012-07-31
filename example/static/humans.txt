@@ -7,7 +7,7 @@ Location: Discovery One spacecraft
 
 /* SITE */
 
-Last update: 2012/07/31
+Last update:
 Language: English
 Doctype: HTML5
 IDE: Sublime Text
