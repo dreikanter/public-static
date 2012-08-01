@@ -1,16 +1,15 @@
 Blog generation.
+Use something better than baker.
+Rename publish command.
 Consider to add --dry-run mode.
-Update "Last update" field in static/humans.txt
 
 --
-
-Typography processing.
 
 Generate PDF versions for CV (link file defining name and location OR destination in metadata options)
 	http://www.verypdf.com/pdfcamp/convert-html-to-pdf.html
 	https://github.com/chrisglass/xhtml2pdf
 
-Data and plain text snippets.
+Markdown extension to include text files (preprocessor).
 
 Markdown extension for QR.
 
