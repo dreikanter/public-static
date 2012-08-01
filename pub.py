@@ -25,8 +25,8 @@ __version__ = '.'.join(map(str, __version_info__))
 __status__ = 'Development'
 __url__ = 'http://github.com/dreikanter/public-static'
 
-DEFAULT_LOG = 'build.log'
-DEFAULT_CONF = 'build.conf'
+DEFAULT_LOG = 'pub.log'
+DEFAULT_CONF = 'pub.conf'
 
 CONF = {
     'generator': "public-static {version}",
@@ -447,11 +447,11 @@ def build(config=DEFAULT_CONF, section=None,
 
 @baker.command(shortopts=joind(COMMON_SHORTOPS, {
                     'browse': 'b',
-                    'port': 'p'
+                    'port': 'p',
                 }),
                params=joind(COMMON_PARAMS, {
                     'browse': 'Open in default browser',
-                    'port': 'Port for local HTTP server'
+                    'port': 'Port for local HTTP server',
                 }))
 def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG,
             verbose=False, browse=False, port=None):
