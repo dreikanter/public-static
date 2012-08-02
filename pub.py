@@ -58,7 +58,7 @@ CONF = {
     'minify_css_cmd': "yuicompressor --type css -o {dest} {source}",
 
     # Command to sync build_path to web server
-    'publish_cmd': '',
+    'sync_cmd': '',
 
     # Command to open an URL with a web browser
     'run_browser_cmd': "start {url}",
@@ -158,7 +158,7 @@ def purify_conf(conf_file):
     conf['minify_less'] = str2bool(conf['minify_less'])
     conf['minify_js_cmd'] = conf['minify_js_cmd'].strip()
     conf['minify_css_cmd'] = conf['minify_css_cmd'].strip()
-    conf['publish_cmd'] = conf['publish_cmd'].strip()
+    conf['sync_cmd'] = conf['sync_cmd'].strip()
     conf['run_browser_cmd'] = conf['run_browser_cmd'].strip()
     conf['port'] = int(conf['port'])
 
@@ -169,8 +169,8 @@ def verify_conf():
         log.warn("JS minification enabled but 'minify_js_cmd' is undefined.")
     if (conf['minify_less'] or conf['minify_css']) and not conf['minify_css_cmd']:
         log.warn("CSS minification enabled but 'minify_css_cmd' is undefined.")
-    if not conf['publish_cmd']:
-        log.warn("Publishing command 'publish_cmd' is undefined.")
+    if not conf['sync_cmd']:
+        log.warn("Synchronization command 'sync_cmd' is undefined.")
     if not conf['less_cmd']:
         log.warn("LESS processing command 'less_cmd' is undefined.")
 
@@ -489,17 +489,17 @@ def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG,
 
 
 @baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS)
-def publish(config=DEFAULT_CONF, section=None,
+def sync(config=DEFAULT_CONF, section=None,
             logfile=DEFAULT_LOG, verbose=False):
     """Synchronize remote web server with generated content."""
     init(config, section, logfile, verbose)
     check_build_is_done(conf['build_path'])
 
-    if not conf['publish_cmd']:
-        raise Exception('Publishing command is not defined by configuration')
+    if not conf['sync_cmd']:
+        raise Exception('Synchronizing command is not defined by configuration')
 
-    log.info('Publishing...')
-    execute(conf['publish_cmd'].format(path=conf['build_path']), True)
+    log.info('Synchronizing...')
+    execute(conf['sync_cmd'].format(path=conf['build_path']), True)
     log.info('Done')
 
 

@@ -1,6 +1,5 @@
 Blog generation.
-Use something better than baker.
-Rename publish command.
+// Use something better than baker.
 Consider to add --dry-run mode.
 
 --
@@ -14,3 +13,5 @@ Markdown extension to include text files (preprocessor).
 Markdown extension for QR.
 
 Markdown extension for smater images.
+
+Colored logging http://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output
