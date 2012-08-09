@@ -1,8 +1,12 @@
 Remove main module import from setup.py.
 
+	- Move authoring info to setup.py
+	- Use pkg_resources to initialize __version__ (on demand only) - http://packages.python.org/distribute/pkg_resources.html
 	- Test installation on Ubuntu and clean virtualenv.
 
 Get The Name.
+
+Add # -*- coding: utf-8 -*-.
 
 Branch: Use argh against baker — http://packages.python.org/argh/tutorial.html
 

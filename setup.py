@@ -1,16 +1,15 @@
 #!/usr/bin/env python
 
 from setuptools import setup, find_packages
-import pub
 
 setup(
-    name=pub.__name__,
-    description=pub.__doc__,
-    version=pub.__version__,
-    license=pub.__license__,
-    author=pub.__author__,
-    author_email=pub.__email__,
-    url=pub.__url__,
+    name='public-static',
+    description='Yet another static website builder.',
+    version='0.4.3',
+    license='MIT',
+    author='Alex Musayev',
+    author_email='alex.musayev@gmail.com',
+    url='http://github.com/dreikanter/public-static',
     long_description=open('README.md').read(),
     platforms=['any'],
     packages=find_packages(),
