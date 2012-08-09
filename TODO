@@ -1,65 +1,59 @@
-Investagate existing systems
-* Sources:
-	* http://iwantmyname.com/blog/2011/02/list-static-website-generators.html
-* Subjects:
-	* Directories structure for static content
-	* Publishing flow
+Remove main module import from setup.py.
 
-A bit more things to research:
-* HTTP caching
+	- Test installation on Ubuntu and clean virtualenv.
 
 Get The Name.
 
-Use argh against baker — http://packages.python.org/argh/tutorial.html
+Branch: Use argh against baker — http://packages.python.org/argh/tutorial.html
 
-Drop configuration sections.
+	- Rename preview to run.
+	- Implement init command for new site initialization.
 
-Consider to implement calculated metadata (virtual @fields generated from actual metadata, content and everything). E.g. @wordscnt to get a number of words. @readindet for estimated reading time, etc.
+		- Optional key to generate some example content (examples could be excluded from the folder). // Lorem: Python library to generate sample content.
+		- Example should be packaged (and renamed to dummy or something better).
+		'New site created at %s. Have fun!'
+		- Integrate bootstrap.
+		- Add powered-by to default template.
 
-Rename preview to run.
+	- New page command.
+	- Deploy is better that sync.
 
-Blog generation.
-* Consider file naming and structure
-* Consider indexing for archive page generation and navigation links
+Branch: Blog generation.
+
+	- Consider file naming and structure
+	- Consider indexing for archive page generation and navigation links
+	- New post command (auto generate correct file name).
+
+Branch: Update configuration:
+
+	- Drop sections.
+	- -c key should accept pathes w/o configuration file name.
 
 Consider to merge pages/ and static/.
-Deploy is better that sync.
-
-Implement init command for new site initialization.
-* Optional key to generate some example content (examples could be excluded from the folder). // Lorem: Python library to generate sample content.
-* Example should be packaged (and renamed to dummy or something better).
-* 'New site created at %s. Have fun!'
-* Integrate bootstrap.
-* Add powered-by to default template.
-
--c key shoul accept pathes w/o configuration file name.
-
 Consider to use PyFS for deployment (local FS, zip, s3, ssh ready).
 
 Published field: yes/no (draft)
-* A command to switch draft/published status?
 
-New post command (auto generate correct file name).
-New page command.
+	- Don't build pages which status is draft.
+	- Consider a command to switch draft/published status?
+
+--- Next iteration
+
 Add image command.
 Undo command for last operations. Use the log?
-
 Post/page tags (there should be a search index).
-
 Consider to add --dry-run mode.
-
-Remove main module import from setup.py.
-Test installation on Ubuntu and clean virtualenv.
-
---
+Consider to implement calculated metadata (virtual @fields generated from actual metadata, content and everything). E.g. @wordscnt to get a number of words. @readindet for estimated reading time, etc.
 
 Generate PDF versions for CV (link file defining name and location OR destination in metadata options)
-	http://www.verypdf.com/pdfcamp/convert-html-to-pdf.html
-	https://github.com/chrisglass/xhtml2pdf
 
-! Markdown extension to include text files (preprocessor).
-* Checkout Mustache (pystache) inclusion ability.
-* Generalized commands: {command: arguments}, e.g. {include: footer.md}
+	- http://www.verypdf.com/pdfcamp/convert-html-to-pdf.html
+	- https://github.com/chrisglass/xhtml2pdf
+
+Markdown extension to include text files (preprocessor).
+
+	- Checkout Mustache (pystache) inclusion ability.
+	- Generalized commands: {command: arguments}, e.g. {include: footer.md}
 
 Markdown extension for QR.
 
@@ -74,13 +68,15 @@ Integrate Analytics.
 Integrate Disqus.
 
 Presentation.
-* Domain.
-* Get The Picture.
-* Discussion/feedback thing.
-* Good example: http://middlemanapp.com
-* One more: http://cloudhead.io/toto
+
+	- Domain.
+	- Get The Picture.
+	- Discussion/feedback thing.
+	- Good example: http://middlemanapp.com
+	- One more: http://cloudhead.io/toto
+	- Post.
 
 Some quotes:
-* nanoc is a Ruby web publishing system for building small to medium-sized websites. — http://nanoc.stoneship.org/
+	- nanoc is a Ruby web publishing system for building small to medium-sized websites. — http://nanoc.stoneship.org/
 
-Documentation @ readthedocs.org.
+Short readme and structured documentation @ readthedocs.org.
