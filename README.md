@@ -23,7 +23,7 @@ Example website sources could be cloned from repository:
 
 	git clone git://github.com/dreikanter/public-static.git
 
-Please keep in mind that the example website configuration uses Yahoo's yuicompressor for CSS and JavaScript minification. To use this tool Java runtime should be properly installed in addition to Python package. Either way there will be meaningless error message during attempt to run yuicompressor.
+Please keep in mind that the example website configuration uses Yahoo's yuicompressor for CSS and JavaScript minification. To use this tool [Java runtime](http://www.java.com/en/download/index.jsp) should be properly installed in addition to Python package. Either way there will be meaningless error message during attempt to run yuicompressor.
 
 ## Usage
 

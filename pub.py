@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding: utf-8
 
 import os
 import os.path
@@ -321,7 +322,7 @@ def str2int(value, default=None):
 
 
 def str2bool(bool_str, true_values=['1', 'true', 'yes', 'y']):
-    return True if bool_str.lower() in true_values else False
+    return bool_str.lower() in true_values
 
 
 def joind(d1, d2):
@@ -453,8 +454,8 @@ def build(config=DEFAULT_CONF, section=None,
                     'browse': 'Open in default browser',
                     'port': 'Port for local HTTP server',
                 }))
-def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG,
-            verbose=False, browse=False, port=None):
+def run(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG,
+        verbose=False, browse=False, port=None):
     """Run local web server to preview generated web site"""
     init(config, section, logfile, verbose)
     check_build_is_done(conf['build_path'])
@@ -489,9 +490,9 @@ def preview(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG,
 
 
 @baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS)
-def sync(config=DEFAULT_CONF, section=None,
+def deploy(config=DEFAULT_CONF, section=None,
             logfile=DEFAULT_LOG, verbose=False):
-    """Synchronize remote web server with generated content."""
+    """Deploy generated web site to the remote web server."""
     init(config, section, logfile, verbose)
     check_build_is_done(conf['build_path'])
 

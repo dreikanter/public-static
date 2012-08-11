@@ -1,16 +1,12 @@
 Remove main module import from setup.py.
 
-	- Move authoring info to setup.py
-	- Use pkg_resources to initialize __version__ (on demand only) - http://packages.python.org/distribute/pkg_resources.html
 	- Test installation on Ubuntu and clean virtualenv.
 
-Get The Name.
-
-Add # -*- coding: utf-8 -*-.
+Move markdown extensions list (MD_EXTENSIONS) to configuration.
+Multiple source ditrectories (one of the could me for static files).
 
 Branch: Use argh against baker — http://packages.python.org/argh/tutorial.html
 
-	- Rename preview to run.
 	- Implement init command for new site initialization.
 
 		- Optional key to generate some example content (examples could be excluded from the folder). // Lorem: Python library to generate sample content.
@@ -58,6 +54,18 @@ Markdown extension to include text files (preprocessor).
 
 	- Checkout Mustache (pystache) inclusion ability.
 	- Generalized commands: {command: arguments}, e.g. {include: footer.md}
+
+	It could be a separate markdown extension:
+
+	{include:disclaimer.inc.md} — from the document directory
+	{include:@disclaimer.md} — from the preconfigured path
+	{include:footnotes.txt} — include plain text (include during postprocessing)
+
+	Simple syntax:
+
+	{{ fragment.txt }}
+
+	To prevent fragments compillation as a separate pages, use '_' prefix. File name pattern could be configured with regex.
 
 Markdown extension for QR.
 
