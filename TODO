@@ -7,6 +7,9 @@ Multiple source ditrectories (one of the could me for static files).
 
 Branch: Use argh against baker — http://packages.python.org/argh/tutorial.html
 
+	- pub init [path] - an optional positional argument
+	- replace the -c option by positional argument with default value '.'
+	- get_params() should return CONF updated with conf_file data
 	- Implement init command for new site initialization.
 
 		- Optional key to generate some example content (examples could be excluded from the folder). // Lorem: Python library to generate sample content.
@@ -17,6 +20,10 @@ Branch: Use argh against baker — http://packages.python.org/argh/tutorial.html
 
 	- New page command.
 	- Deploy is better that sync.
+
+Branch: yaml configuration
+
+Consider to use --quiel against --verbose (verbose is default).
 
 Branch: Blog generation.
 

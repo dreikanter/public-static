@@ -2,20 +2,19 @@
 # coding: utf-8
 
 import os
-import os.path
-import io
 import re
+import sys
 import time
 import shutil
 import codecs
 import logging
 import traceback
+from argh import ArghParser, arg
 from datetime import datetime
 from configparser import RawConfigParser
 from multiprocessing import Process
 import markdown
 import pystache
-import baker
 
 __author__ = 'Alex Musayev'
 __email__ = 'alex.musayev@gmail.com'
@@ -31,6 +30,7 @@ DEFAULT_CONF = 'pub.conf'
 
 CONF = {
     'generator': "public-static {version}",
+    'conf': '',
     'pages_path': 'pages',
     'static_path': 'static',
     'build_path': 'www',
@@ -68,20 +68,6 @@ CONF = {
     'less_cmd': "lessc -x {source} > {dest}",
 }
 
-COMMON_PARAMS = {
-    'config': 'Configuration file',
-    'section': 'Configuration file section',
-    'logfile': 'Log file',
-    'verbose': 'Enable detailed logging'
-}
-
-COMMON_SHORTOPS = {
-    'config': 'c',
-    'section': 's',
-    'logfile': 'l',
-    'verbose': 'v'
-}
-
 TEMPLATE_FILE_NAME = "%s.mustache"
 LOG_CONSOLE_FMT = ("%(asctime)s %(levelname)s: %(message)s", "%H:%M:%S")
 LOG_FILE_FMT = ("%(asctime)s %(levelname)s: %(message)s", "%Y/%m/%d %H:%M:%S")
@@ -97,18 +83,15 @@ conf = {}
 
 # Initialization =============================================================
 
-def init(conf_file, section, log_file, verbose=False):
-    """Gets the configuration values."""
-    init_logging(log_file, verbose)
+def setup(args):
+    """Initializes configuration from command line arguments."""
+    conf_file = get_conf(args.path)
+    init_logging(args.log, args.verbose)
 
     try:
+        log.info("Source: '%s'" % conf_file)
         global conf
-        conf = CONF
-        sect = ("[%s]" % section) if section else '(first section)'
-        log.info("Using configuration from %s %s" % (conf_file, sect))
-        conf.update(get_params(conf_file, section))
-        purify_conf(conf_file)
-        verify_conf()
+        conf = verify_conf(purify_conf(get_params(conf_file)))
     except:
         log.error('Configuration failed')
         raise
@@ -137,21 +120,27 @@ def init_logging(log_file, verbose):
         raise
 
 
-def get_params(conf_file, section):
+def get_params(config, section=None):
     """Reads configuration file section to a dictionary."""
     parser = RawConfigParser()
-    with codecs.open(conf_file, mode='r', encoding='utf8') as f:
+    with codecs.open(config, mode='r', encoding='utf8') as f:
         parser.readfp(f)
     section = section or parser.sections()[0]
-    return {item[0]: item[1] for item in parser.items(section)}
+
+    conf = CONF
+    # Not unsing dict comprehension for Python 2.6 compatibility
+    conf.update(dict((item[0], item[1]) for item in parser.items(section)))
+    conf['conf'] = config
+    return conf
 
 
-def purify_conf(conf_file):
-    """Preprocess configuration parameters."""
-    conf['pages_path'] = get_conf_path(conf_file, conf['pages_path'])
-    conf['static_path'] = get_conf_path(conf_file, conf['static_path'])
-    conf['build_path'] = get_conf_path(conf_file, conf['build_path'])
-    conf['templates_path'] = get_conf_path(conf_file, conf['templates_path'])
+def purify_conf(conf):
+    """Preprocess configuration parameters"""
+    config = conf['conf']
+    conf['pages_path'] = get_conf_path(config, conf['pages_path'])
+    conf['static_path'] = get_conf_path(config, conf['static_path'])
+    conf['build_path'] = get_conf_path(config, conf['build_path'])
+    conf['templates_path'] = get_conf_path(config, conf['templates_path'])
     conf['browser_opening_delay'] = float(conf['browser_opening_delay'])
     conf['generator'] = conf['generator'].strip().format(version=__version__)
     conf['minify_js'] = str2bool(conf['minify_js'])
@@ -162,9 +151,10 @@ def purify_conf(conf_file):
     conf['sync_cmd'] = conf['sync_cmd'].strip()
     conf['run_browser_cmd'] = conf['run_browser_cmd'].strip()
     conf['port'] = int(conf['port'])
+    return conf
 
 
-def verify_conf():
+def verify_conf(conf):
     """Checks if configuration is correct."""
     if conf['minify_js'] and not conf['minify_js_cmd']:
         log.warn("JS minification enabled but 'minify_js_cmd' is undefined.")
@@ -174,6 +164,7 @@ def verify_conf():
         log.warn("Synchronization command 'sync_cmd' is undefined.")
     if not conf['less_cmd']:
         log.warn("LESS processing command 'less_cmd' is undefined.")
+    return conf
 
 
 # Website building ============================================================
@@ -283,7 +274,7 @@ def read_page_source(source_file):
 
         return page
 
-    except Exception as e:
+    except:
         log.debug(traceback.format_exc())
         log.error("Page source parsing error '%s'" % source_file)
         return {}
@@ -305,6 +296,15 @@ def get_template(tpl_name, templates_path):
 
 
 # General helpers =============================================================
+
+def get_conf(path):
+    """Returns configuration file full path from specified
+    command line parameter value."""
+    path = str(path or DEFAULT_CONF)
+    if os.path.isdir(path):
+        path = os.path.join(path, DEFAULT_CONF)
+    return os.path.abspath(path)
+
 
 def getxm(message, exception):
     """Returns annotated exception messge."""
@@ -433,34 +433,52 @@ def update_humans(source_file, dest_file):
         raise
 
 
-# Baker commands ==============================================================
+# Command line command ========================================================
 
-@baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS, default=True)
-def build(config=DEFAULT_CONF, section=None,
-          logfile=DEFAULT_LOG, verbose=False):
-    """Generate web content"""
-    init(config, section, logfile, verbose)
+# Common arguments
+
+path_arg = arg('path', default=None,
+    help='path to the website to build (default is current directory)')
+
+log_arg = arg('-l', '--log', default=None,
+    help='log file name')
+
+verbose_arg = arg('-v', '--verbose', default=False,
+    help='enable verbose output')
+
+
+@path_arg
+@arg('--lorem', default=False, help='generate example content')
+@log_arg
+@verbose_arg
+def init(args):
+    """create new website"""
+    pass
+
+
+@path_arg
+@log_arg
+@verbose_arg
+def build(args):
+    """generate web content from source"""
+    setup(args)
     drop_build_dir(conf['build_path'])
     log.info("Building path: '%s'" % conf['build_path'])
     process_files()
     log.info("Build succeeded.")
 
 
-@baker.command(shortopts=joind(COMMON_SHORTOPS, {
-                    'browse': 'b',
-                    'port': 'p',
-                }),
-               params=joind(COMMON_PARAMS, {
-                    'browse': 'Open in default browser',
-                    'port': 'Port for local HTTP server',
-                }))
-def run(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG,
-        verbose=False, browse=False, port=None):
-    """Run local web server to preview generated web site"""
-    init(config, section, logfile, verbose)
+@path_arg
+@arg('-p', '--port', default=None, help='port for local HTTP server')
+@arg('-b', '--browse', default=False, help='open in default browser')
+@log_arg
+@verbose_arg
+def run(args):
+    """run local web server to preview generated website"""
+    setup(args)
     check_build_is_done(conf['build_path'])
     original_cwd = os.getcwd()
-    port = str2int(port, conf['port'])
+    port = str2int(args.port, conf['port'])
     log.info("Running HTTP server on port %d..." % port)
 
     from SimpleHTTPServer import SimpleHTTPRequestHandler
@@ -469,7 +487,7 @@ def run(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG,
     httpd = TCPServer(('', port), handler)
 
     try:
-        if browse:
+        if args.browse:
             url = "http://localhost:%s/" % port
             cmd = conf['run_browser_cmd'].format(url=url)
             delay = conf['browser_opening_delay']
@@ -489,11 +507,12 @@ def run(config=DEFAULT_CONF, section=None, logfile=DEFAULT_LOG,
         os.chdir(original_cwd)
 
 
-@baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS)
-def deploy(config=DEFAULT_CONF, section=None,
-            logfile=DEFAULT_LOG, verbose=False):
-    """Deploy generated web site to the remote web server."""
-    init(config, section, logfile, verbose)
+@path_arg
+@log_arg
+@verbose_arg
+def deploy(args):
+    """deploy generated website to the remote web server"""
+    setup(args)
     check_build_is_done(conf['build_path'])
 
     if not conf['sync_cmd']:
@@ -504,22 +523,33 @@ def deploy(config=DEFAULT_CONF, section=None,
     log.info('Done')
 
 
-@baker.command(shortopts=COMMON_SHORTOPS, params=COMMON_PARAMS)
-def clean(config=DEFAULT_CONF, section=None,
-          logfile=DEFAULT_LOG, verbose=False):
-    """Delete all generated web content"""
-    init(config, section, logfile, verbose)
+@path_arg
+@log_arg
+@verbose_arg
+def clean(args):
+    """delete all generated content"""
+    setup(args)
     log.info('Cleaning output...')
     drop_build_dir(conf['build_path'])
     log.info('Done')
 
 
 def main():  # For setuptools
-    try:
-        baker.run()
-    except Exception as e:
-        l = log if len(log.handlers) else logging
-        l.debug(traceback.format_exc())
+    # Adding default value for 'path' positional argument
+    commands = ['init', 'build', 'run', 'deploy', 'clean']
+    if len(sys.argv) == 2 and sys.argv[1] in commands:
+        sys.argv.append('.')
+
+    p = ArghParser()
+    p.add_commands([init, build, run, deploy, clean])
+    p.dispatch()
+    # try:
+    #     p = ArghParser()
+    #     p.add_commands([init, build, run, deploy, clean])
+    #     p.dispatch()
+    # except:
+    #     l = log if len(log.handlers) else logging
+    #     l.debug(traceback.format_exc())
 
 
 if __name__ == '__main__':
