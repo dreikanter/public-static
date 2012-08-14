@@ -453,6 +453,8 @@ verbose_arg = arg('-v', '--verbose', default=False,
 @verbose_arg
 def init(args):
     """create new website"""
+    setup(args)
+    log.info("Initializing new website at '%s'" % )
     pass
 
 
