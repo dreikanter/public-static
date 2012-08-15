@@ -5,21 +5,22 @@ Remove main module import from setup.py.
 Move markdown extensions list (MD_EXTENSIONS) to configuration.
 Multiple source ditrectories (one of the could me for static files).
 
-Branch: Use argh against baker — http://packages.python.org/argh/tutorial.html
++ Branch: Use argh against baker — http://packages.python.org/argh/tutorial.html
 
-	- pub init [path] - an optional positional argument
-	- replace the -c option by positional argument with default value '.'
-	- get_params() should return CONF updated with conf_file data
-	- Implement init command for new site initialization.
+	+ pub init [path] - an optional positional argument
+	+ replace the -c option by positional argument with default value '.'
+	+ get_params() should return CONF updated with conf_file data
 
-		- Optional key to generate some example content (examples could be excluded from the folder). // Lorem: Python library to generate sample content.
-		- Example should be packaged (and renamed to dummy or something better).
-		'New site created at %s. Have fun!'
-		- Integrate bootstrap.
-		- Add powered-by to default template.
+Implement init command for new site initialization.
 
-	- New page command.
-	- Deploy is better that sync.
+	- Optional key to generate some example content (examples could be excluded from the folder). // Lorem: Python library to generate sample content.
+	- Example should be packaged (and renamed to dummy or something better).
+	'New site created at %s. Have fun!'
+	- Integrate bootstrap.
+	- Add powered-by to default template.
+
+New page command.
+Deploy is better that sync.
 
 Branch: yaml configuration
 
