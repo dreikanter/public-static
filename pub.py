@@ -11,9 +11,10 @@ import logging
 import traceback
 from argh import ArghParser, arg
 from datetime import datetime
-from configparser import RawConfigParser
+# from configparser import RawConfigParser
 from multiprocessing import Process
 import markdown
+from pprint import pprint
 import pystache
 import yaml
 
@@ -50,9 +51,9 @@ CONF = {
     # Default author name (overridable with page header 'author' parmeter)
     'author': '',
 
-    'minify_js': 'y',
-    'minify_css': 'y',
-    'minify_less': 'y',
+    'minify_js': True,
+    'minify_css': True,
+    'minify_less': True,
 
     # Minification commands: {source} is used in both for source file
     # and {dest} is for processed output
@@ -137,16 +138,13 @@ def init_logging(log_file, verbose):
         raise
 
 
-def get_params(config, section=None):
+def get_params(config):
     """Reads configuration file section to a dictionary."""
-    parser = RawConfigParser()
     with codecs.open(config, mode='r', encoding='utf8') as f:
-        parser.readfp(f)
-    section = section or parser.sections()[0]
+        loaded = yaml.load(f.read())
 
     conf = CONF
-    # Not unsing dict comprehension for Python 2.6 compatibility
-    conf.update(dict((item[0], item[1]) for item in parser.items(section)))
+    conf.update(dict((item, loaded[item]) for item in loaded))
     conf['conf'] = config
     return conf
 
@@ -160,9 +158,6 @@ def purify_conf(conf):
     conf['templates_path'] = get_conf_path(config, conf['templates_path'])
     conf['browser_opening_delay'] = float(conf['browser_opening_delay'])
     conf['generator'] = conf['generator'].strip().format(version=__version__)
-    conf['minify_js'] = str2bool(conf['minify_js'])
-    conf['minify_css'] = str2bool(conf['minify_css'])
-    conf['minify_less'] = str2bool(conf['minify_less'])
     conf['minify_js_cmd'] = conf['minify_js_cmd'].strip()
     conf['minify_css_cmd'] = conf['minify_css_cmd'].strip()
     conf['sync_cmd'] = conf['sync_cmd'].strip()
@@ -171,6 +166,7 @@ def purify_conf(conf):
     return conf
 
 
+# TODO: Consider to implement verify command for this
 # def verify_conf(conf):
 #     """Checks if configuration is correct."""
 #     if conf['minify_js'] and not conf['minify_js_cmd']:
@@ -335,10 +331,6 @@ def str2int(value, default=None):
     return value
 
 
-def str2bool(bool_str, true_values=['1', 'true', 'yes', 'y']):
-    return bool_str.lower() in true_values
-
-
 def joind(d1, d2):
     """Joins two dictionaries"""
     return dict(d1.items() + d2.items())
@@ -478,6 +470,7 @@ def build(args):
     """generate web content from source"""
     setup(args)
     drop_build_dir(conf['build_path'])
+    ensure_dir_exists(conf['build_path'])
     log.info("Building path: '%s'" % conf['build_path'])
     process_files()
     log.info("Build succeeded.")

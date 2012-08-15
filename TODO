@@ -6,6 +6,8 @@ Move markdown extensions list (MD_EXTENSIONS) to configuration.
 
 Multiple source ditrectories (one of the could me for static files).
 
+To readme: Bool values could be true, false, on, off.
+
 Implement init command for new site initialization.
 
 	- Optional key to generate some example content (examples could be excluded from the folder). // Lorem: Python library to generate sample content.
