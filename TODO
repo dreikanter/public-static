@@ -3,13 +3,8 @@ Remove main module import from setup.py.
 	- Test installation on Ubuntu and clean virtualenv.
 
 Move markdown extensions list (MD_EXTENSIONS) to configuration.
+
 Multiple source ditrectories (one of the could me for static files).
-
-+ Branch: Use argh against baker — http://packages.python.org/argh/tutorial.html
-
-	+ pub init [path] - an optional positional argument
-	+ replace the -c option by positional argument with default value '.'
-	+ get_params() should return CONF updated with conf_file data
 
 Implement init command for new site initialization.
 
@@ -20,6 +15,7 @@ Implement init command for new site initialization.
 	- Add powered-by to default template.
 
 New page command.
+
 Deploy is better that sync.
 
 Branch: yaml configuration
@@ -38,6 +34,7 @@ Branch: Update configuration:
 	- -c key should accept pathes w/o configuration file name.
 
 Consider to merge pages/ and static/.
+
 Consider to use PyFS for deployment (local FS, zip, s3, ssh ready).
 
 Published field: yes/no (draft)

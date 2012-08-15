@@ -9,5 +9,5 @@ bin
 sdist
 MANIFEST
 
-example/www
+generic-site/www
 *.log

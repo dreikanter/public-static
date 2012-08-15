@@ -15,6 +15,7 @@ from configparser import RawConfigParser
 from multiprocessing import Process
 import markdown
 import pystache
+import yaml
 
 __author__ = 'Alex Musayev'
 __email__ = 'alex.musayev@gmail.com'
@@ -37,11 +38,11 @@ CONF = {
     'templates_path': 'templates',
 
     # Default port value (overridable with command line param)
-    'port': '8000',
+    'port': 8000,
 
     # Amount of seconds between starting local web server
     # and opening a browser
-    'browser_opening_delay': '2.0',
+    'browser_opening_delay': 2.0,
 
     # Default template name (overridable with page header 'template' parameter)
     'template': 'default',
@@ -84,17 +85,33 @@ conf = {}
 # Initialization =============================================================
 
 def setup(args):
-    """Initializes configuration from command line arguments."""
-    conf_file = get_conf(args.path)
+    """Initializes website configuration from command line arguments. Creates
+    new site directory if init is True, or reads specified configuration file
+    otherwise."""
+    config = conf_name(args.path)
     init_logging(args.log, args.verbose)
 
-    try:
-        log.info("Source: '%s'" % conf_file)
-        global conf
-        conf = verify_conf(purify_conf(get_params(conf_file)))
-    except:
-        log.error('Configuration failed')
-        raise
+    global conf
+
+    if args.function == init:
+        try:
+            site_path = os.path.dirname(config)
+            log.info("creating new website at '%s'" % site_path)
+            ensure_dir_exists(site_path)
+            text = yaml.dump(CONF, width=80, indent=4, default_flow_style=False)
+            with codecs.open(config, mode='w', encoding='utf8') as f:
+                f.write(text)
+            conf = purify_conf(CONF)
+        except:
+            log.error('initialization failed')
+            raise
+    else:
+        try:
+            log.info("loading website configuration from '%s'" % config)
+            conf = purify_conf(get_params(config))
+        except:
+            log.error('configuration failed')
+            raise
 
 
 def init_logging(log_file, verbose):
@@ -154,17 +171,17 @@ def purify_conf(conf):
     return conf
 
 
-def verify_conf(conf):
-    """Checks if configuration is correct."""
-    if conf['minify_js'] and not conf['minify_js_cmd']:
-        log.warn("JS minification enabled but 'minify_js_cmd' is undefined.")
-    if (conf['minify_less'] or conf['minify_css']) and not conf['minify_css_cmd']:
-        log.warn("CSS minification enabled but 'minify_css_cmd' is undefined.")
-    if not conf['sync_cmd']:
-        log.warn("Synchronization command 'sync_cmd' is undefined.")
-    if not conf['less_cmd']:
-        log.warn("LESS processing command 'less_cmd' is undefined.")
-    return conf
+# def verify_conf(conf):
+#     """Checks if configuration is correct."""
+#     if conf['minify_js'] and not conf['minify_js_cmd']:
+#         log.warn("JS minification enabled but 'minify_js_cmd' is undefined.")
+#     if (conf['minify_less'] or conf['minify_css']) and not conf['minify_css_cmd']:
+#         log.warn("CSS minification enabled but 'minify_css_cmd' is undefined.")
+#     if not conf['sync_cmd']:
+#         log.warn("Synchronization command 'sync_cmd' is undefined.")
+#     if not conf['less_cmd']:
+#         log.warn("LESS processing command 'less_cmd' is undefined.")
+#     return conf
 
 
 # Website building ============================================================
@@ -297,13 +314,10 @@ def get_template(tpl_name, templates_path):
 
 # General helpers =============================================================
 
-def get_conf(path):
+def conf_name(path):
     """Returns configuration file full path from specified
     command line parameter value."""
-    path = str(path or DEFAULT_CONF)
-    if os.path.isdir(path):
-        path = os.path.join(path, DEFAULT_CONF)
-    return os.path.abspath(path)
+    return os.path.abspath(os.path.join(path, DEFAULT_CONF))
 
 
 def getxm(message, exception):
@@ -454,7 +468,6 @@ verbose_arg = arg('-v', '--verbose', default=False,
 def init(args):
     """create new website"""
     setup(args)
-    log.info("Initializing new website at '%s'" % )
     pass
 
 
