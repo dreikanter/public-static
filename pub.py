@@ -72,6 +72,9 @@ CONF = {
 
     # A list of markdown extensions
     'markdown_extensions': ['nl2br', 'grid', 'smartypants'],
+
+    # Text editor command (use {file} for file name to edit)
+    'editor_cmd': "$EDITOR '{file}'",
 }
 
 TEMPLATE_FILE_NAME = "%s.mustache"
@@ -489,7 +492,6 @@ verbose_arg = arg('-v', '--verbose', default=False,
 
 
 @path_arg
-@arg('--lorem', default=False, help='generate example content')
 @log_arg
 @verbose_arg
 def init(args):
@@ -577,6 +579,17 @@ def clean(args):
     log.info('done')
 
 
+@path_arg
+@arg('-e', '--edit', default=False, help='open with preconfigured editor')
+@log_arg
+@verbose_arg
+def page(args):
+    setup(args)
+    # TODO: ...
+    if args.edit:
+        print(os.path.expandvars(conf['editor_cmd']))
+
+
 def main():  # For setuptools
     # Adding default value for 'path' positional argument
     commands = ['init', 'build', 'run', 'deploy', 'clean']
@@ -584,7 +597,7 @@ def main():  # For setuptools
         sys.argv.append('.')
 
     p = ArghParser()
-    p.add_commands([init, build, run, deploy, clean])
+    p.add_commands([init, build, run, deploy, clean, page])
     p.dispatch()
     # try:
     #     p = ArghParser()
