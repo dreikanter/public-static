@@ -1,4 +1,4 @@
-title: Untitled
+title: Untitled page
 ctime: {ctime}
 
 # New Page
