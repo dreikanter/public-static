@@ -11,7 +11,6 @@ import logging
 import traceback
 from argh import ArghParser, arg
 from datetime import datetime
-# from configparser import RawConfigParser
 from multiprocessing import Process
 import markdown
 from pprint import pprint
@@ -22,7 +21,7 @@ __author__ = 'Alex Musayev'
 __email__ = 'alex.musayev@gmail.com'
 __copyright__ = "Copyright 2012, %s <http://alex.musayev.com>" % __author__
 __license__ = 'MIT'
-__version_info__ = (0, 4, 3)
+__version_info__ = (0, 4, 8)
 __version__ = '.'.join(map(str, __version_info__))
 __status__ = 'Development'
 __url__ = 'http://github.com/dreikanter/public-static'

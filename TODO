@@ -14,22 +14,11 @@ Implement init command for new site initialization.
 
 New page command.
 
-Deploy is better that sync.
-
-Branch: yaml configuration
-
-Consider to use --quiel against --verbose (verbose is default).
-
 Branch: Blog generation.
 
 	- Consider file naming and structure
 	- Consider indexing for archive page generation and navigation links
 	- New post command (auto generate correct file name).
-
-Branch: Update configuration:
-
-	- Drop sections.
-	- -c key should accept pathes w/o configuration file name.
 
 Consider to merge pages/ and static/.
 

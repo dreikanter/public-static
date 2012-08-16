@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 setup(
     name='public-static',
     description='Yet another static website builder.',
-    version='0.4.3',
+    version='0.4.8',
     license='MIT',
     author='Alex Musayev',
     author_email='alex.musayev@gmail.com',
