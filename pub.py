@@ -29,6 +29,7 @@ __url__ = 'http://github.com/dreikanter/public-static'
 
 DEFAULT_LOG = 'pub.log'
 DEFAULT_CONF = 'pub.conf'
+GENERIC_PATH = 'generic-site'
 
 CONF = {
     'generator': "public-static {version}",
@@ -77,7 +78,6 @@ TEMPLATE_FILE_NAME = "%s.mustache"
 LOG_CONSOLE_FMT = ("%(asctime)s %(levelname)s: %(message)s", "%H:%M:%S")
 LOG_FILE_FMT = ("%(asctime)s %(levelname)s: %(message)s", "%Y/%m/%d %H:%M:%S")
 TIME_FMT = "%Y/%m/%d %H:%M:%S"
-MD_EXTENSIONS = ['nl2br', 'grid', 'smartypants']
 RE_FLAGS = re.I | re.M | re.U
 PARAM_PATTERN = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", RE_FLAGS)
 H1_PATTERN = re.compile(r"^\s*#\s*(.*)\s*", RE_FLAGS)
@@ -106,7 +106,8 @@ def setup(args):
             with codecs.open(config, mode='w', encoding='utf8') as f:
                 f.write(text)
             conf = purify_conf(CONF)
-            shutil.copytree()
+            generic_path = os.path.join(os.path.dirname(__file__), GENERIC_PATH)
+            copy(generic_path, site_path)
         except:
             log.error('initialization failed')
             raise
@@ -293,7 +294,7 @@ def read_page_source(source_file):
 
     except:
         log.debug(traceback.format_exc())
-        log.error("page source parsing error '%s'" % source_file)
+        log.error("page processing error '%s'" % source_file)
         return {}
 
 
@@ -312,7 +313,9 @@ def get_template(tpl_name, templates_path):
     raise Exception("template not exists: '%s'" % file_name)
 
 
-def copy(src, dst):
+def copy(src, dest):
+    print(src, dest)
+    return
     try:
         shutil.copytree(src, dst)
     except OSError as e:
@@ -423,10 +426,19 @@ def get_conf_path(conf_file, path):
 
 def md(text):
     """Converts markdown formatted text to HTML."""
-    # New Markdown instanse works faster on large amounts of text
-    # than reused one (for some reason)
-    mkdn = markdown.Markdown(extensions=MD_EXTENSIONS)
-    return mkdn.convert(text.strip())
+    try:
+        # New Markdown instanse works faster on large amounts of text
+        # than reused one (for some reason)
+        mkdn = markdown.Markdown(extensions=conf['markdown_extensions'])
+    except:
+        log.error('markdown initialization error: probably bad extension names')
+        raise
+
+    try:
+        return mkdn.convert(text.strip())
+    except:
+        log.error('markdown processing error')
+        raise
 
 
 def update_humans(source_file, dest_file):
