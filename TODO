@@ -1,12 +1,8 @@
-Remove main module import from setup.py.
+Readme:
 
-	- Test installation on Ubuntu and clean virtualenv.
-
-Move markdown extensions list (MD_EXTENSIONS) to configuration.
-
-Multiple source ditrectories (one of the could me for static files).
-
-To readme: Bool values could be true, false, on, off.
+	- Update configuration description.
+	- Describe init command
+	- Rename renamed commands
 
 Implement init command for new site initialization.
 
@@ -43,6 +39,8 @@ Published field: yes/no (draft)
 
 	- Don't build pages which status is draft.
 	- Consider a command to switch draft/published status?
+
+Test installation on Ubuntu and clean virtualenv.
 
 --- Next iteration
 
@@ -99,3 +97,9 @@ Some quotes:
 	- nanoc is a Ruby web publishing system for building small to medium-sized websites. — http://nanoc.stoneship.org/
 
 Short readme and structured documentation @ readthedocs.org. http://read-the-docs.readthedocs.org/en/latest/getting_started.html
+
+-- Unconsidered
+
+? Move markdown extensions list (MD_EXTENSIONS) to configuration.
+
+? Multiple source directories (one of the could me for static files).

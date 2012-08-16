@@ -71,9 +71,9 @@ Build configuration parameters:
 * `browser_opening_delay` — amount of seconds between starting local web server and opening a browser (floating point value). Default: `2.0`.
 * `template` — template name to be used for all pages which header not defines `template` parameter explicitly. Default: `default` (which maps to _default.mustache_).
 * `author` — default author name (overridable by `author` field in the header). Default: [empty].
-* `minify_js` — `yes/no` to enable or disable JavaScript minification. Default: `y`.
-* `minify_css` — `yes/no` to enable or disable CSS minification. Default: `y`.
-* `minify_less` — `yes/no` to enable or disable LESS minification. Default: `y`.
+* `minify_js` — `on/off` to enable or disable JavaScript minification. Default: `on` (`trua/false` values could be used either).
+* `minify_css` — `on/off` to enable or disable CSS minification. Default: `on`.
+* `minify_less` — `on/off` to enable or disable LESS minification. Default: `on`.
 * `minify_js_cmd` — minification commands for JavaScript files. Default: `yuicompressor --type js --nomunge -o {dest} {source}`  (`{source}` and `{dest}` will be replaced with actual source and destination file names).
 * `minify_css_cmd` — minification commands for CSS files. Default: `yuicompressor --type css -`.{dest} {source}",
 * `publish_cmd` — command to sync `build_path` to web server (will be executed by `publish` command). Default:` `.
@@ -94,9 +94,9 @@ Example:
 	port = 8000
 	browser_opening_delay = 2
 	generator = {name} {version}
-	minify_js = yes
-	minify_css = yes
-	minify_less = yes
+	minify_js = on
+	minify_css = on
+	minify_less = on
 	minify_js_cmd = yuicompressor --type js --nomunge -o {dest} {source}
 	minify_css_cmd = yuicompressor --type css -o {dest} {source}
 	publish_cmd = c:\bin\winscp\winscp.com /log=publish.log /command "open ""username@example.com""" "synchronize remote {path} ./example.com/public_html" "close" "exit"
