@@ -495,7 +495,7 @@ verbose_arg = arg('-v', '--verbose', default=False,
 def init(args):
     """create new website"""
     setup(args)
-    pass
+    log.info('new site created successfully, have fun!')
 
 
 @path_arg

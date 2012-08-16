@@ -6,23 +6,24 @@ Readme:
 
 Implement init command for new site initialization.
 
-	- Optional key to generate some example content (examples could be excluded from the folder). // Lorem: Python library to generate sample content.
-	- Example should be packaged (and renamed to dummy or something better).
-	'New site created at %s. Have fun!'
-	- Integrate bootstrap.
+	- Example should be packaged.
 	- Add powered-by to default template.
 
 New page command.
+
+	- generic-pages directory for content templates
+	- default template
+	- new command with a *mandatory* positional argument containing template name
+		- page about
+		- page -t tpl about
+		- page -e projects/public-static ← Opens in default (or preconfigured) editor
+	- Configuration: editor_cmd: "%EDITOR% {file}" (expand env vars and execute)
 
 Branch: Blog generation.
 
 	- Consider file naming and structure
 	- Consider indexing for archive page generation and navigation links
 	- New post command (auto generate correct file name).
-
-Consider to merge pages/ and static/.
-
-Consider to use PyFS for deployment (local FS, zip, s3, ssh ready).
 
 Published field: yes/no (draft)
 
@@ -36,8 +37,6 @@ Test installation on Ubuntu and clean virtualenv.
 Add image command.
 Undo command for last operations. Use the log?
 Post/page tags (there should be a search index).
-Consider to add --dry-run mode.
-Consider to implement calculated metadata (virtual @fields generated from actual metadata, content and everything). E.g. @wordscnt to get a number of words. @readindet for estimated reading time, etc.
 
 Generate PDF versions for CV (link file defining name and location OR destination in metadata options)
 
@@ -89,6 +88,12 @@ Short readme and structured documentation @ readthedocs.org. http://read-the-doc
 
 -- Unconsidered
 
-? Move markdown extensions list (MD_EXTENSIONS) to configuration.
+Move markdown extensions list (MD_EXTENSIONS) to configuration.
 
-? Multiple source directories (one of the could me for static files).
+Multiple source directories (one of the could me for static files).
+
+Use PyFS for deployment (local FS, zip, s3, ssh ready).
+
+Add --dry-run mode.
+
+Implement calculated metadata (virtual @fields generated from actual metadata, content and everything). E.g. @wordscnt to get a number of words. @readindet for estimated reading time, etc.
