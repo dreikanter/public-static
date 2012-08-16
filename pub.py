@@ -100,14 +100,17 @@ def setup(args):
     if args.function == init:
         try:
             site_path = os.path.dirname(config)
+            if os.path.isdir(site_path):
+                log.error("directory already exists: '%s'" % site_path)
+                exit()
+
             log.info("creating new website at '%s'" % site_path)
-            ensure_dir_exists(site_path)
+            spawn_generic(site_path)
+
             text = yaml.dump(CONF, width=80, indent=4, default_flow_style=False)
             with codecs.open(config, mode='w', encoding='utf8') as f:
                 f.write(text)
             conf = purify_conf(CONF)
-            generic_path = os.path.join(os.path.dirname(__file__), GENERIC_PATH)
-            copy(generic_path, site_path)
         except:
             log.error('initialization failed')
             raise
@@ -144,7 +147,7 @@ def init_logging(log_file, verbose):
 
 
 def get_params(config):
-    """Reads configuration file section to a dictionary."""
+    """Reads configuration file section to a dictionary"""
     with codecs.open(config, mode='r', encoding='utf8') as f:
         loaded = yaml.load(f.read())
 
@@ -188,7 +191,7 @@ def purify_conf(conf):
 # Website building ============================================================
 
 def process_files():
-    """Walk through source files and process one by one."""
+    """Walk through source files and process one by one"""
     process_dir('static files', conf['static_path'])
     process_dir('pages', conf['pages_path'])
 
@@ -223,7 +226,7 @@ def process_file(source_root, source_file):
     dest_file = os.path.join(conf['build_path'], rel_dest)
 
     if ext == '.md':
-        log.info(" * building page: %s => %s" % (rel_source, rel_dest))
+        log.info("  building page: %s => %s" % (rel_source, rel_dest))
         build_page(source_file, dest_file, conf['templates_path'])
 
     elif ext == '.less':
@@ -254,7 +257,7 @@ def process_file(source_root, source_file):
 
 
 def build_page(source_file, dest_file, templates_path):
-    """Builds a page from markdown source amd mustache template."""
+    """Builds a page from markdown source amd mustache template"""
     try:
         page = read_page_source(source_file)
         with codecs.open(dest_file, mode='w', encoding='utf8') as f:
@@ -313,28 +316,16 @@ def get_template(tpl_name, templates_path):
     raise Exception("template not exists: '%s'" % file_name)
 
 
-def copy(src, dest):
-    print(src, dest)
-    return
-    try:
-        shutil.copytree(src, dst)
-    except OSError as e:
-        if e.errno == errno.ENOTDIR:
-            shutil.copy(src, dst)
-        else:
-            raise
-
-
 # General helpers =============================================================
 
 def conf_name(path):
     """Returns configuration file full path from specified
-    command line parameter value."""
+    command line parameter value"""
     return os.path.abspath(os.path.join(path, DEFAULT_CONF))
 
 
 def getxm(message, exception):
-    """Returns annotated exception messge."""
+    """Returns annotated exception messge"""
     return ("%s: %s" % (message, str(exception))) if exception else message
 
 
@@ -361,13 +352,13 @@ def ensure_dir_exists(dir_path):
 
 def execute_proc(cmd_name, source, dest):
     """Executes one of the preconfigured commands
-    with {source} and {dest} parameters replacement."""
+    with {source} and {dest} parameters replacement"""
     cmd = conf[cmd_name].format(source=source, dest=dest)
     execute(cmd)
 
 
 def execute(cmd, critical=False):
-    """Execute system command."""
+    """Execute system command"""
     try:
         log.debug("executing '%s'" % cmd)
         os.system(cmd)
@@ -380,19 +371,19 @@ def execute(cmd, critical=False):
 
 
 def execute_after(cmd, delay):
-    """This function intended to execute system command asyncronously."""
+    """This function intended to execute system command asyncronously"""
     time.sleep(delay)
     execute(cmd, True)
 
 
 def check_build_is_done(build_path):
-    """Check if the web content was built and exit if it isn't."""
+    """Check if the web content was built and exit if it isn't"""
     if not os.path.isdir(build_path):
         raise Exception("web content directory not exists: '%s'" % build_path)
 
 
 def drop_build_dir(build_path, create_new=False):
-    """Drops the build if it exists."""
+    """Drops the build if it exists"""
     if os.path.isdir(build_path):
         shutil.rmtree(build_path, ignore_errors=True)
     if create_new and not os.path.isdir(build_path):
@@ -400,7 +391,7 @@ def drop_build_dir(build_path, create_new=False):
 
 
 def get_md_h1(text):
-    """Extracts the first h1-header from markdown text."""
+    """Extracts the first h1-header from markdown text"""
     matches = H1_PATTERN.search(text)
     return matches.group(1) if matches else ''
 
@@ -425,7 +416,7 @@ def get_conf_path(conf_file, path):
 
 
 def md(text):
-    """Converts markdown formatted text to HTML."""
+    """Converts markdown formatted text to HTML"""
     try:
         # New Markdown instanse works faster on large amounts of text
         # than reused one (for some reason)
@@ -465,6 +456,24 @@ def update_humans(source_file, dest_file):
         raise
 
 
+def spawn_generic(path):
+    """Clones generic site to specified directory"""
+    generic_path = os.path.dirname(os.path.abspath(__file__))
+    generic_path = os.path.join(generic_path, GENERIC_PATH)
+    cp(generic_path, path)
+
+
+def cp(src, dest):
+    """Copies everything to anywhere"""
+    try:
+        shutil.copytree(src, dest)
+    except OSError as e:
+        if e.errno == errno.ENOTDIR:
+            shutil.copy(src, dest)
+        else:
+            raise
+
+
 # Command line command ========================================================
 
 # Common arguments
@@ -499,7 +508,7 @@ def build(args):
     ensure_dir_exists(conf['build_path'])
     log.info("building path: '%s'" % conf['build_path'])
     process_files()
-    log.info("build succeeded.")
+    log.info("build succeeded")
 
 
 @path_arg
