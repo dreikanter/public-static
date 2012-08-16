@@ -6,6 +6,7 @@ import re
 import sys
 import time
 import shutil
+import errno
 import codecs
 import logging
 import traceback
@@ -67,6 +68,9 @@ CONF = {
 
     # LESS compiler command ({source} and {dest} will be replaced)
     'less_cmd': "lessc -x {source} > {dest}",
+
+    # A list of markdown extensions
+    'markdown_extensions': ['nl2br', 'grid', 'smartypants'],
 }
 
 TEMPLATE_FILE_NAME = "%s.mustache"
@@ -102,6 +106,7 @@ def setup(args):
             with codecs.open(config, mode='w', encoding='utf8') as f:
                 f.write(text)
             conf = purify_conf(CONF)
+            shutil.copytree()
         except:
             log.error('initialization failed')
             raise
@@ -133,7 +138,7 @@ def init_logging(log_file, verbose):
             channel.setFormatter(fmt)
             log.addHandler(channel)
     except:
-        logging.error('Logging initialization failed')
+        logging.error('logging initialization failed')
         raise
 
 
@@ -188,7 +193,7 @@ def process_files():
 
 
 def process_dir(message, source_root):
-    log.info("Processing %s from '%s'..." % (message, source_root))
+    log.info("processing %s from '%s'..." % (message, source_root))
 
     for cur_dir, dirs, files in os.walk(source_root):
         rel_path = cur_dir[len(source_root):].strip("\\/")
@@ -217,11 +222,11 @@ def process_file(source_root, source_file):
     dest_file = os.path.join(conf['build_path'], rel_dest)
 
     if ext == '.md':
-        log.info(" * Building page: %s => %s" % (rel_source, rel_dest))
+        log.info(" * building page: %s => %s" % (rel_source, rel_dest))
         build_page(source_file, dest_file, conf['templates_path'])
 
     elif ext == '.less':
-        log.info(' * Compiling LESS: ' + rel_source)
+        log.info('  compiling LESS: ' + rel_source)
         if conf['minify_less']:
             tmp_file = dest_file + '.tmp'
             execute_proc('less_cmd', source_file, tmp_file)
@@ -231,19 +236,19 @@ def process_file(source_root, source_file):
             execute_proc('less_cmd', source_file, dest_file)
 
     elif ext == '.css' and conf['minify_css'] and conf['minify_css_cmd']:
-        log.info(' * Minifying CSS: ' + rel_source)
+        log.info('  minifying CSS: ' + rel_source)
         execute_proc('minify_css_cmd', source_file, dest_file)
 
     elif ext == '.js' and conf['minify_js'] and conf['minify_js_cmd']:
-        log.info(' * Minifying JS: ' + rel_source)
+        log.info('  minifying JS: ' + rel_source)
         execute_proc('minify_js_cmd', source_file, dest_file)
 
     elif os.path.basename(rel_source) == 'humans.txt':
-        log.info(' * Copying: %s (updated)' % rel_source)
+        log.info('  copying: %s (updated)' % rel_source)
         update_humans(source_file, dest_file)
 
     else:
-        log.info(' * Copying: ' + rel_source)
+        log.info('  copying: ' + rel_source)
         shutil.copyfile(source_file, dest_file)
 
 
@@ -256,7 +261,7 @@ def build_page(source_file, dest_file, templates_path):
             f.write(pystache.render(tpl, page))
     except Exception as e:
         log.debug(traceback.format_exc())
-        log.error('Content processing error: ' + str(e))
+        log.error('content processing error: ' + str(e))
 
 
 def read_page_source(source_file):
@@ -288,7 +293,7 @@ def read_page_source(source_file):
 
     except:
         log.debug(traceback.format_exc())
-        log.error("Page source parsing error '%s'" % source_file)
+        log.error("page source parsing error '%s'" % source_file)
         return {}
 
 
@@ -304,7 +309,17 @@ def get_template(tpl_name, templates_path):
         with codecs.open(file_name, mode='r', encoding='utf8') as f:
             return f.read()
 
-    raise Exception("Template not exists: '%s'" % file_name)
+    raise Exception("template not exists: '%s'" % file_name)
+
+
+def copy(src, dst):
+    try:
+        shutil.copytree(src, dst)
+    except OSError as e:
+        if e.errno == errno.ENOTDIR:
+            shutil.copy(src, dst)
+        else:
+            raise
 
 
 # General helpers =============================================================
@@ -351,10 +366,10 @@ def execute_proc(cmd_name, source, dest):
 def execute(cmd, critical=False):
     """Execute system command."""
     try:
-        log.debug("Executing '%s'" % cmd)
+        log.debug("executing '%s'" % cmd)
         os.system(cmd)
     except:
-        log.error('Error executing system command')
+        log.error('error executing system command')
         if critical:
             raise
         else:
@@ -370,7 +385,7 @@ def execute_after(cmd, delay):
 def check_build_is_done(build_path):
     """Check if the web content was built and exit if it isn't."""
     if not os.path.isdir(build_path):
-        raise Exception("Web content directory not exists: '%s'" % build_path)
+        raise Exception("web content directory not exists: '%s'" % build_path)
 
 
 def drop_build_dir(build_path, create_new=False):
@@ -470,9 +485,9 @@ def build(args):
     setup(args)
     drop_build_dir(conf['build_path'])
     ensure_dir_exists(conf['build_path'])
-    log.info("Building path: '%s'" % conf['build_path'])
+    log.info("building path: '%s'" % conf['build_path'])
     process_files()
-    log.info("Build succeeded.")
+    log.info("build succeeded.")
 
 
 @path_arg
@@ -486,7 +501,7 @@ def run(args):
     check_build_is_done(conf['build_path'])
     original_cwd = os.getcwd()
     port = str2int(args.port, conf['port'])
-    log.info("Running HTTP server on port %d..." % port)
+    log.info("running HTTP server on port %d..." % port)
 
     from SimpleHTTPServer import SimpleHTTPRequestHandler
     from SocketServer import TCPServer
@@ -499,9 +514,9 @@ def run(args):
             cmd = conf['run_browser_cmd'].format(url=url)
             delay = conf['browser_opening_delay']
 
-            log.info("Opening browser in %g seconds." % delay)
-            log.info('Use Ctrl-Break to stop webserver')
-            log.debug("Command: '%s'" % cmd)
+            log.info("opening browser in %g seconds" % delay)
+            log.info('use Ctrl-Break to stop webserver')
+            log.debug("command: '%s'" % cmd)
             p = Process(target=execute_after, args=(cmd, delay))
             p.start()
 
@@ -509,7 +524,7 @@ def run(args):
         httpd.serve_forever()
 
     except KeyboardInterrupt:
-        log.info('Server was stopped by user')
+        log.info('server was stopped by user')
     finally:
         os.chdir(original_cwd)
 
@@ -523,11 +538,11 @@ def deploy(args):
     check_build_is_done(conf['build_path'])
 
     if not conf['sync_cmd']:
-        raise Exception('Synchronizing command is not defined by configuration')
+        raise Exception('synchronizing command is not defined by configuration')
 
-    log.info('Synchronizing...')
+    log.info('synchronizing...')
     execute(conf['sync_cmd'].format(path=conf['build_path']), True)
-    log.info('Done')
+    log.info('done')
 
 
 @path_arg
@@ -536,9 +551,9 @@ def deploy(args):
 def clean(args):
     """delete all generated content"""
     setup(args)
-    log.info('Cleaning output...')
+    log.info('cleaning output...')
     drop_build_dir(conf['build_path'])
-    log.info('Done')
+    log.info('done')
 
 
 def main():  # For setuptools
