@@ -1,6 +1,18 @@
 #!/usr/bin/env python
 
+import os
 from setuptools import setup, find_packages
+
+
+def get_data_files(path):
+    files = []
+    path = os.path.abspath(path)
+    for dirname, dirnames, filenames in os.walk(path):
+        for filename in filenames:
+            if os.path.splitext(filename)[1].lower() not in ['.py', '.pyc']:
+                full_path = os.path.join(dirname, filename)
+                files.append(os.path.relpath(full_path, path))
+    return files
 
 setup(
     name='public-static',
@@ -13,6 +25,7 @@ setup(
     long_description=open('README.md').read(),
     platforms=['any'],
     packages=find_packages(),
+    package_data={'publicstatic': get_data_files('publicstatic')},
     py_modules=['pub'],
     install_requires=[
         'markdown',

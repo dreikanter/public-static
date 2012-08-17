@@ -96,3 +96,5 @@ Use PyFS for deployment (local FS, zip, s3, ssh ready).
 Add --dry-run mode.
 
 Implement calculated metadata (virtual @fields generated from actual metadata, content and everything). E.g. @wordscnt to get a number of words. @readindet for estimated reading time, etc.
+
+Support http://bootswatch.com (describe the algorithm).
