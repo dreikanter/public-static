@@ -35,7 +35,7 @@ setup(
         'baker',
         'yuicompressor',
     ],
-    entry_points={'console_scripts': ['pub = pub:main']},
+    entry_points={'console_scripts': ['h2 = publicstatic.publicstatic:main']},
     include_package_data=True,
     zip_safe=False,
     classifiers=[
