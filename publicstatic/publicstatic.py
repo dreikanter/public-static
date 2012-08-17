@@ -571,22 +571,20 @@ def page(args):
         print(os.path.expandvars(conf['editor_cmd']))
 
 
-def main():  # For setuptools
+def main():
     # Adding default value for 'path' positional argument
     commands = ['init', 'build', 'run', 'deploy', 'clean']
     if len(sys.argv) == 2 and sys.argv[1] in commands:
         sys.argv.append('.')
 
-    p = ArghParser()
-    p.add_commands([init, build, run, deploy, clean, page])
-    p.dispatch()
-    # try:
-    #     p = ArghParser()
-    #     p.add_commands([init, build, run, deploy, clean])
-    #     p.dispatch()
-    # except:
-    #     l = log if len(log.handlers) else logging
-    #     l.debug(traceback.format_exc())
+    try:
+        p = ArghParser()
+        p.add_commands([init, build, run, deploy, clean, page])
+        p.dispatch()
+    except:
+        l = log if len(log.handlers) else logging
+        l.debug(traceback.format_exc())
+        raise
 
 if __name__ == '__main__':
     main()
