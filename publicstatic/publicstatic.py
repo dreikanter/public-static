@@ -34,53 +34,31 @@ DEFAULT_CONF = '%s.conf' % NAME
 GENERIC_PATH = 'generic-site'
 GENERIC_PAGES = 'generic-pages'
 
+# See the docs for parameters description
 CONF = {
     'generator': "%s {version}" % NAME,
-    'conf': '',
+    'build_path': 'www',
     'pages_path': 'pages',
     'static_path': 'static',
-    'build_path': 'www',
     'templates_path': 'templates',
-
-    # Default port value (overridable with command line param)
     'port': 8000,
-
-    # Amount of seconds between starting local web server
-    # and opening a browser
     'browser_opening_delay': 2.0,
-
-    # Default template name (overridable with page header 'template' parameter)
     'template': 'default',
-
-    # Default author name (overridable with page header 'author' parmeter)
     'author': '',
-
     'minify_js': True,
     'minify_css': True,
     'minify_less': True,
-
-    # Minification commands: {source} is used in both for source file
-    # and {dest} is for processed output
     'minify_js_cmd': "yuicompressor --type js --nomunge -o {dest} {source}",
     'minify_css_cmd': "yuicompressor --type css -o {dest} {source}",
-
-    # Command to sync build_path to web server
     'sync_cmd': '',
-
-    # Command to open an URL with a web browser
     'run_browser_cmd': "start {url}",
-
-    # LESS compiler command ({source} and {dest} will be replaced)
     'less_cmd': "lessc -x {source} > {dest}",
-
-    # A list of markdown extensions
     'markdown_extensions': ['nl2br', 'grid', 'smartypants'],
-
-    # Text editor command (use {file} for file name to edit)
     'editor_cmd': "$EDITOR '{file}'",
+    'conf': '',
 }
 
-TEMPLATE_FILE_NAME = "%s.mustache"
+TEMPLATE_EXT = ".mustache"
 LOG_CONSOLE_FMT = ("%(asctime)s %(levelname)s: %(message)s", "%H:%M:%S")
 LOG_FILE_FMT = ("%(asctime)s %(levelname)s: %(message)s", "%Y/%m/%d %H:%M:%S")
 TIME_FMT = "%Y/%m/%d %H:%M:%S"
@@ -312,9 +290,9 @@ def get_template(tpl_name, templates_path):
 
     Arguments:
         tpl_name -- template name (will be complemented
-            to file name using TEMPLATE_FILE_NAME).
+            to file name using TEMPLATE_EXT).
         templates_path -- template files path."""
-    file_name = os.path.join(templates_path, TEMPLATE_FILE_NAME % tpl_name)
+    file_name = os.path.join(templates_path, tpl_name + TEMPLATE_EXT)
     if os.path.exists(file_name):
         with codecs.open(file_name, mode='r', encoding='utf8') as f:
             return f.read()
