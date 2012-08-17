@@ -10,14 +10,15 @@ import errno
 import codecs
 import logging
 import traceback
+
 from argh import ArghParser, arg
 from datetime import datetime
 from multiprocessing import Process
+
+import authoring
 import markdown
-# from pprint import pprint
 import pystache
 import yaml
-import authoring
 
 __author__ = authoring.AUTHOR
 __email__ = authoring.EMAIL
@@ -458,6 +459,10 @@ def cp(src, dest):
             raise
 
 
+def get_log():
+    return log if len(log.handlers) else logging
+
+
 # Command line command ========================================================
 
 # Common arguments
@@ -581,10 +586,14 @@ def main():
         p = ArghParser()
         p.add_commands([init, build, run, deploy, clean, page])
         p.dispatch()
-    except:
-        l = log if len(log.handlers) else logging
-        l.debug(traceback.format_exc())
-        raise
+        return 0
+    except KeyboardInterrupt:
+        get_log().info('killed by user')
+        return 1
+    except Exception as e:
+        get_log().error(str(e))
+        get_log().debug(traceback.format_exc())
+        return 2
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
