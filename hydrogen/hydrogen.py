@@ -55,7 +55,7 @@ CONF = {
     'run_browser_cmd': "start {url}",
     'less_cmd': "lessc -x {source} > {dest}",
     'markdown_extensions': ['nl2br', 'grid', 'smartypants'],
-    'editor_cmd': "$EDITOR '{file}'",
+    'editor_cmd': "$EDITOR \"{source}\"",
     'conf': '',
 }
 
@@ -315,11 +315,14 @@ def makedirs(dir_path):
         os.makedirs(dir_path)
 
 
-def execute_proc(cmd_name, source, dest):
+def execute_proc(cmd_name, source, dest=None):
     """Executes one of the preconfigured commands
     with {source} and {dest} parameters replacement"""
-    cmd = conf[cmd_name].format(source=source, dest=dest)
-    execute(cmd)
+    if dest:
+        cmd = conf[cmd_name].format(source=source, dest=dest)
+    else:
+        cmd = conf[cmd_name].format(source=source)
+    execute(os.path.expandvars(cmd))
 
 
 def execute(cmd, critical=False):
@@ -584,11 +587,8 @@ def page(args):
     with codecs.open(page_path, mode='w', encoding='utf8') as f:
         f.write(contents)
 
-    print(os.path.getsize(page_path))
-    exit()
-
     if args.edit:
-        print(os.path.expandvars(conf['editor_cmd']))
+        execute_proc('editor_cmd', page_path)
 
 
 def main():
