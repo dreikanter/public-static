@@ -43,17 +43,14 @@ Readme:
 	    # Text editor command (use {file} for file name to edit)
 	    'editor_cmd': "$EDITOR '{file}'",
 
-Implement init command for new site initialization.
+Add powered-by to default template.
 
-	- Example should be packaged.
-	- Add powered-by to default template.
-
-New page command.
+Page command.
 
 	- new command with a *mandatory* positional argument containing template name
 		- page about
 		- page -t tpl about
-		- page -e projects/public-static ← Opens in default (or preconfigured) editor
+		- page -e projects/h2 ← Opens in default (or preconfigured) editor
 	- Configuration: editor_cmd: "%EDITOR% {file}" (expand env vars and execute)
 
 Branch: Blog generation.

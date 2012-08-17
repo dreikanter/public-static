@@ -2,7 +2,7 @@
 
 import os
 from setuptools import setup, find_packages
-import publicstatic.authoring
+import hydrogen.authoring
 
 
 def get_data_files(path):
@@ -17,17 +17,17 @@ def get_data_files(path):
 
 
 setup(
-    name='public-static',
+    name='hydrogen',
     description='Yet another static website builder.',
-    version=publicstatic.authoring.VERSION,
-    license=publicstatic.authoring.LICENSE,
-    author=publicstatic.authoring.AUTHOR,
-    author_email=publicstatic.authoring.EMAIL,
-    url=publicstatic.authoring.URL,
+    version=hydrogen.authoring.VERSION,
+    license=hydrogen.authoring.LICENSE,
+    author=hydrogen.authoring.AUTHOR,
+    author_email=hydrogen.authoring.EMAIL,
+    url=hydrogen.authoring.URL,
     long_description=open('README.md').read(),
     platforms=['any'],
     packages=find_packages(),
-    package_data={'publicstatic': get_data_files('publicstatic')},
+    package_data={'hydrogen': get_data_files('hydrogen')},
     install_requires=[
         'markdown',
         'mdx_grid',
@@ -36,7 +36,7 @@ setup(
         'baker',
         'yuicompressor',
     ],
-    entry_points={'console_scripts': ['pub = publicstatic.publicstatic:main']},
+    entry_points={'console_scripts': ['h2 = hydrogen.hydrogen:main']},
     include_package_data=True,
     zip_safe=False,
     classifiers=[

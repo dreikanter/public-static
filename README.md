@@ -1,4 +1,4 @@
-# public-static
+# Hydrogen
 
 A small Python script used to build static websites from [Markdown](http://daringfireball.net/projects/markdown) source, [Mustache](http://mustache.github.com) template and [Twitter Bootstrap](http://getskeleton.com) framework.
 
