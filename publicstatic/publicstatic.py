@@ -14,7 +14,7 @@ from argh import ArghParser, arg
 from datetime import datetime
 from multiprocessing import Process
 import markdown
-from pprint import pprint
+# from pprint import pprint
 import pystache
 import yaml
 
@@ -25,14 +25,16 @@ __license__ = 'MIT'
 __version_info__ = (0, 4, 8)
 __version__ = '.'.join(map(str, __version_info__))
 __status__ = 'Development'
-__url__ = 'http://github.com/dreikanter/public-static'
+__url__ = 'http://github.com/dreikanter/hydrogen'
 
-DEFAULT_LOG = 'pub.log'
-DEFAULT_CONF = 'pub.conf'
+NAME = os.path.splitext(os.path.basename(__file__))[0]
+DEFAULT_LOG = '%s.log' % NAME
+DEFAULT_CONF = '%s.conf' % NAME
 GENERIC_PATH = 'generic-site'
+GENERIC_PAGES = 'generic-pages'
 
 CONF = {
-    'generator': "public-static {version}",
+    'generator': "%s {version}" % NAME,
     'conf': '',
     'pages_path': 'pages',
     'static_path': 'static',
@@ -606,6 +608,9 @@ def main():  # For setuptools
     # except:
     #     l = log if len(log.handlers) else logging
     #     l.debug(traceback.format_exc())
+
+print(__builtins__)
+exit()
 
 
 if __name__ == '__main__':
