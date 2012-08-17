@@ -2,6 +2,7 @@
 
 import os
 from setuptools import setup, find_packages
+import publicstatic.authoring
 
 
 def get_data_files(path):
@@ -14,19 +15,19 @@ def get_data_files(path):
                 files.append(os.path.relpath(full_path, path))
     return files
 
+
 setup(
     name='public-static',
     description='Yet another static website builder.',
-    version='0.4.8',
-    license='MIT',
-    author='Alex Musayev',
-    author_email='alex.musayev@gmail.com',
-    url='http://github.com/dreikanter/public-static',
+    version=publicstatic.authoring.VERSION,
+    license=publicstatic.authoring.LICENSE,
+    author=publicstatic.authoring.AUTHOR,
+    author_email=publicstatic.authoring.EMAIL,
+    url=publicstatic.authoring.URL,
     long_description=open('README.md').read(),
     platforms=['any'],
     packages=find_packages(),
     package_data={'publicstatic': get_data_files('publicstatic')},
-    py_modules=['pub'],
     install_requires=[
         'markdown',
         'mdx_grid',
@@ -35,7 +36,7 @@ setup(
         'baker',
         'yuicompressor',
     ],
-    entry_points={'console_scripts': ['h2 = publicstatic.publicstatic:main']},
+    entry_points={'console_scripts': ['pub = publicstatic.publicstatic:main']},
     include_package_data=True,
     zip_safe=False,
     classifiers=[

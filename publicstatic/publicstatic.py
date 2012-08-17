@@ -17,15 +17,16 @@ import markdown
 # from pprint import pprint
 import pystache
 import yaml
+import authoring
 
-__author__ = 'Alex Musayev'
-__email__ = 'alex.musayev@gmail.com'
-__copyright__ = "Copyright 2012, %s <http://alex.musayev.com>" % __author__
-__license__ = 'MIT'
-__version_info__ = (0, 4, 8)
-__version__ = '.'.join(map(str, __version_info__))
-__status__ = 'Development'
-__url__ = 'http://github.com/dreikanter/hydrogen'
+__author__ = authoring.AUTHOR
+__email__ = authoring.EMAIL
+__copyright__ = authoring.COPYRIGHT
+__license__ = authoring.LICENSE
+__version_info__ = authoring.VERSION_INFO
+__version__ = authoring.VERSION
+__status__ = authoring.STATUS
+__url__ = authoring.URL
 
 NAME = os.path.splitext(os.path.basename(__file__))[0]
 DEFAULT_LOG = '%s.log' % NAME
@@ -608,10 +609,6 @@ def main():  # For setuptools
     # except:
     #     l = log if len(log.handlers) else logging
     #     l.debug(traceback.format_exc())
-
-print(__builtins__)
-exit()
-
 
 if __name__ == '__main__':
     main()
