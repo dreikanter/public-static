@@ -30,14 +30,14 @@ __status__ = authoring.STATUS
 __url__ = authoring.URL
 
 NAME = os.path.splitext(os.path.basename(__file__))[0]
-DEFAULT_LOG = '%s.log' % NAME
-DEFAULT_CONF = '%s.conf' % NAME
+DEFAULT_LOG = NAME + '.log'
+DEFAULT_CONF = NAME + '.conf'
 GENERIC_PATH = 'generic-site'
 GENERIC_PAGES = 'generic-pages'
 
 # See the docs for parameters description
 CONF = {
-    'generator': "%s {version}" % NAME,
+    'generator': NAME + " {version}",
     'build_path': 'www',
     'pages_path': 'pages',
     'static_path': 'static',
@@ -59,7 +59,6 @@ CONF = {
     'conf': '',
 }
 
-TEMPLATE_EXT = ".mustache"
 LOG_CONSOLE_FMT = ("%(asctime)s %(levelname)s: %(message)s", "%H:%M:%S")
 LOG_FILE_FMT = ("%(asctime)s %(levelname)s: %(message)s", "%Y/%m/%d %H:%M:%S")
 TIME_FMT = "%Y/%m/%d %H:%M:%S"
@@ -102,7 +101,7 @@ def setup(args):
             raise
     else:
         try:
-            log.info("loading website configuration from '%s'" % config)
+            log.debug("loading website configuration from '%s'" % config)
             conf = purify_conf(get_params(config))
         except:
             log.error('configuration failed')
@@ -121,7 +120,7 @@ def init_logging(log_file, verbose):
         log.addHandler(channel)
 
         if log_file:
-            ensure_dir_exists(os.path.dirname(log_file))
+            makedirs(os.path.dirname(log_file))
             channel = logging.FileHandler(log_file)
             channel.setLevel(logging.DEBUG)
             fmt = logging.Formatter(LOG_FILE_FMT[0], LOG_FILE_FMT[1])
@@ -174,7 +173,7 @@ def process_dir(message, source_root):
     for cur_dir, dirs, files in os.walk(source_root):
         rel_path = cur_dir[len(source_root):].strip("\\/")
         dest_path = os.path.join(conf['build_path'], rel_path)
-        ensure_dir_exists(dest_path)
+        makedirs(dest_path)
 
         for file_name in files:
             process_file(source_root, os.path.join(cur_dir, file_name))
@@ -278,9 +277,9 @@ def get_template(tpl_name, templates_path):
 
     Arguments:
         tpl_name -- template name (will be complemented
-            to file name using TEMPLATE_EXT).
+            to file name using '.mustache').
         templates_path -- template files path."""
-    file_name = os.path.join(templates_path, tpl_name + TEMPLATE_EXT)
+    file_name = os.path.join(templates_path, tpl_name + '.mustache')
     if os.path.exists(file_name):
         with codecs.open(file_name, mode='r', encoding='utf8') as f:
             return f.read()
@@ -310,7 +309,7 @@ def joind(d1, d2):
     return dict(d1.items() + d2.items())
 
 
-def ensure_dir_exists(dir_path):
+def makedirs(dir_path):
     """Creates directory if it not exists"""
     if dir_path and not os.path.exists(dir_path):
         os.makedirs(dir_path)
@@ -424,9 +423,19 @@ def update_humans(source_file, dest_file):
 
 def spawn_generic(path):
     """Clones generic site to specified directory"""
-    generic_path = os.path.dirname(os.path.abspath(__file__))
-    generic_path = os.path.join(generic_path, GENERIC_PATH)
-    cp(generic_path, path)
+    generic = os.path.dirname(os.path.abspath(__file__))
+    generic = os.path.join(generic, GENERIC_PATH)
+    cp(generic, path)
+
+
+def get_generic(name):
+    """Returns full path to specified generic page"""
+    name = name or 'default'
+    generic = os.path.dirname(os.path.abspath(__file__))
+    generic = os.path.join(generic, GENERIC_PAGES)
+    generic = os.path.join(generic, str(name) + '.md')
+    with codecs.open(generic, mode='r', encoding='utf8') as f:
+        return f.read()
 
 
 def cp(src, dest):
@@ -457,6 +466,9 @@ log_arg = arg('-l', '--log', default=None,
 verbose_arg = arg('-v', '--verbose', default=False,
     help='enable verbose output')
 
+force_arg = arg('-f', '--force', default=False,
+    help='overwrite existing files')
+
 
 @source_arg
 @log_arg
@@ -474,7 +486,7 @@ def build(args):
     """generate web content from source"""
     setup(args)
     drop_build_dir(conf['build_path'])
-    ensure_dir_exists(conf['build_path'])
+    makedirs(conf['build_path'])
     log.info("building path: '%s'" % conf['build_path'])
     process_files()
     log.info("build succeeded")
@@ -546,19 +558,35 @@ def clean(args):
     log.info('done')
 
 
+@arg('path', help='page name/path')
 @source_arg
+@force_arg
 @arg('-e', '--edit', default=False, help='open with preconfigured editor')
-@arg('-t', '--type', default='default', help='generic page to clone')
+@arg('-t', '--type', default=None, help='generic page to clone')
 @log_arg
 @verbose_arg
 def page(args):
     setup(args)
-    page_path = args.path
-    print(page_path)
-    # read
-    # fill
-    # make directories
-    # save
+    page_path = os.path.join(conf['pages_path'], args.path) + '.md'
+
+    try:
+        generic = get_generic(args.type)
+    except:
+        log.error("error reading generic page: '%s'" % str(args.type))
+        raise
+
+    if not args.force and os.path.exists(page_path):
+        log.error('specified page already exists (use -f to overwrite)')
+        return
+
+    contents = generic.format(ctime=time.strftime(TIME_FMT))
+    makedirs(os.path.split(page_path)[0])
+    with codecs.open(page_path, mode='w', encoding='utf8') as f:
+        f.write(contents)
+
+    print(os.path.getsize(page_path))
+    exit()
+
     if args.edit:
         print(os.path.expandvars(conf['editor_cmd']))
 
