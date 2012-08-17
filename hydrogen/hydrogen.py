@@ -77,7 +77,8 @@ def setup(args):
     """Initializes website configuration from command line arguments. Creates
     new site directory if init is True, or reads specified configuration file
     otherwise."""
-    config = conf_name(args.path)
+    config = args.source or '.'
+    config = os.path.abspath(os.path.join(config, DEFAULT_CONF))
     init_logging(args.log, args.verbose)
 
     global conf
@@ -157,20 +158,6 @@ def purify_conf(conf):
     conf['run_browser_cmd'] = conf['run_browser_cmd'].strip()
     conf['port'] = int(conf['port'])
     return conf
-
-
-# TODO: Consider to implement verify command for this
-# def verify_conf(conf):
-#     """Checks if configuration is correct."""
-#     if conf['minify_js'] and not conf['minify_js_cmd']:
-#         log.warn("JS minification enabled but 'minify_js_cmd' is undefined.")
-#     if (conf['minify_less'] or conf['minify_css']) and not conf['minify_css_cmd']:
-#         log.warn("CSS minification enabled but 'minify_css_cmd' is undefined.")
-#     if not conf['sync_cmd']:
-#         log.warn("Synchronization command 'sync_cmd' is undefined.")
-#     if not conf['less_cmd']:
-#         log.warn("LESS processing command 'less_cmd' is undefined.")
-#     return conf
 
 
 # Website building ============================================================
@@ -302,12 +289,6 @@ def get_template(tpl_name, templates_path):
 
 
 # General helpers =============================================================
-
-def conf_name(path):
-    """Returns configuration file full path from specified
-    command line parameter value"""
-    return os.path.abspath(os.path.join(path, DEFAULT_CONF))
-
 
 def getxm(message, exception):
     """Returns annotated exception messge"""
@@ -467,7 +448,7 @@ def get_log():
 
 # Common arguments
 
-path_arg = arg('path', default=None,
+source_arg = arg('-s', '--source', default=None,
     help='path to the website to build (default is current directory)')
 
 log_arg = arg('-l', '--log', default=None,
@@ -477,7 +458,7 @@ verbose_arg = arg('-v', '--verbose', default=False,
     help='enable verbose output')
 
 
-@path_arg
+@source_arg
 @log_arg
 @verbose_arg
 def init(args):
@@ -486,7 +467,7 @@ def init(args):
     log.info('new site created successfully, have fun!')
 
 
-@path_arg
+@source_arg
 @log_arg
 @verbose_arg
 def build(args):
@@ -499,7 +480,7 @@ def build(args):
     log.info("build succeeded")
 
 
-@path_arg
+@source_arg
 @arg('-p', '--port', default=None, help='port for local HTTP server')
 @arg('-b', '--browse', default=False, help='open in default browser')
 @log_arg
@@ -538,7 +519,7 @@ def run(args):
         os.chdir(original_cwd)
 
 
-@path_arg
+@source_arg
 @log_arg
 @verbose_arg
 def deploy(args):
@@ -554,7 +535,7 @@ def deploy(args):
     log.info('done')
 
 
-@path_arg
+@source_arg
 @log_arg
 @verbose_arg
 def clean(args):
@@ -565,22 +546,28 @@ def clean(args):
     log.info('done')
 
 
-@path_arg
+@source_arg
 @arg('-e', '--edit', default=False, help='open with preconfigured editor')
+@arg('-t', '--type', default='default', help='generic page to clone')
 @log_arg
 @verbose_arg
 def page(args):
     setup(args)
-    # TODO: ...
+    page_path = args.path
+    print(page_path)
+    # read
+    # fill
+    # make directories
+    # save
     if args.edit:
         print(os.path.expandvars(conf['editor_cmd']))
 
 
 def main():
     # Adding default value for 'path' positional argument
-    commands = ['init', 'build', 'run', 'deploy', 'clean']
-    if len(sys.argv) == 2 and sys.argv[1] in commands:
-        sys.argv.append('.')
+    # commands = ['init', 'build', 'run', 'deploy', 'clean']
+    # if len(sys.argv) == 2 and sys.argv[1] in commands:
+    #     sys.argv.append('.')
 
     try:
         p = ArghParser()

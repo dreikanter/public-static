@@ -133,3 +133,17 @@ Add --dry-run mode.
 Implement calculated metadata (virtual @fields generated from actual metadata, content and everything). E.g. @wordscnt to get a number of words. @readindet for estimated reading time, etc.
 
 Support http://bootswatch.com (describe the algorithm).
+
+Implement verify command for this
+
+	# def verify_conf(conf):
+	#     """Checks if configuration is correct."""
+	#     if conf['minify_js'] and not conf['minify_js_cmd']:
+	#         log.warn("JS minification enabled but 'minify_js_cmd' is undefined.")
+	#     if (conf['minify_less'] or conf['minify_css']) and not conf['minify_css_cmd']:
+	#         log.warn("CSS minification enabled but 'minify_css_cmd' is undefined.")
+	#     if not conf['sync_cmd']:
+	#         log.warn("Synchronization command 'sync_cmd' is undefined.")
+	#     if not conf['less_cmd']:
+	#         log.warn("LESS processing command 'less_cmd' is undefined.")
+	#     return conf
