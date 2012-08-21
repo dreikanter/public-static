@@ -1,7 +1,7 @@
-title: Untitled post
+title: {title}
 ctime: {ctime}
 tags: unsorted
 
-# New Post
+# {title}
 
 This is a new blog post.

@@ -1,6 +1,6 @@
-title: Untitled page
+title: {title}
 ctime: {ctime}
 
-# New Page
+# {title}
 
 This is a new page.

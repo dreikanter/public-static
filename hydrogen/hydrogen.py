@@ -582,7 +582,7 @@ def page(args):
         log.error('specified page already exists (use -f to overwrite)')
         return
 
-    contents = generic.format(ctime=time.strftime(TIME_FMT))
+    contents = generic.format(title=args.path, ctime=time.strftime(TIME_FMT))
     makedirs(os.path.split(page_path)[0])
     with codecs.open(page_path, mode='w', encoding='utf8') as f:
         f.write(contents)

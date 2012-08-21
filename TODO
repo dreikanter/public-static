@@ -50,7 +50,7 @@ Bootstrap integration script
 	- copy built CSS
 	- copy relevant JS scripts (not minified)
 
-Update Bootstrap to 1.2 → http://twitter.github.com/bootstrap/
+Update Bootstrap to 2.1 → http://twitter.github.com/bootstrap/
 
 Add powered-by to default template.
 
