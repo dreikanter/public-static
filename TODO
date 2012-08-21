@@ -43,6 +43,15 @@ Readme:
 	    # Text editor command (use {file} for file name to edit)
 	    'editor_cmd': "$EDITOR '{file}'",
 
+Bootstrap integration script
+
+	- checkout IF it isn't ELSE update
+	- build LESS files
+	- copy built CSS
+	- copy relevant JS scripts (not minified)
+
+Update Bootstrap to 1.2 → http://twitter.github.com/bootstrap/
+
 Add powered-by to default template.
 
 Page command.
