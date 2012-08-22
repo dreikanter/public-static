@@ -65,6 +65,10 @@ TIME_FMT = "%Y/%m/%d %H:%M:%S"
 RE_FLAGS = re.I | re.M | re.U
 PARAM_PATTERN = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", RE_FLAGS)
 H1_PATTERN = re.compile(r"^\s*#\s*(.*)\s*", RE_FLAGS)
+POST_PATTERN = re.compile(r"\w+")
+FEED_PATTERN = re.compile(r"[\w\\/]+")
+POST_PATH = "{year}/{date}_{name}.md"
+FEED_MARKER = 'feed'
 
 log = logging.getLogger(__name__)
 conf = {}
@@ -431,9 +435,9 @@ def spawn_generic(path):
     cp(generic, path)
 
 
-def get_generic(name):
+def get_generic(name, default):
     """Returns full path to specified generic page"""
-    name = name or 'default'
+    name = name or default
     generic = os.path.dirname(os.path.abspath(__file__))
     generic = os.path.join(generic, GENERIC_PAGES)
     generic = os.path.join(generic, str(name) + '.md')
@@ -460,17 +464,23 @@ def get_log():
 
 # Common arguments
 
-source_arg = arg('-s', '--source', default=None,
-    help='path to the website to build (default is current directory)')
+source_arg = arg('-s', '--source', default=None, metavar='SRC',
+    help='website source path (default is the current directory)')
 
 log_arg = arg('-l', '--log', default=None,
     help='log file name')
 
 verbose_arg = arg('-v', '--verbose', default=False,
-    help='enable verbose output')
+    help='verbose output')
 
 force_arg = arg('-f', '--force', default=False,
     help='overwrite existing files')
+
+type_arg = arg('-t', '--type', default=None,
+    help='generic page to clone')
+
+edit_arg = arg('-e', '--edit', default=False,
+    help='open with preconfigured editor')
 
 
 @source_arg
@@ -493,6 +503,12 @@ def build(args):
     log.info("building path: '%s'" % conf['build_path'])
     process_files()
     log.info("build succeeded")
+
+    # TODO: Build feeds
+    # rebuild index - text file: path->title
+    # update archive page
+    # update rss
+    # update atom
 
 
 @source_arg
@@ -561,19 +577,22 @@ def clean(args):
     log.info('done')
 
 
-@arg('path', help='page name/path')
+@arg('name', help='page name (may include path)')
 @source_arg
 @force_arg
-@arg('-e', '--edit', default=False, help='open with preconfigured editor')
-@arg('-t', '--type', default=None, help='generic page to clone')
+@edit_arg
+@type_arg
 @log_arg
 @verbose_arg
 def page(args):
     setup(args)
-    page_path = os.path.join(conf['pages_path'], args.path) + '.md'
+    if not POST_PATTERN.match(args.name):
+        raise Exception('illegal page name')
+
+    page_path = os.path.join(conf['pages_path'], args.name) + '.md'
 
     try:
-        generic = get_generic(args.type)
+        generic = get_generic(args.type, 'default-page')
     except:
         log.error("error reading generic page: '%s'" % str(args.type))
         raise
@@ -582,13 +601,57 @@ def page(args):
         log.error('specified page already exists (use -f to overwrite)')
         return
 
-    contents = generic.format(title=args.path, ctime=time.strftime(TIME_FMT))
+    contents = generic.format(title=args.name, ctime=time.strftime(TIME_FMT))
     makedirs(os.path.split(page_path)[0])
     with codecs.open(page_path, mode='w', encoding='utf8') as f:
         f.write(contents)
 
     if args.edit:
         execute_proc('editor_cmd', page_path)
+
+
+@arg('name', help='post name')
+@arg('-f', '--feed', default=None, help='feed name (default is root)')
+@source_arg
+@edit_arg
+@type_arg
+@log_arg
+@verbose_arg
+def post(args):
+    setup(args)
+    if not POST_PATTERN.match(args.name):
+        raise Exception('illegal post name')
+    if not FEED_PATTERN.match(args.feed):
+        raise Exception('illegal feed name')
+
+    feed_path = os.path.join(conf['pages_path'], args.feed)
+    if not os.path.isdir(feed_path):
+        makedirs(feed_path)
+
+    post_path = os.sep.join(POST_PATH.split('/'))
+    dt = datetime.now()
+    post_path = post_path.format(year=dt.year,
+        date=dt.strftime("%Y-%m-%d"), name=args.name)
+    post_path = os.path.join(feed_path, post_path)
+
+    try:
+        generic = get_generic(args.type, 'default-post')
+    except:
+        log.error("error reading generic post: '%s'" % str(args.type))
+        raise
+
+    with codecs.open(post_path, mode='w', encoding='utf8') as f:
+        f.write(generic.format(title=args.name, ctime=dt.strftime(TIME_FMT)))
+
+    feed_marker = os.path.join(feed_path, FEED_MARKER)
+    if not os.path.exists():
+        with codecs.open(feed_marker, mode='w', encoding='utf8') as f:
+            f.write()
+
+    if args.edit:
+        execute_proc('editor_cmd', post_path)
+
+    # python hydrogen/hydrogen.py post -s test-site2 -f blog hello
 
 
 def main():
@@ -599,7 +662,7 @@ def main():
 
     try:
         p = ArghParser()
-        p.add_commands([init, build, run, deploy, clean, page])
+        p.add_commands([init, build, run, deploy, clean, page, post])
         p.dispatch()
         return 0
     except KeyboardInterrupt:

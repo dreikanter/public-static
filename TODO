@@ -54,14 +54,6 @@ Update Bootstrap to 2.1 → http://twitter.github.com/bootstrap/
 
 Add powered-by to default template.
 
-Page command.
-
-	- new command with a *mandatory* positional argument containing template name
-		- page about
-		- page -t tpl about
-		- page -e projects/h2 ← Opens in default (or preconfigured) editor
-	- Configuration: editor_cmd: "%EDITOR% {file}" (expand env vars and execute)
-
 Branch: Blog generation.
 
 	- Consider file naming and structure
