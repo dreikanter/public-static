@@ -1,5 +1,6 @@
 Readme:
 
+	- Move documentation to documentation. Readme should be short.
 	- Update configuration description.
 	- Describe init command
 	- Rename renamed commands

@@ -67,7 +67,7 @@ PARAM_PATTERN = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", RE_FLAGS)
 H1_PATTERN = re.compile(r"^\s*#\s*(.*)\s*", RE_FLAGS)
 POST_PATTERN = re.compile(r"\w+")
 FEED_PATTERN = re.compile(r"[\w\\/]+")
-POST_PATH = "{year}/{date}_{name}.md"
+POST_PATH = "{year}/{date}_{name}{suffix}.md"  # Use '/'!
 FEED_MARKER = 'feed'
 
 log = logging.getLogger(__name__)
@@ -435,14 +435,17 @@ def spawn_generic(path):
     cp(generic, path)
 
 
-def get_generic(name, default):
+def get_generic(name):
     """Returns full path to specified generic page"""
-    name = name or default
-    generic = os.path.dirname(os.path.abspath(__file__))
-    generic = os.path.join(generic, GENERIC_PAGES)
-    generic = os.path.join(generic, str(name) + '.md')
-    with codecs.open(generic, mode='r', encoding='utf8') as f:
-        return f.read()
+    try:
+        generic = os.path.dirname(os.path.abspath(__file__))
+        generic = os.path.join(generic, GENERIC_PAGES)
+        generic = os.path.join(generic, str(name) + '.md')
+        with codecs.open(generic, mode='r', encoding='utf8') as f:
+            return f.read()
+    except:
+        log.error("error reading generic post: '%s'" % str(name))
+        raise
 
 
 def cp(src, dest):
@@ -458,6 +461,41 @@ def cp(src, dest):
 
 def get_log():
     return log if len(log.handlers) else logging
+
+
+def create_feed_marker(path):
+    """Create marker file at the specified folder to inform the
+    site builder it contains blog structure"""
+    try:
+        feed_marker = os.path.join(path, FEED_MARKER)
+        if not os.path.exists(feed_marker):
+            with codecs.open(feed_marker, mode='w', encoding='utf8') as f:
+                f.write()
+    except:
+        log.error('error creating feed marker')
+        raise
+
+
+def preserve_post(feed, name, ctime):
+    """Generates post file placeholder with an unique name and returns
+    its name"""
+    feed_path = os.path.join(conf['pages_path'], feed)
+    path = os.sep.join(POST_PATH.split('/'))
+    counter = 0
+
+    while True:
+        suffix = str(counter) if counter else ''
+        path = path.format(year=ctime.year, date=ctime.strftime("%Y-%m-%d"),
+            name=name, suffix=suffix)
+        path = os.path.join(feed_path, path)
+
+        if not os.path.exists(path):
+            makedirs(os.path.dirname(path))
+            create_feed_marker(feed_path)
+            codecs.open(path, mode='w', encoding='utf8').close()
+            return path
+
+        counter += 1
 
 
 # Command line command ========================================================
@@ -590,17 +628,11 @@ def page(args):
         raise Exception('illegal page name')
 
     page_path = os.path.join(conf['pages_path'], args.name) + '.md'
-
-    try:
-        generic = get_generic(args.type, 'default-page')
-    except:
-        log.error("error reading generic page: '%s'" % str(args.type))
-        raise
-
     if not args.force and os.path.exists(page_path):
         log.error('specified page already exists (use -f to overwrite)')
         return
 
+    generic = get_generic(args.type, 'default-page')
     contents = generic.format(title=args.name, ctime=time.strftime(TIME_FMT))
     makedirs(os.path.split(page_path)[0])
     with codecs.open(page_path, mode='w', encoding='utf8') as f:
@@ -619,47 +651,27 @@ def page(args):
 @verbose_arg
 def post(args):
     setup(args)
+
     if not POST_PATTERN.match(args.name):
         raise Exception('illegal post name')
+
     if not FEED_PATTERN.match(args.feed):
         raise Exception('illegal feed name')
 
-    feed_path = os.path.join(conf['pages_path'], args.feed)
-    if not os.path.isdir(feed_path):
-        makedirs(feed_path)
+    ctime = datetime.now().strftime(TIME_FMT)
+    path = preserve_post(args.feed, args.name, ctime)
 
-    post_path = os.sep.join(POST_PATH.split('/'))
-    dt = datetime.now()
-    post_path = post_path.format(year=dt.year,
-        date=dt.strftime("%Y-%m-%d"), name=args.name)
-    post_path = os.path.join(feed_path, post_path)
-
-    try:
-        generic = get_generic(args.type, 'default-post')
-    except:
-        log.error("error reading generic post: '%s'" % str(args.type))
-        raise
-
-    with codecs.open(post_path, mode='w', encoding='utf8') as f:
-        f.write(generic.format(title=args.name, ctime=dt.strftime(TIME_FMT)))
-
-    feed_marker = os.path.join(feed_path, FEED_MARKER)
-    if not os.path.exists():
-        with codecs.open(feed_marker, mode='w', encoding='utf8') as f:
-            f.write()
+    with codecs.open(path, mode='w', encoding='utf8') as f:
+        contents = get_generic(args.type or 'default-post')
+        f.write(contents.format(title=args.name, ctime=ctime))
 
     if args.edit:
-        execute_proc('editor_cmd', post_path)
+        execute_proc('editor_cmd', path)
 
     # python hydrogen/hydrogen.py post -s test-site2 -f blog hello
 
 
 def main():
-    # Adding default value for 'path' positional argument
-    # commands = ['init', 'build', 'run', 'deploy', 'clean']
-    # if len(sys.argv) == 2 and sys.argv[1] in commands:
-    #     sys.argv.append('.')
-
     try:
         p = ArghParser()
         p.add_commands([init, build, run, deploy, clean, page, post])
