@@ -67,7 +67,6 @@ PARAM_PATTERN = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", RE_FLAGS)
 H1_PATTERN = re.compile(r"^\s*#\s*(.*)\s*", RE_FLAGS)
 POST_PATTERN = re.compile(r"\w+")
 FEED_PATTERN = re.compile(r"[\w\\/]+")
-POST_PATH = "{year}/{date}_{name}{suffix}.md"  # Use '/'!
 FEED_MARKER = 'feed'
 
 log = logging.getLogger(__name__)
@@ -476,26 +475,31 @@ def create_feed_marker(path):
         raise
 
 
+def get_last_num(path, prefix):
+    # TODO
+    return 0
+
+
 def preserve_post(feed, name, ctime):
     """Generates post file placeholder with an unique name and returns
     its name"""
     feed_path = os.path.join(conf['pages_path'], feed)
-    path = os.sep.join(POST_PATH.split('/'))
-    counter = 0
+    post_path = os.path.join(feed_path, str(ctime.year))
+    date = ctime.strftime("%Y-%m-%d")
+    num = get_last_num(feed_path, date)
+    fmt = "{date}{num}_{name}.md"
 
     while True:
-        suffix = str(counter) if counter else ''
-        path = path.format(year=ctime.year, date=ctime.strftime("%Y-%m-%d"),
-            name=name, suffix=suffix)
-        path = os.path.join(feed_path, path)
+        post = fmt.format(date=date, name=name, num=num or ('_' + str(num)))
+        post = os.path.join(post_path, post)
 
-        if not os.path.exists(path):
-            makedirs(os.path.dirname(path))
+        if not os.path.exists(post):
+            makedirs(post_path)
             create_feed_marker(feed_path)
-            codecs.open(path, mode='w', encoding='utf8').close()
-            return path
+            open(post, 'w').close()
+            return post
 
-        counter += 1
+        num += 1
 
 
 # Command line command ========================================================
@@ -658,12 +662,13 @@ def post(args):
     if not FEED_PATTERN.match(args.feed):
         raise Exception('illegal feed name')
 
-    ctime = datetime.now().strftime(TIME_FMT)
+    ctime = datetime.now()
     path = preserve_post(args.feed, args.name, ctime)
 
     with codecs.open(path, mode='w', encoding='utf8') as f:
         contents = get_generic(args.type or 'default-post')
-        f.write(contents.format(title=args.name, ctime=ctime))
+        f.write(contents.format(title=args.name,
+                                ctime=ctime.strftime(TIME_FMT)))
 
     if args.edit:
         execute_proc('editor_cmd', path)
