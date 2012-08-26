@@ -65,9 +65,9 @@ TIME_FMT = "%Y/%m/%d %H:%M:%S"
 RE_FLAGS = re.I | re.M | re.U
 PARAM_PATTERN = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", RE_FLAGS)
 H1_PATTERN = re.compile(r"^\s*#\s*(.*)\s*", RE_FLAGS)
-POST_PATTERN = re.compile(r"\w+")
-FEED_PATTERN = re.compile(r"[\w\\/]+")
+POST_PATTERN = re.compile(r"[\w\\/]+")
 FEED_MARKER = 'feed'
+URI_SEP_PATTERN = re.compile(r"[^a-z]+", RE_FLAGS)
 
 log = logging.getLogger(__name__)
 conf = {}
@@ -468,38 +468,37 @@ def create_feed_marker(path):
     try:
         feed_marker = os.path.join(path, FEED_MARKER)
         if not os.path.exists(feed_marker):
-            with codecs.open(feed_marker, mode='w', encoding='utf8') as f:
-                f.write()
+            open(feed_marker).close()
+            # TODO: Write default cfg
+            # with codecs.open(feed_marker, mode='w', encoding='utf8') as f:
+            #     f.write('')
     except:
         log.error('error creating feed marker')
         raise
 
 
-def get_last_num(path, prefix):
-    # TODO
-    return 0
-
-
-def preserve_post(feed, name, ctime):
-    """Generates post file placeholder with an unique name and returns
-    its name"""
+def preserve_post(name, date):
+    """Generates post file placeholder with an unique name
+    and returns its name"""
+    feed, post = os.path.split(name)
     feed_path = os.path.join(conf['pages_path'], feed)
-    post_path = os.path.join(feed_path, str(ctime.year))
-    date = ctime.strftime("%Y-%m-%d")
-    num = get_last_num(feed_path, date)
-    fmt = "{date}{num}_{name}.md"
+    makedirs(feed_path)
+    create_feed_marker(feed_path)
+
+    date = date.strftime('%Y%m%d')
+    name = URI_SEP_PATTERN.sub('-', name).strip('-').lower()
+    name = '_'.join(filter(None, [date, name])) + '.md'
+    post = os.path.join(feed_path, name)
+    num = 1
 
     while True:
-        post = fmt.format(date=date, name=name, num=num or ('_' + str(num)))
-        post = os.path.join(post_path, post)
-
         if not os.path.exists(post):
-            makedirs(post_path)
-            create_feed_marker(feed_path)
             open(post, 'w').close()
             return post
 
         num += 1
+        path, name = os.path.split(post)
+        ''.join([path, num, name])
 
 
 # Command line command ========================================================
@@ -646,8 +645,14 @@ def page(args):
         execute_proc('editor_cmd', page_path)
 
 
-@arg('name', help='post name')
-@arg('-f', '--feed', default=None, help='feed name (default is root)')
+# def split_post_name(post):
+#     """Splits post name and returns tuple of two elements:
+#     postname and feed name. If there are no post or feed name,
+#     None will be returned for the corresponding value."""
+#     a, b = os.path.split(post)
+
+
+@arg('name', help='post name and optional feed name')
 @source_arg
 @edit_arg
 @type_arg
@@ -657,18 +662,16 @@ def post(args):
     setup(args)
 
     if not POST_PATTERN.match(args.name):
-        raise Exception('illegal post name')
-
-    if not FEED_PATTERN.match(args.feed):
-        raise Exception('illegal feed name')
+        raise Exception('illegal feed or post name')
 
     ctime = datetime.now()
-    path = preserve_post(args.feed, args.name, ctime)
+    path = preserve_post(args.name, ctime)
+    exit()
 
     with codecs.open(path, mode='w', encoding='utf8') as f:
-        contents = get_generic(args.type or 'default-post')
-        f.write(contents.format(title=args.name,
-                                ctime=ctime.strftime(TIME_FMT)))
+        text = get_generic(args.type or 'default-post')
+        text = text.format(title=args.name, ctime=ctime.strftime(TIME_FMT))
+        f.write(text)
 
     if args.edit:
         execute_proc('editor_cmd', path)

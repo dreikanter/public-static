@@ -57,18 +57,18 @@ Add powered-by to default template.
 
 Branch: Blog generation.
 
-	- Consider file naming and structure
 	- Consider indexing for archive page generation and navigation links
 	- New post command (auto generate correct file name).
+	- Blog building
+
+Test installation on Ubuntu and clean virtualenv.
+
+--- Next iteration
 
 Published field: yes/no (draft)
 
 	- Don't build pages which status is draft.
 	- Consider a command to switch draft/published status?
-
-Test installation on Ubuntu and clean virtualenv.
-
---- Next iteration
 
 Add image command.
 Undo command for last operations. Use the log?
