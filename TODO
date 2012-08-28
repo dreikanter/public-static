@@ -60,6 +60,7 @@ Branch: Blog generation.
 	- Consider indexing for archive page generation and navigation links
 	- New post command (auto generate correct file name).
 	- Blog building
+	- Consider to keep all feeds configuration inside hydrogen.conf
 
 Test installation on Ubuntu and clean virtualenv.
 

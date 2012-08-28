@@ -67,7 +67,8 @@ PARAM_PATTERN = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", RE_FLAGS)
 H1_PATTERN = re.compile(r"^\s*#\s*(.*)\s*", RE_FLAGS)
 POST_PATTERN = re.compile(r"[\w\\/]+")
 FEED_MARKER = 'feed'
-URI_SEP_PATTERN = re.compile(r"[^a-z]+", RE_FLAGS)
+URI_SEP_PATTERN = re.compile(r"[^a-z\d]+", RE_FLAGS)
+URI_EXCLUDE_PATTERN = re.compile(r"[,.`\'\"\!@\#\$\%\^\&\*\(\)\+]+", RE_FLAGS)
 
 log = logging.getLogger(__name__)
 conf = {}
@@ -307,14 +308,15 @@ def str2int(value, default=None):
     return value
 
 
-def joind(d1, d2):
-    """Joins two dictionaries"""
-    return dict(d1.items() + d2.items())
+# def joind(d1, d2):
+#     """Joins two dictionaries"""
+#     return dict(d1.items() + d2.items())
 
 
 def makedirs(dir_path):
     """Creates directory if it not exists"""
     if dir_path and not os.path.exists(dir_path):
+        log.debug("creating directory '%s'" % dir_path)
         os.makedirs(dir_path)
 
 
@@ -468,37 +470,61 @@ def create_feed_marker(path):
     try:
         feed_marker = os.path.join(path, FEED_MARKER)
         if not os.path.exists(feed_marker):
-            open(feed_marker).close()
+            log.debug("creating feed marker: '%s'" % feed_marker)
+            open(feed_marker, 'w').close()
             # TODO: Write default cfg
             # with codecs.open(feed_marker, mode='w', encoding='utf8') as f:
             #     f.write('')
     except:
-        log.error('error creating feed marker')
+        log.error('error checking/creating feed marker')
         raise
 
 
-def preserve_post(name, date):
+def urlify(string):
+    """Make a string URL-safe by excluding unwanted characters
+    and replacing spaces with dashes. Used to generate URIs from
+    post titles.
+
+    Usage:
+
+        >>> urlify("Hello World")
+        "hello-world"
+        >>> urlify("Drugs, Sex and Rock'n'Roll!")
+        "drugs-sex-and-rocknroll"
+    """
+    result = URI_EXCLUDE_PATTERN.sub('', string)
+    result = URI_SEP_PATTERN.sub('-', result)
+    return result.strip('-').lower()
+
+
+def create_post(name, date, text):
     """Generates post file placeholder with an unique name
     and returns its name"""
-    feed, post = os.path.split(name)
-    feed_path = os.path.join(conf['pages_path'], feed)
+    feed_name, post_name = os.path.split(name)
+
+    # Check if feed directory exists
+    feed_path = os.path.join(conf['pages_path'], feed_name)
     makedirs(feed_path)
     create_feed_marker(feed_path)
 
-    date = date.strftime('%Y%m%d')
-    name = URI_SEP_PATTERN.sub('-', name).strip('-').lower()
-    name = '_'.join(filter(None, [date, name])) + '.md'
-    post = os.path.join(feed_path, name)
+    # Generate new post file name
+    parts = [date.strftime('%Y-%m-%d'), urlify(post_name)]
+    post_name = '-'.join(filter(None, parts)) + '.md'
+    new_name = os.path.join(feed_path, post_name)
+    text = text.format(title=name, ctime=date.strftime(TIME_FMT))
     num = 1
 
+    # Preserve file with a new unique name
     while True:
-        if not os.path.exists(post):
-            open(post, 'w').close()
-            return post
+        if not os.path.exists(new_name):
+            log.debug("creating post '%s'" % new_name)
+            with codecs.open(new_name, mode='w', encoding='utf8') as f:
+                f.write(text)
+            return new_name
 
         num += 1
-        path, name = os.path.split(post)
-        ''.join([path, num, name])
+        base, ext = os.path.splitext(post_name)
+        new_name = os.path.join(feed_path, base) + str(num) + ext
 
 
 # Command line command ========================================================
@@ -664,19 +690,13 @@ def post(args):
     if not POST_PATTERN.match(args.name):
         raise Exception('illegal feed or post name')
 
-    ctime = datetime.now()
-    path = preserve_post(args.name, ctime)
-    exit()
-
-    with codecs.open(path, mode='w', encoding='utf8') as f:
-        text = get_generic(args.type or 'default-post')
-        text = text.format(title=args.name, ctime=ctime.strftime(TIME_FMT))
-        f.write(text)
+    text = get_generic(args.type or 'default-post')
+    post_path = create_post(args.name, datetime.now(), text)
 
     if args.edit:
-        execute_proc('editor_cmd', path)
+        execute_proc('editor_cmd', post_path)
 
-    # python hydrogen/hydrogen.py post -s test-site2 -f blog hello
+    # python hydrogen/hydrogen.py post -s test-site2 blog hello
 
 
 def main():
