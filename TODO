@@ -1,3 +1,12 @@
+Branch: Blog generation.
+
+	- Keep all feeds configuration inside hydrogen.conf
+	- Blog building
+
+Use YAML parser for pages metadata (separated from content by \n\n; no boring dashes!)
+
+Test installation on Ubuntu and clean virtualenv.
+
 Readme:
 
 	- Move documentation to documentation. Readme should be short.
@@ -44,26 +53,23 @@ Readme:
 	    # Text editor command (use {file} for file name to edit)
 	    'editor_cmd': "$EDITOR '{file}'",
 
-Add powered-by to default template.
-
-Branch: Blog generation.
-
-	- Consider indexing for archive page generation and navigation links
-	- New post command (auto generate correct file name).
-	- Blog building
-	- Consider to keep all feeds configuration inside hydrogen.conf
-
-Test installation on Ubuntu and clean virtualenv.
-
 --- Next iteration
+
+Add powered-by to default template.
 
 Published field: yes/no (draft)
 
 	- Don't build pages which status is draft.
 	- Consider a command to switch draft/published status?
 
-Add image command.
-Undo command for last operations. Use the log?
+Image management:
+
+	- Image management command(s).
+	- No difference btw image and generic attachment.
+	- Separated directory for attachments.
+	- Publish on S3.
+	- Markdown syntax sugar for <img>.
+
 Post/page tags (there should be a search index).
 
 Generate PDF versions for CV (link file defining name and location OR destination in metadata options)
@@ -90,19 +96,13 @@ Markdown extension to include text files (preprocessor).
 
 Markdown extension for QR.
 
-Markdown extension for smater images.
-
-Colored logging http://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output
-
-Add Examples (amc and paradigm.ru after migration).
-
 Integrate Analytics.
 
 Integrate Disqus.
 
 Presentation.
 
-	- Domain.
+	+ Domain.
 	- Get The Picture.
 	- Discussion/feedback thing.
 	- Good example: http://middlemanapp.com
@@ -110,34 +110,14 @@ Presentation.
 	- Post.
 
 Some quotes:
-	- nanoc is a Ruby web publishing system for building small to medium-sized websites. — http://nanoc.stoneship.org/
+	- %NAME% is a web publishing system for building small to medium-sized websites. — http://nanoc.stoneship.org/
 
 Short readme and structured documentation @ readthedocs.org. http://read-the-docs.readthedocs.org/en/latest/getting_started.html
 
 -- Unconsidered
-
-Move markdown extensions list (MD_EXTENSIONS) to configuration.
-
-Multiple source directories (one of the could me for static files).
-
-Use PyFS for deployment (local FS, zip, s3, ssh ready).
 
 Add --dry-run mode.
 
 Implement calculated metadata (virtual @fields generated from actual metadata, content and everything). E.g. @wordscnt to get a number of words. @readindet for estimated reading time, etc.
 
 Support http://bootswatch.com (describe the algorithm).
-
-Implement verify command for this
-
-	# def verify_conf(conf):
-	#     """Checks if configuration is correct."""
-	#     if conf['minify_js'] and not conf['minify_js_cmd']:
-	#         log.warn("JS minification enabled but 'minify_js_cmd' is undefined.")
-	#     if (conf['minify_less'] or conf['minify_css']) and not conf['minify_css_cmd']:
-	#         log.warn("CSS minification enabled but 'minify_css_cmd' is undefined.")
-	#     if not conf['sync_cmd']:
-	#         log.warn("Synchronization command 'sync_cmd' is undefined.")
-	#     if not conf['less_cmd']:
-	#         log.warn("LESS processing command 'less_cmd' is undefined.")
-	#     return conf
