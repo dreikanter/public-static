@@ -14,7 +14,10 @@ indent_size = 4
 [*.js]
 indent_style = tab
 
-; Indentation override for all JS under lib directory
-[lib/**.js]
+[*.conf]
 indent_style = space
-indent_size = 2
+indent_size = 4
+
+[*.yaml]
+indent_style = space
+indent_size = 4
