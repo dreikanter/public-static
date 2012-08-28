@@ -12,13 +12,14 @@ BS_PATH = 'bootstrap'
 CONF = 'updatebs.conf'
 H2_PATH = 'hydrogen'
 
+logging.basicConfig(level=logging.DEBUG, format="%(message)s")
 log = logging.getLogger()
 
 if not os.path.isdir(BS_PATH):
     log.info('cloning Twitter Bootstrap from GitHub')
     ret = os.system("git clone -- \"%s\" \"%s\"" % (BS_URL, BS_PATH))
 else:
-    if not os.path.isdir(os.path.join('BS_PATH', '.git')):
+    if not os.path.isdir(os.path.join(BS_PATH, '.git')):
         log.error("'%s' is not a git repo" % BS_PATH)
         exit(1)
 
@@ -28,13 +29,15 @@ else:
     ret = os.system('git pull')
     os.chdir(cwd)
 
-log.info("git returned '%d'" % ret)
-log.info("reading '%s'" % CONF)
+if ret != 0:
+    log.error("git returned '%d'" % ret)
+
+log.info("reading files mapping from '%s'" % CONF)
 
 with open(CONF, 'r') as f:
     mapping = yaml.load(f.read())
 
-log.info('got %d items from files mapping configuration')
+log.info('got %d items' % len(mapping))
 
 for item in mapping:
     source = os.path.join(BS_PATH, item['from'])
@@ -45,7 +48,7 @@ for item in mapping:
         log.error('source doesn\'t exists')
         continue
 
-    dir_path, _ = os.path.split
+    dir_path, _ = os.path.split(source)
 
     if not os.path.isdir(dir_path):
         os.makedirs(dir_path)
