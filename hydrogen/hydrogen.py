@@ -497,10 +497,31 @@ def urlify(string):
     return result.strip('-').lower()
 
 
+def create_page(name, date, text, force):
+    """Creates page file"""
+    name = urlify(name)
+    page_path = os.path.join(conf['pages_path'], name) + '.md'
+
+    if os.path.exists(page_path):
+        if force:
+            log.debug('existing page will be overwritten')
+        else:
+            raise Exception('page already exists, use -f to overwrite')
+
+    text = text.format(title=name, ctime=date.strftime(TIME_FMT))
+    makedirs(os.path.split(page_path)[0])
+
+    with codecs.open(page_path, mode='w', encoding='utf8') as f:
+        log.debug("creating page '%s'" % page_path)
+        f.write(text)
+
+
 def create_post(name, date, text):
     """Generates post file placeholder with an unique name
     and returns its name"""
     feed_name, post_name = os.path.split(name)
+
+    # TODO: Use the Force
 
     # Check if feed directory exists
     feed_path = os.path.join(conf['pages_path'], feed_name)
@@ -652,30 +673,20 @@ def clean(args):
 @log_arg
 @verbose_arg
 def page(args):
+    """create new page"""
+
+    # Test:
+    # python hydrogen/hydrogen.py page -s test-site2 -v one
+
     setup(args)
     if not POST_PATTERN.match(args.name):
         raise Exception('illegal page name')
 
-    page_path = os.path.join(conf['pages_path'], args.name) + '.md'
-    if not args.force and os.path.exists(page_path):
-        log.error('specified page already exists (use -f to overwrite)')
-        return
-
-    generic = get_generic(args.type, 'default-page')
-    contents = generic.format(title=args.name, ctime=time.strftime(TIME_FMT))
-    makedirs(os.path.split(page_path)[0])
-    with codecs.open(page_path, mode='w', encoding='utf8') as f:
-        f.write(contents)
+    text = get_generic(args.type or 'default-page')
+    page_path = create_page(args.name, datetime.now(), text, args.force)
 
     if args.edit:
         execute_proc('editor_cmd', page_path)
-
-
-# def split_post_name(post):
-#     """Splits post name and returns tuple of two elements:
-#     postname and feed name. If there are no post or feed name,
-#     None will be returned for the corresponding value."""
-#     a, b = os.path.split(post)
 
 
 @arg('name', help='post name and optional feed name')
@@ -685,6 +696,11 @@ def page(args):
 @log_arg
 @verbose_arg
 def post(args):
+    """create new post"""
+
+    # Test:
+    # python hydrogen/hydrogen.py post -s test-site2 -v "blog\hello world"
+
     setup(args)
 
     if not POST_PATTERN.match(args.name):
@@ -695,8 +711,6 @@ def post(args):
 
     if args.edit:
         execute_proc('editor_cmd', post_path)
-
-    # python hydrogen/hydrogen.py post -s test-site2 blog hello
 
 
 def main():
