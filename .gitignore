@@ -11,5 +11,5 @@ MANIFEST
 
 generic-site/www
 *.log
-test-*
+test*/**
 bootstrap

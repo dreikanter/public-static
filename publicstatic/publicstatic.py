@@ -66,7 +66,6 @@ RE_FLAGS = re.I | re.M | re.U
 PARAM_PATTERN = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", RE_FLAGS)
 H1_PATTERN = re.compile(r"^\s*#\s*(.*)\s*", RE_FLAGS)
 POST_PATTERN = re.compile(r"[\w\\/]+")
-FEED_MARKER = 'feed'
 URI_SEP_PATTERN = re.compile(r"[^a-z\d]+", RE_FLAGS)
 URI_EXCLUDE_PATTERN = re.compile(r"[,.`\'\"\!@\#\$\%\^\&\*\(\)\+]+", RE_FLAGS)
 
@@ -94,7 +93,7 @@ def setup(args):
                 exit()
 
             log.info("creating new website at '%s'" % site_path)
-            spawn_generic(site_path)
+            spawn(site_path)
 
             text = yaml.dump(CONF, width=80, indent=4, default_flow_style=False)
             with codecs.open(config, mode='w', encoding='utf8') as f:
@@ -234,7 +233,7 @@ def process_file(source_root, source_file):
 def build_page(source_file, dest_file, templates_path):
     """Builds a page from markdown source amd mustache template"""
     try:
-        page = read_page_source(source_file)
+        page = read_page(source_file)
         with codecs.open(dest_file, mode='w', encoding='utf8') as f:
             tpl = get_template(page['template'], templates_path)
             f.write(pystache.render(tpl, page))
@@ -243,7 +242,7 @@ def build_page(source_file, dest_file, templates_path):
         log.error('content processing error: ' + str(e))
 
 
-def read_page_source(source_file):
+def read_page(source_file):
     """Reads a page file to dictionary.
     Refer readme for page format description."""
     try:
@@ -259,7 +258,7 @@ def read_page_source(source_file):
                     page['content'] = ''.join(lines[num:])
                     break
 
-        page['title'] = page.get('title', get_md_h1(page['content'])).strip()
+        page['title'] = page.get('title', get_h1(page['content'])).strip()
         page['template'] = page.get('template', conf['template']).strip()
         page['author'] = page.get('author', conf['author']).strip()
         page['content'] = md(page.get('content', ''))
@@ -293,11 +292,6 @@ def get_template(tpl_name, templates_path):
 
 # General helpers =============================================================
 
-def getxm(message, exception):
-    """Returns annotated exception messge"""
-    return ("%s: %s" % (message, str(exception))) if exception else message
-
-
 def str2int(value, default=None):
     """Safely converts string value to integer. Returns
     default value if the first argument is not numeric.
@@ -306,11 +300,6 @@ def str2int(value, default=None):
         value = str(value).strip()
         value = int(value) if value.isdigit() else default
     return value
-
-
-# def joind(d1, d2):
-#     """Joins two dictionaries"""
-#     return dict(d1.items() + d2.items())
 
 
 def makedirs(dir_path):
@@ -349,21 +338,21 @@ def execute_after(cmd, delay):
     execute(cmd, True)
 
 
-def check_build_is_done(build_path):
+def check_build(path):
     """Check if the web content was built and exit if it isn't"""
-    if not os.path.isdir(build_path):
-        raise Exception("web content directory not exists: '%s'" % build_path)
+    if not os.path.isdir(path):
+        raise Exception("web content directory not exists: '%s'" % path)
 
 
-def drop_build_dir(build_path, create_new=False):
+def drop_build(path, create=False):
     """Drops the build if it exists"""
-    if os.path.isdir(build_path):
-        shutil.rmtree(build_path, ignore_errors=True)
-    if create_new and not os.path.isdir(build_path):
-        os.makedirs(build_path)
+    if os.path.isdir(path):
+        shutil.rmtree(path, ignore_errors=True)
+    if create and not os.path.isdir(path):
+        os.makedirs(path)
 
 
-def get_md_h1(text):
+def get_h1(text):
     """Extracts the first h1-header from markdown text"""
     matches = H1_PATTERN.search(text)
     return matches.group(1) if matches else ''
@@ -429,7 +418,7 @@ def update_humans(source_file, dest_file):
         raise
 
 
-def spawn_generic(path):
+def spawn(path):
     """Clones generic site to specified directory"""
     generic = os.path.dirname(os.path.abspath(__file__))
     generic = os.path.join(generic, GENERIC_PATH)
@@ -464,20 +453,51 @@ def get_log():
     return log if len(log.handlers) else logging
 
 
-def create_feed_marker(path):
-    """Create marker file at the specified folder to inform the
-    site builder it contains blog structure"""
-    try:
-        feed_marker = os.path.join(path, FEED_MARKER)
-        if not os.path.exists(feed_marker):
-            log.debug("creating feed marker: '%s'" % feed_marker)
-            open(feed_marker, 'w').close()
-            # TODO: Write default cfg
-            # with codecs.open(feed_marker, mode='w', encoding='utf8') as f:
-            #     f.write('')
-    except:
-        log.error('error checking/creating feed marker')
-        raise
+def yml(data, file_name):
+    text = yaml.dump(data, width=80, indent=4, default_flow_style=False)
+    with codecs.open(file_name, mode='w', encoding='utf8') as f:
+        f.write(text)
+
+
+def unyml(file_name):
+    with codecs.open(file_name, mode='r', encoding='utf8') as f:
+        return yaml.load(f.read())
+
+
+def create_feed(path):
+
+    # try:
+        # from pprint import pprint
+        loaded = unyml(conf['conf'])
+
+        if not 'feeds' in loaded:
+            loaded['feeds'] = []
+
+        if not path in loaded['feeds']:
+            loaded['feeds'].append(path)
+            bak = conf['conf'] + '.old'
+            if os.path.exists(bak):
+                os.remove(bak)
+            yml(loaded, conf['conf'])
+
+        exit()
+
+    # except:
+    #     log.error('error adding feed info to site configuration')
+    #     raise
+    # """Create marker file at the specified folder to inform the
+    # site builder it contains blog structure"""
+    # try:
+    #     feed_marker = os.path.join(path, FEED_MARKER)
+    #     if not os.path.exists(feed_marker):
+    #         log.debug("creating feed marker: '%s'" % feed_marker)
+    #         open(feed_marker, 'w').close()
+    #         # TODO: Write default cfg
+    #         # with codecs.open(feed_marker, mode='w', encoding='utf8') as f:
+    #         #     f.write('')
+    # except:
+    #     log.error('error checking/creating feed marker')
+    #     raise
 
 
 def urlify(string):
@@ -523,14 +543,15 @@ def create_post(name, date, text):
 
     # TODO: Use the Force
 
-    # Check if feed directory exists
+    # Create new feed if not exists
     feed_path = os.path.join(conf['pages_path'], feed_name)
+    create_feed(feed_name)
+    feed_path = os.path.join(feed_path, date.strftime('%Y'))
     makedirs(feed_path)
-    create_feed_marker(feed_path)
 
     # Generate new post file name
     parts = [date.strftime('%Y-%m-%d'), urlify(post_name)]
-    post_name = '-'.join(filter(None, parts)) + '.md'
+    post_name = '_'.join(filter(None, parts)) + '.md'
     new_name = os.path.join(feed_path, post_name)
     text = text.format(title=name, ctime=date.strftime(TIME_FMT))
     num = 1
@@ -586,7 +607,7 @@ def init(args):
 def build(args):
     """generate web content from source"""
     setup(args)
-    drop_build_dir(conf['build_path'])
+    drop_build(conf['build_path'])
     makedirs(conf['build_path'])
     log.info("building path: '%s'" % conf['build_path'])
     process_files()
@@ -607,7 +628,7 @@ def build(args):
 def run(args):
     """run local web server to preview generated website"""
     setup(args)
-    check_build_is_done(conf['build_path'])
+    check_build(conf['build_path'])
     original_cwd = os.getcwd()
     port = str2int(args.port, conf['port'])
     log.info("running HTTP server on port %d..." % port)
@@ -644,7 +665,7 @@ def run(args):
 def deploy(args):
     """deploy generated website to the remote web server"""
     setup(args)
-    check_build_is_done(conf['build_path'])
+    check_build(conf['build_path'])
 
     if not conf['sync_cmd']:
         raise Exception('synchronizing command is not defined by configuration')
@@ -661,7 +682,7 @@ def clean(args):
     """delete all generated content"""
     setup(args)
     log.info('cleaning output...')
-    drop_build_dir(conf['build_path'])
+    drop_build(conf['build_path'])
     log.info('done')
 
 
