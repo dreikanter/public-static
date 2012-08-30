@@ -497,12 +497,10 @@ def create_page(name, date, text, force):
         f.write(text)
 
 
-def create_post(name, date, text):
+def create_post(name, date, text, force):
     """Generates post file placeholder with an unique name
     and returns its name"""
     feed, post = os.path.split(name)
-
-    # TODO: Use the Force
 
     try:
         parts = [conf['pages_path'], feed, FEED_DIR, date.strftime('%Y')]
@@ -522,7 +520,7 @@ def create_post(name, date, text):
         sfx = str(num) if num > 1 else ''
         result = os.path.join(path, post) + sfx + '.md'
 
-        if not os.path.exists(result):
+        if force or not os.path.exists(result):
             log.debug("creating post '%s'" % result)
             text = text.format(title=name, ctime=date.strftime(TIME_FMT))
             with codecs.open(result, mode='w', encoding='utf8') as f:
@@ -677,6 +675,7 @@ def page(args):
 
 @arg('name', help='post name and optional feed name')
 @source_arg
+@force_arg
 @edit_arg
 @type_arg
 @log_arg
@@ -693,7 +692,7 @@ def post(args):
         raise Exception('illegal feed or post name')
 
     text = get_generic(args.type or 'default-post')
-    post_path = create_post(args.name, datetime.now(), text)
+    post_path = create_post(args.name, datetime.now(), text, args.force)
 
     if args.edit:
         execute_proc('editor_cmd', post_path)
