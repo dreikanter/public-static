@@ -34,6 +34,7 @@ DEFAULT_LOG = 'pub.log'
 DEFAULT_CONF = 'pub.conf'
 GENERIC_PATH = 'generic-site'
 GENERIC_PAGES = 'generic-pages'
+FEED_DIR = 'feed'
 
 # See the docs for parameters description
 CONF = {
@@ -464,42 +465,6 @@ def unyml(file_name):
         return yaml.load(f.read())
 
 
-def create_feed(path):
-
-    # try:
-        # from pprint import pprint
-        loaded = unyml(conf['conf'])
-
-        if not 'feeds' in loaded:
-            loaded['feeds'] = []
-
-        if not path in loaded['feeds']:
-            loaded['feeds'].append(path)
-            bak = conf['conf'] + '.old'
-            if os.path.exists(bak):
-                os.remove(bak)
-            yml(loaded, conf['conf'])
-
-        exit()
-
-    # except:
-    #     log.error('error adding feed info to site configuration')
-    #     raise
-    # """Create marker file at the specified folder to inform the
-    # site builder it contains blog structure"""
-    # try:
-    #     feed_marker = os.path.join(path, FEED_MARKER)
-    #     if not os.path.exists(feed_marker):
-    #         log.debug("creating feed marker: '%s'" % feed_marker)
-    #         open(feed_marker, 'w').close()
-    #         # TODO: Write default cfg
-    #         # with codecs.open(feed_marker, mode='w', encoding='utf8') as f:
-    #         #     f.write('')
-    # except:
-    #     log.error('error checking/creating feed marker')
-    #     raise
-
-
 def urlify(string):
     """Make a string URL-safe by excluding unwanted characters
     and replacing spaces with dashes. Used to generate URIs from
@@ -539,34 +504,38 @@ def create_page(name, date, text, force):
 def create_post(name, date, text):
     """Generates post file placeholder with an unique name
     and returns its name"""
-    feed_name, post_name = os.path.split(name)
+    feed, post = os.path.split(name)
 
     # TODO: Use the Force
 
-    # Create new feed if not exists
-    feed_path = os.path.join(conf['pages_path'], feed_name)
-    create_feed(feed_name)
-    feed_path = os.path.join(feed_path, date.strftime('%Y'))
-    makedirs(feed_path)
+    try:
+        parts = [conf['pages_path'], feed, FEED_DIR, date.strftime('%Y')]
+        path = os.sep.join(parts)
+        makedirs(path)
+    except:
+        log.error("error creating new feed at '%s'" % path)
+        raise
 
     # Generate new post file name
-    parts = [date.strftime('%Y-%m-%d'), urlify(post_name)]
-    post_name = '_'.join(filter(None, parts)) + '.md'
-    new_name = os.path.join(feed_path, post_name)
-    text = text.format(title=name, ctime=date.strftime(TIME_FMT))
+    parts = [date.strftime('%Y-%m-%d'), urlify(post)]
+    post = '_'.join(filter(None, parts))
     num = 1
 
     # Preserve file with a new unique name
     while True:
-        if not os.path.exists(new_name):
-            log.debug("creating post '%s'" % new_name)
-            with codecs.open(new_name, mode='w', encoding='utf8') as f:
+        sfx = str(num) if num > 1 else ''
+        result = os.path.join(path, post) + sfx + '.md'
+
+        if not os.path.exists(result):
+            log.debug("creating post '%s'" % result)
+            text = text.format(title=name, ctime=date.strftime(TIME_FMT))
+            with codecs.open(result, mode='w', encoding='utf8') as f:
                 f.write(text)
-            return new_name
+            break
 
         num += 1
-        base, ext = os.path.splitext(post_name)
-        new_name = os.path.join(feed_path, base) + str(num) + ext
+
+    return result
 
 
 # Command line command ========================================================

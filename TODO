@@ -1,7 +1,19 @@
 Branch: Blog generation.
 
-	- Keep all feeds configuration inside pub.conf
 	- Blog building
+
+--
+
+Feed directory structure considerations:
+
+	- Directory will be treated as a *feed root* if it contains subdirectory named 'feed' which is standardized case-sensitive name (public-static doesn't use any kind of prefixes to indicate special directory name like __feed, because it looks ugly).
+	- Feed directory could contain only standardized file names. Others ones will be ignored during the build process.
+	- It's ok if the *feed root* contains ordinary page files.
+	- If *feed root* contains pages and posts with a same name, pages will override posts.
+	- In addition to the individual post pages, an archive and index pages will be generated in the feed root. Index will contain the latest post contents.
+	- /feed-name/feed/YEAR/YYYY-MM-DD_post-name.md → /feed-name/post-name
+
+--
 
 Use YAML parser for pages metadata (separated from content by \n\n; no boring dashes!)
 
