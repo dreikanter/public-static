@@ -5,4 +5,4 @@ LICENSE = 'MIT'
 VERSION_INFO = (0, 4, 8)
 VERSION = '.'.join(map(str, VERSION_INFO))
 STATUS = 'Development'
-URL = 'http://github.com/dreikanter/hydrogen'
+URL = 'http://github.com/dreikanter/public-static'

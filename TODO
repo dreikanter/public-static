@@ -1,6 +1,6 @@
 Branch: Blog generation.
 
-	- Keep all feeds configuration inside hydrogen.conf
+	- Keep all feeds configuration inside pub.conf
 	- Blog building
 
 Use YAML parser for pages metadata (separated from content by \n\n; no boring dashes!)

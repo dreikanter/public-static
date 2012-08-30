@@ -30,8 +30,8 @@ __status__ = authoring.STATUS
 __url__ = authoring.URL
 
 NAME = os.path.splitext(os.path.basename(__file__))[0]
-DEFAULT_LOG = NAME + '.log'
-DEFAULT_CONF = NAME + '.conf'
+DEFAULT_LOG = 'pub.log'
+DEFAULT_CONF = 'pub.conf'
 GENERIC_PATH = 'generic-site'
 GENERIC_PAGES = 'generic-pages'
 
@@ -676,7 +676,7 @@ def page(args):
     """create new page"""
 
     # Test:
-    # python hydrogen/hydrogen.py page -s test-site2 -v one
+    # python publicstatic/publicstatic.py page -s test-site2 -v one
 
     setup(args)
     if not POST_PATTERN.match(args.name):
@@ -699,7 +699,7 @@ def post(args):
     """create new post"""
 
     # Test:
-    # python hydrogen/hydrogen.py post -s test-site2 -v "blog\hello world"
+    # python publicstatic/publicstatic.py post -s test-site2 -v "blog\hello world"
 
     setup(args)
 

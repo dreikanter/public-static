@@ -10,7 +10,7 @@ import yaml
 BS_URL = 'git://github.com/twitter/bootstrap.git'
 BS_PATH = 'bootstrap'
 CONF = 'updatebs.conf'
-H2_PATH = 'hydrogen'
+PKG_PATH = 'publicstatic'
 
 logging.basicConfig(level=logging.DEBUG, format="%(message)s")
 log = logging.getLogger()
@@ -41,7 +41,7 @@ log.info('got %d items' % len(mapping))
 
 for item in mapping:
     source = os.path.join(BS_PATH, item['from'])
-    dest = os.path.join(H2_PATH, item['to'])
+    dest = os.path.join(PKG_PATH, item['to'])
     log.info("  '%s' => '%s'" % (source, dest))
 
     if not os.path.exists(source):
