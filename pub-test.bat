@@ -1,0 +1,1 @@
+python publicstatic/publicstatic.py %*

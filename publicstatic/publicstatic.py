@@ -96,9 +96,7 @@ def setup(args):
             log.info("creating new website at '%s'" % site_path)
             spawn(site_path)
 
-            text = yaml.dump(CONF, width=80, indent=4, default_flow_style=False)
-            with codecs.open(config, mode='w', encoding='utf8') as f:
-                f.write(text)
+            yml(CONF, config)
             conf = purify_conf(CONF)
         except:
             log.error('initialization failed')
@@ -137,9 +135,7 @@ def init_logging(log_file, verbose):
 
 def get_params(config):
     """Reads configuration file section to a dictionary"""
-    with codecs.open(config, mode='r', encoding='utf8') as f:
-        loaded = yaml.load(f.read())
-
+    loaded = unyml(config)
     conf = CONF
     conf.update(dict((item, loaded[item]) for item in loaded))
     conf['conf'] = config
