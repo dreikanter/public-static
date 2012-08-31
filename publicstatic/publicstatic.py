@@ -74,7 +74,7 @@ log = logging.getLogger(__name__)
 conf = {}
 
 
-# Initialization =============================================================
+# Initialization ==============================================================
 
 def setup(args):
     """Initializes website configuration from command line arguments. Creates
@@ -161,22 +161,105 @@ def purify_conf(conf):
 
 # Website building ============================================================
 
-def process_files():
-    """Walk through source files and process one by one"""
-    process_dir('static files', conf['static_path'])
-    process_dir('pages', conf['pages_path'])
+def process_dir(message, root):
+    log.info("processing %s from '%s'..." % (message, root))
+    # feed_dir = None
+    # prev = None
+    s = os.sep + 'feed' + os.sep
+    for cur_dir, _, files in os.walk(root):
+        cur_dir = cur_dir[len(root):].strip(os.sep)
+        cur_dir.split(s)
+        # path = cur_dir.split(os.sep)
+        # if_feed = 'feed' in path
+        # print(cur_dir + (' -> true' if if_feed else ''))
+
+        # if feed_dir:
+        #     prev = feed_dir
+        # cur_dir[len]
+        # """
+        # фид = (cur_dir - root) contains /feed/
+        # Если фид
+        #     складываем имена файлов в коллекцию
+        # Если не фид
+        #     если был фид, обрабатываем коллекцию
+        #     обрабатываем страницы
 
 
-def process_dir(message, source_root):
-    log.info("processing %s from '%s'..." % (message, source_root))
+        # """
 
-    for cur_dir, dirs, files in os.walk(source_root):
-        rel_path = cur_dir[len(source_root):].strip("\\/")
-        dest_path = os.path.join(conf['build_path'], rel_path)
-        makedirs(dest_path)
+# def process_dir(message, source_root):
+#     log.info("processing %s from '%s'..." % (message, source_root))
+#     feed_dir = None
+#     feed = []
 
-        for file_name in files:
-            process_file(source_root, os.path.join(cur_dir, file_name))
+#     for cur_dir, _, files in os.walk(source_root):
+
+#         if feed_dir:
+
+#             if cur_dir.startswith(feed_dir):
+#                 feed += [os.path.join(cur_dir, f) for f in files]
+
+#             else:
+#                 process_feed(feed, feed_dir, source_root)
+#                 feed_dir = None
+
+#         elif os.path.split(cur_dir)[1] == 'feed':
+#             print('feed -> ' + cur_dir)
+#             feed_dir = cur_dir
+#             feed = files
+
+#         else:
+#             pass
+#             # rel_path = cur_dir[len(source_root):].strip("\\/")
+#             # dest_path = os.path.join(conf['build_path'], rel_path)
+#             # makedirs(dest_path)
+#             # for f in files:
+#             #     process_file(source_root, os.path.join(cur_dir, f))
+
+#     process_feed(feed, feed_dir, source_root)
+
+#     # for cur_dir, _, files in os.walk(source_root):
+#     #     rel_path = cur_dir[len(source_root):].strip("\\/")
+#     #     dest_path = os.path.join(conf['build_path'], rel_path)
+#     #     makedirs(dest_path)
+
+#     #     for file_name in files:
+#     #         process_file(source_root, os.path.join(cur_dir, file_name))
+
+
+def feed_name(path, root):
+    """Gets feed name from the feed path
+
+    Usage:
+        >>> feed_name('/test/pages/feed/', '/test/pages')
+        ''
+
+        >>> feed_name('/test/pages/blog/feed', '/test/pages')
+        'blog'
+
+        >>> feed_name('/test/pages/other/blog/feed/', '/test/pages')
+        'other/blog'
+    """
+    path = path[len(root):]
+    while True:
+        path, next = os.path.split(path)
+        if next == 'feed' or not path:
+            return path.strip(os.sep + os.altsep)
+
+
+def process_feed(files, feed_path, root_path):
+    if not feed_path or not files:
+        return
+    from pprint import pprint
+    pprint(feed_path)
+    pprint(files)
+
+    # print('feed: ' + feed_name(feed_path, root_path))
+    # return
+
+    # # TODO: ...
+    # for f in files:
+    #     print('- ' + f)
 
 
 def process_file(source_root, source_file):
@@ -573,7 +656,8 @@ def build(args):
     drop_build(conf['build_path'])
     makedirs(conf['build_path'])
     log.info("building path: '%s'" % conf['build_path'])
-    process_files()
+    process_dir('static files', conf['static_path'])
+    process_dir('pages', conf['pages_path'])
     log.info("build succeeded")
 
     # TODO: Build feeds
@@ -658,10 +742,6 @@ def clean(args):
 @verbose_arg
 def page(args):
     """create new page"""
-
-    # Test:
-    # python publicstatic/publicstatic.py page -s test-site2 -v one
-
     setup(args)
     if not POST_PATTERN.match(args.name):
         raise Exception('illegal page name')
@@ -682,12 +762,7 @@ def page(args):
 @verbose_arg
 def post(args):
     """create new post"""
-
-    # Test:
-    # python publicstatic/publicstatic.py post -s test-site2 -v "blog\hello world"
-
     setup(args)
-
     if not POST_PATTERN.match(args.name):
         raise Exception('illegal feed or post name')
 
@@ -711,6 +786,7 @@ def main():
         get_log().error(str(e))
         get_log().debug(traceback.format_exc())
         return 2
+
 
 if __name__ == '__main__':
     sys.exit(main())
