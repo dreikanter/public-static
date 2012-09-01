@@ -4,6 +4,8 @@ Branch: Blog generation.
 
 // Use YAML parser for pages metadata (separated from content by \n\n; no boring dashes!) ← Don't use. Because the header is optional and \n\n could be not a separator. In the same time standard separator is too noisy.
 
+static/* should be deployed to s3.
+
 Test installation on Ubuntu and clean virtualenv.
 
 Readme:
