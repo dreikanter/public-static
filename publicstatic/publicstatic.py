@@ -420,7 +420,8 @@ def md(text):
         # than reused one (for some reason)
         mkdn = markdown.Markdown(extensions=conf['markdown_extensions'])
     except:
-        log.error('markdown initialization error: probably bad extension names')
+        log.error('markdown initialization error: '
+                  'probably bad extension names')
         raise
 
     try:
@@ -576,22 +577,22 @@ def create_post(name, date, text, force):
 # Common arguments
 
 source_arg = arg('-s', '--source', default=None, metavar='SRC',
-    help='website source path (default is the current directory)')
+                 help='website source path (default is the current directory)')
 
 log_arg = arg('-l', '--log', default=None,
-    help='log file name')
+              help='log file name')
 
 verbose_arg = arg('-v', '--verbose', default=False,
-    help='verbose output')
+                  help='verbose output')
 
 force_arg = arg('-f', '--force', default=False,
-    help='overwrite existing files')
+                help='overwrite existing files')
 
 type_arg = arg('-t', '--type', default=None,
-    help='generic page to clone')
+               help='generic page to clone')
 
 edit_arg = arg('-e', '--edit', default=False,
-    help='open with preconfigured editor')
+               help='open with preconfigured editor')
 
 
 @source_arg
@@ -671,7 +672,8 @@ def deploy(args):
     check_build(conf['build_path'])
 
     if not conf['sync_cmd']:
-        raise Exception('synchronizing command is not defined by configuration')
+        raise Exception('synchronizing command is not '
+                        'defined by configuration')
 
     log.info('synchronizing...')
     execute(conf['sync_cmd'].format(path=conf['build_path']), True)
