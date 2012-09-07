@@ -67,7 +67,7 @@ RE_FLAGS = re.I | re.M | re.U
 PARAM_PATTERN = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", RE_FLAGS)
 H1_PATTERN = re.compile(r"^\s*#\s*(.*)\s*", RE_FLAGS)
 POST_PATTERN = re.compile(r"[\w\\/]+")
-URI_SEP_PATTERN = re.compile(r"[^a-z\d]+", RE_FLAGS)
+URI_SEP_PATTERN = re.compile(r"[^a-z\d\%s]+" % os.sep, RE_FLAGS)
 URI_EXCLUDE_PATTERN = re.compile(r"[,.`\'\"\!@\#\$\%\^\&\*\(\)\+]+", RE_FLAGS)
 
 log = logging.getLogger(__name__)
@@ -213,6 +213,9 @@ def process_feed(path, name, entities):
 
 
 def process_entity(path, entity):
+    print path
+    print entity
+    print '---'
     pass
 
 
@@ -510,10 +513,16 @@ def urlify(string):
 
         >>> urlify("Hello World")
         "hello-world"
+
         >>> urlify("Drugs, Sex and Rock'n'Roll!")
         "drugs-sex-and-rocknroll"
+
+        >>> urlify("long/way home")
+        "long/way-home"
     """
     result = URI_EXCLUDE_PATTERN.sub('', string)
+    if os.altsep:
+        result = result.replace(os.altsep, os.sep)
     result = URI_SEP_PATTERN.sub('-', result)
     return result.strip('-').lower()
 
