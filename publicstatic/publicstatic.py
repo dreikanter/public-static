@@ -54,7 +54,6 @@ CONF = {
     'minify_js_cmd': "yuicompressor --type js --nomunge -o {dest} {source}",
     'minify_css_cmd': "yuicompressor --type css -o {dest} {source}",
     'sync_cmd': '',
-    'run_browser_cmd': "start {url}",
     'less_cmd': "lessc -x {source} > {dest}",
     'markdown_extensions': ['nl2br', 'grid', 'smartypants'],
     'editor_cmd': "$EDITOR \"{source}\"",
@@ -155,7 +154,6 @@ def purify_conf(conf):
     conf['minify_js_cmd'] = conf['minify_js_cmd'].strip()
     conf['minify_css_cmd'] = conf['minify_css_cmd'].strip()
     conf['sync_cmd'] = conf['sync_cmd'].strip()
-    conf['run_browser_cmd'] = conf['run_browser_cmd'].strip()
     conf['port'] = int(conf['port'])
     return conf
 
@@ -368,10 +366,12 @@ def execute(cmd, critical=False):
             log.debug(traceback.format_exc())
 
 
-def execute_after(cmd, delay):
-    """This function intended to execute system command asyncronously"""
+def browse(url, delay):
+    """Opens specified @url with system default browser after @delay seconds"""
     time.sleep(delay)
-    execute(cmd, True)
+
+    from webbrowser import open_new_tab
+    open_new_tab(url)
 
 
 def check_build(path):
@@ -645,15 +645,12 @@ def run(args):
     try:
         if args.browse:
             url = "http://localhost:%s/" % port
-            cmd = conf['run_browser_cmd'].format(url=url)
             delay = conf['browser_opening_delay']
-
             log.info("opening browser in %g seconds" % delay)
-            log.info('use Ctrl-Break to stop webserver')
-            log.debug("command: '%s'" % cmd)
-            p = Process(target=execute_after, args=(cmd, delay))
+            p = Process(target=browse, args=(url, delay))
             p.start()
 
+        log.info('use Ctrl-Break to stop webserver')
         os.chdir(conf['build_path'])
         httpd.serve_forever()
 
