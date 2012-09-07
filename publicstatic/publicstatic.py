@@ -41,8 +41,8 @@ FEED_DIR = 'feed'
 CONF = {
     'generator': NAME + " {version}",
     'build_path': 'www',
-    'pages_path': 'pages',
-    'static_path': 'static',
+    'contents_path': 'contents',
+    'assets_path': 'assets',
     'templates_path': 'templates',
     'port': 8000,
     'browser_opening_delay': 2.0,
@@ -145,8 +145,8 @@ def get_params(config):
 def purify_conf(conf):
     """Preprocess configuration parameters"""
     config = conf['conf']
-    conf['pages_path'] = get_conf_path(config, conf['pages_path'])
-    conf['static_path'] = get_conf_path(config, conf['static_path'])
+    conf['contents_path'] = get_conf_path(config, conf['contents_path'])
+    conf['assets_path'] = get_conf_path(config, conf['assets_path'])
     conf['build_path'] = get_conf_path(config, conf['build_path'])
     conf['templates_path'] = get_conf_path(config, conf['templates_path'])
     conf['browser_opening_delay'] = float(conf['browser_opening_delay'])
@@ -169,7 +169,7 @@ def process_dir(message, path):
     for curdir, _, files in os.walk(path):
         for nextfile in files:
             fullpath = os.path.join(curdir, nextfile)
-            relpath = fullpath[len(conf['pages_path']):].strip(os.sep)
+            relpath = fullpath[len(conf['contents_path']):].strip(os.sep)
             parts = relpath.split(os.sep)
             if 'feed' in parts:
                 pos = parts.index('feed')
@@ -521,7 +521,7 @@ def urlify(string):
 def create_page(name, date, text, force):
     """Creates page file"""
     name = urlify(name)
-    page_path = os.path.join(conf['pages_path'], name) + '.md'
+    page_path = os.path.join(conf['contents_path'], name) + '.md'
 
     if os.path.exists(page_path):
         if force:
@@ -543,7 +543,7 @@ def create_post(name, date, text, force):
     feed, post = os.path.split(name)
 
     try:
-        parts = [conf['pages_path'], feed, FEED_DIR, date.strftime('%Y')]
+        parts = [conf['contents_path'], feed, FEED_DIR, date.strftime('%Y')]
         path = os.sep.join(parts)
         makedirs(path)
     except:
@@ -613,8 +613,8 @@ def build(args):
     drop_build(conf['build_path'])
     makedirs(conf['build_path'])
     log.info("building path: '%s'" % conf['build_path'])
-    process_dir('static files', conf['static_path'])
-    process_dir('pages', conf['pages_path'])
+    process_dir('assets', conf['assets_path'])
+    process_dir('contents', conf['contents_path'])
     log.info('done')
 
     # TODO: Build feeds
