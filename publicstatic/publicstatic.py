@@ -32,13 +32,13 @@ __url__ = authoring.URL
 
 NAME = os.path.splitext(os.path.basename(__file__))[0]
 DEFAULT_LOG = 'pub.log'
-DEFAULT_CONF = 'pub.conf'
+CONF_NAME = 'pub.conf'
 GENERIC_PATH = 'generic-site'
 GENERIC_PAGES = 'generic-pages'
 FEED_DIR = 'feed'
 
 # See the docs for parameters description
-CONF = {
+DEFAULTS = {
     'generator': NAME + " {version}",
     'build_path': 'www',
     'contents_path': 'contents',
@@ -57,7 +57,8 @@ CONF = {
     'less_cmd': "lessc -x {source} > {dest}",
     'markdown_extensions': ['nl2br', 'grid', 'smartypants'],
     'editor_cmd': "$EDITOR \"{source}\"",
-    'conf': '',
+    # 'feed_src': '{year}',
+    # 'feed_gen': '',
 }
 
 LOG_CONSOLE_FMT = ("%(asctime)s %(levelname)s: %(message)s", "%H:%M:%S")
@@ -71,7 +72,9 @@ URI_SEP_PATTERN = re.compile(r"[^a-z\d\%s]+" % os.sep, RE_FLAGS)
 URI_EXCLUDE_PATTERN = re.compile(r"[,.`\'\"\!@\#\$\%\^\&\*\(\)\+]+", RE_FLAGS)
 
 log = logging.getLogger(__name__)
-conf = {}
+
+conf = {}       # Configuration parameters
+conf_path = ''  # Configuration file abs path
 
 
 # Initialization ==============================================================
@@ -80,34 +83,13 @@ def setup(args):
     """Initializes website configuration from command line arguments. Creates
     new site directory if init is True, or reads specified configuration file
     otherwise."""
-    config = args.source or '.'
-    config = os.path.abspath(os.path.join(config, DEFAULT_CONF))
+    global conf_path
+    conf_path = args.source or '.'
+    conf_path = os.path.abspath(os.path.join(conf_path, CONF_NAME))
     init_logging(args.log, args.verbose)
 
     global conf
-
-    if args.function == init:
-        try:
-            site_path = os.path.dirname(config)
-            if os.path.isdir(site_path):
-                log.error("directory already exists: '%s'" % site_path)
-                exit()
-
-            log.info("creating new website at '%s'" % site_path)
-            spawn(site_path)
-
-            yml(CONF, config)
-            conf = purify_conf(CONF)
-        except:
-            log.error('initialization failed')
-            raise
-    else:
-        try:
-            log.debug("loading website configuration from '%s'" % config)
-            conf = purify_conf(get_params(config))
-        except:
-            log.error('configuration failed')
-            raise
+    conf = purify_conf(get_params(conf_path, args.function == 'init'))
 
 
 def init_logging(log_file, verbose):
@@ -133,22 +115,28 @@ def init_logging(log_file, verbose):
         raise
 
 
-def get_params(config):
+def get_params(config, init=False):
     """Reads configuration file section to a dictionary"""
-    loaded = unyml(config)
-    conf = CONF
-    conf.update(dict((item, loaded[item]) for item in loaded))
-    conf['conf'] = config
+    conf = dict(DEFAULTS)
+
+    if init:
+        try:
+            log.debug("loading '%s'" % config)
+            loaded = unyml(config)
+            conf.update(dict((item, loaded[item]) for item in loaded))
+        except:
+            log.error('configuration failed')
+            raise
+
     return conf
 
 
 def purify_conf(conf):
     """Preprocess configuration parameters"""
-    config = conf['conf']
-    conf['contents_path'] = get_conf_path(config, conf['contents_path'])
-    conf['assets_path'] = get_conf_path(config, conf['assets_path'])
-    conf['build_path'] = get_conf_path(config, conf['build_path'])
-    conf['templates_path'] = get_conf_path(config, conf['templates_path'])
+    conf['contents_path'] = get_conf_path(conf_path, conf['contents_path'])
+    conf['assets_path'] = get_conf_path(conf_path, conf['assets_path'])
+    conf['build_path'] = get_conf_path(conf_path, conf['build_path'])
+    conf['templates_path'] = get_conf_path(conf_path, conf['templates_path'])
     conf['browser_opening_delay'] = float(conf['browser_opening_delay'])
     conf['generator'] = conf['generator'].strip().format(version=__version__)
     conf['minify_js_cmd'] = conf['minify_js_cmd'].strip()
@@ -160,32 +148,30 @@ def purify_conf(conf):
 
 # Website building ============================================================
 
-
 def process_dir(message, path):
     log.info("processing %s at '%s'..." % (message, path))
-    entities = []
+    files = []
     feeds = {}
 
-    for curdir, _, files in os.walk(path):
-        for nextfile in files:
+    for curdir, _, curfiles in os.walk(path):
+        for nextfile in curfiles:
             fullpath = os.path.join(curdir, nextfile)
-            relpath = fullpath[len(conf['contents_path']):].strip(os.sep)
+            relpath = fullpath[len(path):].strip(os.sep)
             parts = relpath.split(os.sep)
             if 'feed' in parts:
                 pos = parts.index('feed')
                 feed = os.sep.join(parts[:pos])
-                entity = os.sep.join(parts[pos + 1:])
                 if not feed in feeds:
                     feeds[feed] = []
-                feeds[feed].append(entity)
+                feeds[feed].append(os.sep.join(parts[pos + 1:]))
             else:
-                entities.append(relpath)
+                files.append(relpath)
 
-    for feed in feeds:
-        process_feed(path, feed, feeds[feed])
+    for item in feeds:
+        process_feed(path, item, feeds[item])
 
-    for entity in entities:
-        process_entity(path, entity)
+    for item in files:
+        process_file(path, item)
 
 
 def feed_name(path, root):
@@ -209,13 +195,6 @@ def feed_name(path, root):
 
 
 def process_feed(path, name, entities):
-    pass
-
-
-def process_entity(path, entity):
-    print path
-    print entity
-    print '---'
     pass
 
 
@@ -460,6 +439,9 @@ def update_humans(source_file, dest_file):
 
 def spawn(path):
     """Clones generic site to specified directory"""
+    if os.path.isdir(path):
+        raise Exception("directory already exists: '%s'" % path)
+
     generic = os.path.dirname(os.path.abspath(__file__))
     generic = os.path.join(generic, GENERIC_PATH)
     cp(generic, path)
@@ -610,7 +592,14 @@ edit_arg = arg('-e', '--edit', default=False,
 def init(args):
     """create new website"""
     setup(args)
-    log.info('new site created successfully, have fun!')
+
+    try:
+        spawn(os.path.dirname(conf_path))
+        yml(DEFAULTS, conf_path)
+        log.info('website created successfully, have fun!')
+    except:
+        log.error('initialization failed')
+        raise
 
 
 @source_arg
