@@ -8,18 +8,17 @@ import time
 import shutil
 import errno
 import codecs
-import logging
 import traceback
 
 from argh import ArghParser, arg
 from datetime import datetime
 from multiprocessing import Process
-from pprint import pprint
 
 import authoring
 import markdown
 import pystache
-import yaml
+
+import conf
 
 __author__ = authoring.AUTHOR
 __email__ = authoring.EMAIL
@@ -30,39 +29,10 @@ __version__ = authoring.VERSION
 __status__ = authoring.STATUS
 __url__ = authoring.URL
 
-NAME = os.path.splitext(os.path.basename(__file__))[0]
-DEFAULT_LOG = 'pub.log'
-CONF_NAME = 'pub.conf'
 GENERIC_PATH = 'generic-site'
 GENERIC_PAGES = 'generic-pages'
 FEED_DIR = 'feed'
 
-# See the docs for parameters description
-DEFAULTS = {
-    'generator': NAME + " {version}",
-    'build_path': 'www',
-    'contents_path': 'contents',
-    'assets_path': 'assets',
-    'templates_path': 'templates',
-    'port': 8000,
-    'browser_opening_delay': 2.0,
-    'template': 'default',
-    'author': '',
-    'minify_js': True,
-    'minify_css': True,
-    'minify_less': True,
-    'minify_js_cmd': "yuicompressor --type js --nomunge -o {dest} {source}",
-    'minify_css_cmd': "yuicompressor --type css -o {dest} {source}",
-    'sync_cmd': '',
-    'less_cmd': "lessc -x {source} > {dest}",
-    'markdown_extensions': ['nl2br', 'grid', 'smartypants'],
-    'editor_cmd': "$EDITOR \"{source}\"",
-    # 'feed_src': '{year}',
-    # 'feed_gen': '',
-}
-
-LOG_CONSOLE_FMT = ("%(asctime)s %(levelname)s: %(message)s", "%H:%M:%S")
-LOG_FILE_FMT = ("%(asctime)s %(levelname)s: %(message)s", "%Y/%m/%d %H:%M:%S")
 TIME_FMT = "%Y/%m/%d %H:%M:%S"
 RE_FLAGS = re.I | re.M | re.U
 PARAM_PATTERN = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", RE_FLAGS)
@@ -71,85 +41,21 @@ POST_PATTERN = re.compile(r"[\w\\/]+")
 URI_SEP_PATTERN = re.compile(r"[^a-z\d\%s]+" % os.sep, RE_FLAGS)
 URI_EXCLUDE_PATTERN = re.compile(r"[,.`\'\"\!@\#\$\%\^\&\*\(\)\+]+", RE_FLAGS)
 
-log = logging.getLogger(__name__)
-
-conf = {}       # Configuration parameters
-conf_path = ''  # Configuration file abs path
+log = None
 
 
-# Initialization ==============================================================
-
-def setup(args):
-    """Initializes website configuration from command line arguments. Creates
-    new site directory if init is True, or reads specified configuration file
-    otherwise."""
-    global conf_path
-    conf_path = args.source or '.'
-    conf_path = os.path.abspath(os.path.join(conf_path, CONF_NAME))
-    init_logging(args.log, args.verbose)
-
-    global conf
-    conf = purify_conf(get_params(conf_path, args.function == 'init'))
-
-
-def init_logging(log_file, verbose):
-    try:
-        global log
-        log.setLevel(logging.DEBUG)
-
-        channel = logging.StreamHandler()
-        channel.setLevel(logging.DEBUG if verbose else logging.INFO)
-        fmt = logging.Formatter(LOG_CONSOLE_FMT[0], LOG_CONSOLE_FMT[1])
-        channel.setFormatter(fmt)
-        log.addHandler(channel)
-
-        if log_file:
-            makedirs(os.path.dirname(log_file))
-            channel = logging.FileHandler(log_file)
-            channel.setLevel(logging.DEBUG)
-            fmt = logging.Formatter(LOG_FILE_FMT[0], LOG_FILE_FMT[1])
-            channel.setFormatter(fmt)
-            log.addHandler(channel)
-    except:
-        logging.error('logging initialization failed')
-        raise
-
-
-def get_params(config, init=False):
-    """Reads configuration file section to a dictionary"""
-    conf = dict(DEFAULTS)
-
-    if init:
-        try:
-            log.debug("loading '%s'" % config)
-            loaded = unyml(config)
-            conf.update(dict((item, loaded[item]) for item in loaded))
-        except:
-            log.error('configuration failed')
-            raise
-
-    return conf
-
-
-def purify_conf(conf):
-    """Preprocess configuration parameters"""
-    conf['contents_path'] = get_conf_path(conf_path, conf['contents_path'])
-    conf['assets_path'] = get_conf_path(conf_path, conf['assets_path'])
-    conf['build_path'] = get_conf_path(conf_path, conf['build_path'])
-    conf['templates_path'] = get_conf_path(conf_path, conf['templates_path'])
-    conf['browser_opening_delay'] = float(conf['browser_opening_delay'])
-    conf['generator'] = conf['generator'].strip().format(version=__version__)
-    conf['minify_js_cmd'] = conf['minify_js_cmd'].strip()
-    conf['minify_css_cmd'] = conf['minify_css_cmd'].strip()
-    conf['sync_cmd'] = conf['sync_cmd'].strip()
-    conf['port'] = int(conf['port'])
-    return conf
+def setup(args, use_defaults=False):
+    """Init configuration and logger"""
+    conf.init(args, use_defaults=use_defaults)
+    global log
+    log = conf.get_logger()
 
 
 # Website building ============================================================
 
-def process_dir(message, path):
-    log.info("processing %s at '%s'..." % (message, path))
+def process_dir(path):
+    log.debug("source path: '%s'" % path)
+
     files = []
     feeds = {}
 
@@ -174,26 +80,6 @@ def process_dir(message, path):
         process_file(path, item)
 
 
-def feed_name(path, root):
-    """Gets feed name from the feed path
-
-    Usage:
-        >>> feed_name('/test/pages/feed/', '/test/pages')
-        ''
-
-        >>> feed_name('/test/pages/blog/feed', '/test/pages')
-        'blog'
-
-        >>> feed_name('/test/pages/other/blog/feed/', '/test/pages')
-        'other/blog'
-    """
-    path = path[len(root):]
-    while True:
-        path, next = os.path.split(path)
-        if next == 'feed' or not path:
-            return path.strip(os.sep + os.altsep)
-
-
 def process_feed(path, name, entities):
     pass
 
@@ -204,7 +90,9 @@ def process_file(source_root, source_file):
     Arguments:
         source_root -- root files directory (e.g. 'pages').
         source_file -- source file abs path to process."""
-    rel_source = os.path.relpath(source_file, source_root)
+
+    rel_source = source_file  # os.path.relpath(os.path.join(source_root, source_file), source_root)
+    source_file = os.path.join(source_root, source_file)
     base, ext = os.path.splitext(rel_source)
 
     new_ext = {
@@ -213,15 +101,16 @@ def process_file(source_root, source_file):
     }
 
     rel_dest = base + (new_ext[ext] if ext in new_ext else ext)
-    dest_file = os.path.join(conf['build_path'], rel_dest)
+    dest_file = os.path.join(conf.get('build_path'), rel_dest)
+    makedirs(os.path.dirname(dest_file))
 
     if ext == '.md':
-        log.info("  building page: %s => %s" % (rel_source, rel_dest))
-        build_page(source_file, dest_file, conf['templates_path'])
+        log.info("building page: %s => %s" % (rel_source, rel_dest))
+        build_page(source_file, dest_file, conf.get('templates_path'))
 
     elif ext == '.less':
-        log.info('  compiling LESS: ' + rel_source)
-        if conf['minify_less']:
+        log.info('compiling LESS: ' + rel_source)
+        if conf.get('minify_less'):
             tmp_file = dest_file + '.tmp'
             execute_proc('less_cmd', source_file, tmp_file)
             execute_proc('minify_css_cmd', tmp_file, dest_file)
@@ -229,20 +118,20 @@ def process_file(source_root, source_file):
         else:
             execute_proc('less_cmd', source_file, dest_file)
 
-    elif ext == '.css' and conf['minify_css'] and conf['minify_css_cmd']:
-        log.info('  minifying CSS: ' + rel_source)
+    elif ext == '.css' and conf.get('minify_css') and conf.get('minify_css_cmd'):
+        log.info('minifying CSS: ' + rel_source)
         execute_proc('minify_css_cmd', source_file, dest_file)
 
-    elif ext == '.js' and conf['minify_js'] and conf['minify_js_cmd']:
-        log.info('  minifying JS: ' + rel_source)
+    elif ext == '.js' and conf.get('minify_js') and conf.get('minify_js_cmd'):
+        log.info('minifying JS: ' + rel_source)
         execute_proc('minify_js_cmd', source_file, dest_file)
 
-    elif os.path.basename(rel_source) == 'humans.txt':
-        log.info('  copying: %s (updated)' % rel_source)
+    elif os.path.basename(source_file) == 'humans.txt':
+        log.info('copying: %s (updated)' % rel_source)
         update_humans(source_file, dest_file)
 
     else:
-        log.info('  copying: ' + rel_source)
+        log.info('copying: ' + rel_source)
         shutil.copyfile(source_file, dest_file)
 
 
@@ -275,8 +164,8 @@ def read_page(source_file):
                     break
 
         page['title'] = page.get('title', get_h1(page['content'])).strip()
-        page['template'] = page.get('template', conf['template']).strip()
-        page['author'] = page.get('author', conf['author']).strip()
+        page['template'] = page.get('template', conf.get('template')).strip()
+        page['author'] = page.get('author', conf.get('author')).strip()
         page['content'] = md(page.get('content', ''))
 
         # Take date/time from file system if not explicitly defined
@@ -329,9 +218,9 @@ def execute_proc(cmd_name, source, dest=None):
     """Executes one of the preconfigured commands
     with {source} and {dest} parameters replacement"""
     if dest:
-        cmd = conf[cmd_name].format(source=source, dest=dest)
+        cmd = conf.get(cmd_name).format(source=source, dest=dest)
     else:
-        cmd = conf[cmd_name].format(source=source)
+        cmd = conf.get(cmd_name).format(source=source)
     execute(os.path.expandvars(cmd))
 
 
@@ -385,22 +274,12 @@ def purify_time(page, time_parm, default):
         page[time_parm] = datetime.fromtimestamp(default)
 
 
-def get_conf_path(conf_file, path):
-    """Expands relative pathes using configuration file
-    location as base directory. Absolute pathes will be
-    returned as is."""
-    if os.path.isabs(path):
-        return path
-    base_path = os.path.dirname(os.path.abspath(conf_file))
-    return os.path.join(base_path, path)
-
-
 def md(text):
     """Converts markdown formatted text to HTML"""
     try:
         # New Markdown instanse works faster on large amounts of text
         # than reused one (for some reason)
-        mkdn = markdown.Markdown(extensions=conf['markdown_extensions'])
+        mkdn = markdown.Markdown(extensions=conf.get('markdown_extensions'))
     except:
         log.error('markdown initialization error: '
                   'probably bad extension names')
@@ -471,21 +350,6 @@ def cp(src, dest):
             raise
 
 
-def get_log():
-    return log if len(log.handlers) else logging
-
-
-def yml(data, file_name):
-    text = yaml.dump(data, width=80, indent=4, default_flow_style=False)
-    with codecs.open(file_name, mode='w', encoding='utf8') as f:
-        f.write(text)
-
-
-def unyml(file_name):
-    with codecs.open(file_name, mode='r', encoding='utf8') as f:
-        return yaml.load(f.read())
-
-
 def urlify(string):
     """Make a string URL-safe by excluding unwanted characters
     and replacing spaces with dashes. Used to generate URIs from
@@ -512,7 +376,7 @@ def urlify(string):
 def create_page(name, date, text, force):
     """Creates page file"""
     name = urlify(name)
-    page_path = os.path.join(conf['contents_path'], name) + '.md'
+    page_path = os.path.join(conf.get('contents_path'), name) + '.md'
 
     if os.path.exists(page_path):
         if force:
@@ -531,10 +395,11 @@ def create_page(name, date, text, force):
 def create_post(name, date, text, force):
     """Generates post file placeholder with an unique name
     and returns its name"""
+
     feed, post = os.path.split(name)
 
     try:
-        parts = [conf['contents_path'], feed, FEED_DIR, date.strftime('%Y')]
+        parts = [conf.get('contents_path'), feed, FEED_DIR, date.strftime('%Y')]
         path = os.sep.join(parts)
         makedirs(path)
     except:
@@ -563,9 +428,27 @@ def create_post(name, date, text, force):
     return result
 
 
-# Command line command ========================================================
+def feed_name(path, root):
+    """Gets feed name from the feed path
 
-# Common arguments
+    Usage:
+        >>> feed_name('/test/pages/feed/', '/test/pages')
+        ''
+
+        >>> feed_name('/test/pages/blog/feed', '/test/pages')
+        'blog'
+
+        >>> feed_name('/test/pages/other/blog/feed/', '/test/pages')
+        'other/blog'
+    """
+    path = path[len(root):]
+    while True:
+        path, next = os.path.split(path)
+        if next == 'feed' or not path:
+            return path.strip(os.sep + os.altsep)
+
+
+# Commands
 
 source_arg = arg('-s', '--source', default=None, metavar='SRC',
                  help='website source path (default is the current directory)')
@@ -591,11 +474,11 @@ edit_arg = arg('-e', '--edit', default=False,
 @verbose_arg
 def init(args):
     """create new website"""
-    setup(args)
+    setup(args, use_defaults=True)
 
     try:
-        spawn(os.path.dirname(conf_path))
-        yml(DEFAULTS, conf_path)
+        spawn(os.path.dirname(conf.get_path()))
+        conf.write_defaults()
         log.info('website created successfully, have fun!')
     except:
         log.error('initialization failed')
@@ -608,11 +491,13 @@ def init(args):
 def build(args):
     """generate web content from source"""
     setup(args)
-    drop_build(conf['build_path'])
-    makedirs(conf['build_path'])
-    log.info("building path: '%s'" % conf['build_path'])
-    process_dir('assets', conf['assets_path'])
-    process_dir('contents', conf['contents_path'])
+    drop_build(conf.get('build_path'))
+    makedirs(conf.get('build_path'))
+    log.info("building path: '%s'" % conf.get('build_path'))
+    log.info('processing assets...')
+    process_dir(conf.get('assets_path'))
+    log.info('processing contents...')
+    process_dir(conf.get('contents_path'))
     log.info('done')
 
     # TODO: Build feeds
@@ -630,9 +515,9 @@ def build(args):
 def run(args):
     """run local web server to preview generated website"""
     setup(args)
-    check_build(conf['build_path'])
+    check_build(conf.get('build_path'))
     original_cwd = os.getcwd()
-    port = str2int(args.port, conf['port'])
+    port = str2int(args.port, conf.get('port'))
     log.info("running HTTP server on port %d..." % port)
 
     from SimpleHTTPServer import SimpleHTTPRequestHandler
@@ -643,13 +528,13 @@ def run(args):
     try:
         if args.browse:
             url = "http://localhost:%s/" % port
-            delay = conf['browser_opening_delay']
+            delay = conf.get('browser_opening_delay')
             log.info("opening browser in %g seconds" % delay)
             p = Process(target=browse, args=(url, delay))
             p.start()
 
         log.info('use Ctrl-Break to stop webserver')
-        os.chdir(conf['build_path'])
+        os.chdir(conf.get('build_path'))
         httpd.serve_forever()
 
     except KeyboardInterrupt:
@@ -664,14 +549,14 @@ def run(args):
 def deploy(args):
     """deploy generated website to the remote web server"""
     setup(args)
-    check_build(conf['build_path'])
+    check_build(conf.get('build_path'))
 
-    if not conf['sync_cmd']:
+    if not conf.get('sync_cmd'):
         raise Exception('synchronizing command is not '
                         'defined by configuration')
 
     log.info('synchronizing...')
-    execute(conf['sync_cmd'].format(path=conf['build_path']), True)
+    execute(conf.get('sync_cmd').format(path=conf.get('build_path')), True)
     log.info('done')
 
 
@@ -682,7 +567,7 @@ def clean(args):
     """delete all generated content"""
     setup(args)
     log.info('cleaning output...')
-    drop_build(conf['build_path'])
+    drop_build(conf.get('build_path'))
     log.info('done')
 
 
@@ -734,12 +619,21 @@ def main():
         p.add_commands([init, build, run, deploy, clean, page, post])
         p.dispatch()
         return 0
+
     except KeyboardInterrupt:
-        get_log().info('killed by user')
-        return 1
+        log.info('killed by user')
+        return 0
+
     except Exception as e:
-        get_log().error(str(e))
-        get_log().debug(traceback.format_exc())
+        global log
+        if not log:  # logging about logging error
+            import logging
+            logging.basicConfig()
+            log = logging
+
+        log.error('loggign initialization error')
+        log.error(str(e))
+        log.debug(traceback.format_exc())
         return 2
 
 
