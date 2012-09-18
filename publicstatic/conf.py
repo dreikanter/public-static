@@ -1,9 +1,10 @@
+import codecs
 import logging
 from logging.handlers import RotatingFileHandler as RFH
 import os
+import yaml
 
 import authoring
-import tools
 
 CONF_NAME = 'pub.conf'
 
@@ -51,7 +52,8 @@ def init(args, use_defaults=False):
     params = dict(DEFAULTS)
 
     if not use_defaults:  # Reads configuration file and override defaults
-        loaded = tools.unyml(_path)
+        with codecs.open(_path, mode='r', encoding='utf8') as f:
+            loaded = yaml.load(f.read())
         loaded = dict((item, loaded[item]) for item in loaded)
         params.update(loaded)
 
@@ -109,7 +111,9 @@ def get_path():
 
 def write_defaults():
     _check(_path)
-    tools.yml(DEFAULTS, _path)
+    text = yaml.dump(DEFAULTS, width=80, indent=4, default_flow_style=False)
+    with codecs.open(_path, mode='w', encoding='utf8') as f:
+        f.write(text)
 
 
 def _check(value):
