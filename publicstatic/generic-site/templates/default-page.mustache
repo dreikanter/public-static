@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{title}}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+{{#description}}<meta name="description" content="{{description}}">
+{{/description}}{{#keywords}}<meta name="keywords" content="{{keywords}}">
+{{/keywords}}{{#author}}<meta name="author" content="{{author}}">
+{{/author}}{{#generator}}<meta name="generator" content="{{generator}}">
+{{/generator}}
+<link href="/css/bootstrap.css" rel="stylesheet">
+<style type="text/css">
+body {
+padding-top: 60px !important;
+padding-bottom: 40px;
+}
+h1, h2, h3, h4 {
+font-family: 'PT Sans Narrow', sans-serif;
+font-weight: normal;
+color: #006699;
+background-color: transparent;
+}
+h2 {
+margin-top: 12px;
+}
+p strong {
+font-weight: normal;
+color: inherit;
+background-color: #ffffdd;
+}
+@media print {
+.noprint {
+display:none;
+}
+}
+.nav, .nav a {
+font-size: 14px;
+color: gray;
+background-color: transparent;
+}
+</style>
+<!--[if lt IE 9]>
+<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+<link href='http://fonts.googleapis.com/css?family=PT+Sans+Narrow&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="http://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</head>
+
+<body>
+<div class="container">
+{{{content}}}
+</div>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.0.4/bootstrap.min.js"></script>
+</body>
+</html>
