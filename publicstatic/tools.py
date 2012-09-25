@@ -2,7 +2,7 @@
 
 import codecs
 import conf
-import datetime
+from datetime import datetime
 import errno
 import logging
 import os

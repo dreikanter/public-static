@@ -75,7 +75,7 @@ def process_dir(path):
 
 
 def process_feed(path, name, entities):
-    pass
+    print(path, name, entities)
 
 
 def process_file(source_root, source_file):
@@ -133,6 +133,7 @@ def build_page(source_file, dest_file, templates_path):
     """Builds a page from markdown source amd mustache template"""
     try:
         page = read_page(source_file)
+
         with codecs.open(dest_file, mode='w', encoding='utf8') as f:
             tpl = get_template(page['template'], templates_path)
             f.write(pystache.render(tpl, page))
@@ -144,36 +145,33 @@ def build_page(source_file, dest_file, templates_path):
 def read_page(source_file):
     """Reads a page file to dictionary.
     Refer readme for page format description."""
-    try:
-        page = {}
-        with codecs.open(source_file, mode='r', encoding='utf8') as f:
-            # Extract page metadata if there are some header lines
-            lines = f.readlines()
-            for num, line in enumerate(lines):
-                match = PARAM_PATTERN.match(line)
-                if match:
-                    page[match.group(1)] = match.group(2).strip()
-                else:
-                    page['content'] = ''.join(lines[num:])
-                    break
+    page = {}
+    with codecs.open(source_file, mode='r', encoding='utf8') as f:
+        # Extract page metadata if there are some header lines
+        lines = f.readlines()
+        for num, line in enumerate(lines):
+            match = PARAM_PATTERN.match(line)
+            if match:
+                page[match.group(1)] = match.group(2).strip()
+            else:
+                page['content'] = ''.join(lines[num:])
+                break
 
-        page['title'] = page.get('title', tools.get_h1(page['content'])).strip()
-        page['template'] = page.get('template', conf.get('template')).strip()
-        page['author'] = page.get('author', conf.get('author')).strip()
+    page['title'] = page.get('title', tools.get_h1(page['content'])).strip()
+    page['template'] = page.get('template', conf.get('template')).strip()
+    page['author'] = page.get('author', conf.get('author')).strip()
 
-        extensions = conf.get('markdown_extensions')
-        page['content'] = tools.md(page.get('content', ''), extensions)
+    extensions = conf.get('markdown_extensions')
+    page['content'] = tools.md(page.get('content', ''), extensions)
 
-        # Take date/time from file system if not explicitly defined
-        tools.purify_time(page, 'ctime', os.path.getctime(source_file))
-        tools.purify_time(page, 'mtime', os.path.getmtime(source_file))
+    # Take date/time from file system if not explicitly defined
+    tools.purify_time(page, 'ctime', os.path.getctime(source_file))
+    tools.purify_time(page, 'mtime', os.path.getmtime(source_file))
 
-        return page
+    if 'template' not in page:
+        print('!!! no tpl')
 
-    except:
-        log.debug(traceback.format_exc())
-        log.error("page processing error '%s'" % source_file)
-        return {}
+    return page
 
 
 def get_template(tpl_name, templates_path):

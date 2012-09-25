@@ -1,27 +1,16 @@
 Blog generation:
 
- - Blog building
- - Feed directory structure:
+- Blog building.
+- Test installation on Ubuntu and clean virtualenv.
 
-   - Directory will be treated as a *feed root* if it contains subdirectory named 'feed' which is standardized case-sensitive name (public-static doesn't use any kind of prefixes to indicate special directory name like __feed, because it looks ugly).
-   - Feed directory could contain only standardized file names. Others ones will be ignored during the build process.
-   - It's ok if the *feed root* contains ordinary page files.
-   - If *feed root* contains pages and posts with a same name, pages will override posts.
-   - In addition to the individual post pages, an archive and index pages will be generated in the feed root. Index will contain the latest post contents.
-   - /feed-name/feed/YEAR/YYYY-MM-DD_post-name.md → /feed-name/post-name
+Readme and documentation:
 
- - Use YAML parser for pages metadata (separated from content by \n\n; no boring dashes!) ← Don't use. Because the header is optional and \n\n could be not a separator. In the same time standard separator is too noisy. ←
-
-Test installation on Ubuntu and clean virtualenv.
-
-Readme:
-
- - Move documentation to documentation. Readme should be short.
- - Update configuration description.
- - Describe init command
- - Rename renamed commands
- - EDITOR env var: start "" "C:\Program Files\SublimeText\sublime_text.exe"
- - Update parameters description:
+- Move documentation to documentation. Readme should be short.
+- Update configuration description.
+- Describe init command
+- Rename renamed commands
+- EDITOR env var: start "" "C:\Program Files\SublimeText\sublime_text.exe"
+- Update parameters description:
 
      # Default port value (overridable with command line param)
      'port': 8000,
@@ -60,46 +49,55 @@ Readme:
      # Text editor command (use {file} for file name to edit)
      'editor_cmd': "$EDITOR '{file}'",
 
+- Feed directory structure:
+
+   - Directory will be treated as a *feed root* if it contains subdirectory named 'feed' which is standardized case-sensitive name (public-static doesn't use any kind of prefixes to indicate special directory name like __feed, because it looks ugly).
+   - Feed directory could contain only standardized file names. Others ones will be ignored during the build process.
+   - It's ok if the *feed root* contains ordinary page files.
+   - If *feed root* contains pages and posts with a same name, pages will override posts.
+   - In addition to the individual post pages, an archive and index pages will be generated in the feed root. Index will contain the latest post contents.
+   - /feed-name/feed/YEAR/YYYY-MM-DD_post-name.md → /feed-name/post-name
+
 Next iteration:
 
 Add powered-by to default template.
 
 Published field: yes/no (draft)
 
- - Don't build pages which status is draft.
- - Consider a command to switch draft/published status?
+- Don't build pages which status is draft.
+- Consider a command to switch draft/published status?
 
 Image management:
 
- - Image management command(s).
- - No difference btw image and generic attachment.
- - Separated directory for attachments.
- - Publish on S3.
- - Markdown syntax sugar for <img>.
+- Image management command(s).
+- No difference btw image and generic attachment.
+- Separated directory for attachments.
+- Publish on S3.
+- Markdown syntax sugar for <img>.
 
 Post/page tags (there should be a search index).
 
 Generate PDF versions for CV (link file defining name and location OR destination in metadata options)
 
- - http://www.verypdf.com/pdfcamp/convert-html-to-pdf.html
- - https://github.com/chrisglass/xhtml2pdf
+- http://www.verypdf.com/pdfcamp/convert-html-to-pdf.html
+- https://github.com/chrisglass/xhtml2pdf
 
 Markdown extension to include text files (preprocessor).
 
- - Checkout Mustache (pystache) inclusion ability.
- - Generalized commands: {command: arguments}, e.g. {include: footer.md}
+- Checkout Mustache (pystache) inclusion ability.
+- Generalized commands: {command: arguments}, e.g. {include: footer.md}
 
- It could be a separate markdown extension:
+It could be a separate markdown extension:
 
- {include:disclaimer.inc.md} — from the document directory
- {include:@disclaimer.md} — from the preconfigured path
- {include:footnotes.txt} — include plain text (include during postprocessing)
+{include:disclaimer.inc.md} — from the document directory
+{include:@disclaimer.md} — from the preconfigured path
+{include:footnotes.txt} — include plain text (include during postprocessing)
 
- Simple syntax:
+Simple syntax:
 
- {{ fragment.txt }}
+{{ fragment.txt }}
 
- To prevent fragments compillation as a separate pages, use '_' prefix. File name pattern could be configured with regex.
+To prevent fragments compillation as a separate pages, use '_' prefix. File name pattern could be configured with regex.
 
 Markdown extension for QR.
 
@@ -109,15 +107,15 @@ Integrate Disqus.
 
 Presentation.
 
- + Domain.
- - Get The Picture.
- - Discussion/feedback thing.
- - Good example: http://middlemanapp.com
- - One more: http://cloudhead.io/toto
- - Post.
++ Domain.
+- Get The Picture.
+- Discussion/feedback thing.
+- Good example: http://middlemanapp.com
+- One more: http://cloudhead.io/toto
+- Post.
 
 Some quotes:
- - %NAME% is a web publishing system for building small to medium-sized websites. — http://nanoc.stoneship.org/
+- %NAME% is a web publishing system for building small to medium-sized websites. — http://nanoc.stoneship.org/
 
 Short readme and structured documentation @ readthedocs.org. http://read-the-docs.readthedocs.org/en/latest/getting_started.html
 
