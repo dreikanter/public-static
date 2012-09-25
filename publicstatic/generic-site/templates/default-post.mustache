@@ -53,8 +53,8 @@ background-color: transparent;
 {{{content}}}
 </div>
 <div class="nav"><ul>
-<li>&larr;&nbsp;<a href="{{prev_url}}">{{prev_title}}</a></li>
-<li><a href="{{next_url}}">{{next_title}}</a>&nbsp;&rarr;</li>
+{{#prev_url}}<li>&larr;&nbsp;<a href="{{prev_url}}">{{prev_title}}</a></li>{{/prev_url}}
+{{#next_url}}<li><a href="{{next_url}}">{{next_title}}</a>&nbsp;&rarr;</li>{{/next_url}}
 </ul></div>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
 <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.0.4/bootstrap.min.js"></script>

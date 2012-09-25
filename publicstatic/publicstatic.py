@@ -67,15 +67,50 @@ def process_dir(path):
             else:
                 files.append(relpath)
 
-    for item in feeds:
-        process_feed(path, item, feeds[item])
+    for f in feeds:
+        process_feed(path, f, feeds[f])
 
-    for item in files:
-        process_file(path, item)
+    for f in files:
+        process_file(path, f)
 
 
 def process_feed(path, name, entities):
-    print(path, name, entities)
+    prev = None
+    next = None
+    index = []
+
+    entnum = len(entities)
+    fullpath = lambda i: os.path.join(path, name, 'feed', entities[i])
+    dest_path = os.path.join(conf.get('build_path'), name)
+    tools.makedirs(dest_path)
+
+    for i in range(entnum):
+        data = next if next else read_page(fullpath(i), True)
+        next = read_page(fullpath(i + 1), True) if (i + 1 < entnum) else None
+
+        if not index:
+            index.append(data)
+        else:
+            index.append({
+                'title': data['title'],
+                'ctime': data['ctime'],
+                'mtime': data['mtime'],
+                'author': data['author'],
+            })
+
+        data['prev_url'] = id2url(prev['id']) if prev else None
+        data['prev_title'] = id2url(prev['title']) if prev else None
+        data['next_url'] = id2url(next['id']) if next else None
+        data['next_title'] = id2url(next['title']) if next else None
+
+        page_file = data['id'] + '.html'
+        log.info(" * %s => %s" % (entities[i], os.path.join(name, page_file)))
+        dest_file = os.path.join(dest_path, page_file)
+        build_page(data, dest_file, conf.get('templates_path'))
+
+        prev = data
+
+    build_index(index, os.path.join(dest_path, 'index.html'))
 
 
 def process_file(source_root, source_file):
@@ -100,7 +135,8 @@ def process_file(source_root, source_file):
 
     if ext == '.md':
         log.info("building page: %s => %s" % (rel_source, rel_dest))
-        build_page(source_file, dest_file, conf.get('templates_path'))
+        data = read_page(source_file)
+        build_page(data, dest_file, conf.get('templates_path'))
 
     elif ext == '.less':
         log.info('compiling LESS: ' + rel_source)
@@ -129,49 +165,65 @@ def process_file(source_root, source_file):
         shutil.copyfile(source_file, dest_file)
 
 
-def build_page(source_file, dest_file, templates_path):
-    """Builds a page from markdown source amd mustache template"""
+def build_page(data, dest_file, templates_path):
+    """Builds a web page from dict and mustache template"""
     try:
-        page = read_page(source_file)
-
         with codecs.open(dest_file, mode='w', encoding='utf8') as f:
-            tpl = get_template(page['template'], templates_path)
-            f.write(pystache.render(tpl, page))
+            tpl = get_template(data['template'], templates_path)
+            f.write(pystache.render(tpl, data))
     except Exception as e:
         log.debug(traceback.format_exc())
         log.error('content processing error: ' + str(e))
 
 
-def read_page(source_file):
-    """Reads a page file to dictionary.
-    Refer readme for page format description."""
-    page = {}
+def build_index(data, dest_file):
+    # TODO: ...
+    pass
+
+
+def read_page(source_file, is_post=False):
+    """Reads a post/page file to dictionary"""
+    data = {}
     with codecs.open(source_file, mode='r', encoding='utf8') as f:
         # Extract page metadata if there are some header lines
         lines = f.readlines()
         for num, line in enumerate(lines):
             match = PARAM_PATTERN.match(line)
             if match:
-                page[match.group(1)] = match.group(2).strip()
+                data[match.group(1)] = match.group(2).strip()
             else:
-                page['content'] = ''.join(lines[num:])
+                data['content'] = ''.join(lines[num:])
                 break
 
-    page['title'] = page.get('title', tools.get_h1(page['content'])).strip()
-    page['template'] = page.get('template', conf.get('template')).strip()
-    page['author'] = page.get('author', conf.get('author')).strip()
+    data['title'] = data.get('title', tools.get_h1(data['content'])).strip()
+
+    deftpl = conf.get('post_template' if is_post else 'page_template')
+    data['template'] = data.get('template', deftpl).strip()
+    data['author'] = data.get('author', conf.get('author')).strip()
 
     extensions = conf.get('markdown_extensions')
-    page['content'] = tools.md(page.get('content', ''), extensions)
+    data['content'] = tools.md(data.get('content', ''), extensions)
+
+    data['id'] = get_id(source_file)
 
     # Take date/time from file system if not explicitly defined
-    tools.purify_time(page, 'ctime', os.path.getctime(source_file))
-    tools.purify_time(page, 'mtime', os.path.getmtime(source_file))
+    tools.purify_time(data, 'ctime', os.path.getctime(source_file))
+    tools.purify_time(data, 'mtime', os.path.getmtime(source_file))
 
-    if 'template' not in page:
-        print('!!! no tpl')
+    return data
 
-    return page
+
+def get_id(file_name):
+    """Extracts page id from source file path"""
+    name = os.path.splitext(os.path.basename(file_name))[0]
+    parts = name.split('_', 1)
+    return parts[1] if len(parts) > 1 else None
+
+
+def id2url(id):
+    """Converts page id to relative URL"""
+    # TODO: ...
+    return "/%s.html" % str(id)
 
 
 def get_template(tpl_name, templates_path):
