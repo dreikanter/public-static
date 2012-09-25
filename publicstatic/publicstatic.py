@@ -370,16 +370,15 @@ def main():
         log.info('killed by user')
         return 0
 
-    except Exception as e:
-        global log
-        if not log:  # logging about logging error
-            import logging
-            logging.basicConfig()
-            log = logging
+    except SystemExit as e:
+        log.info(str(e))
 
-        log.error('loggign initialization error')
-        log.error(str(e))
-        log.debug(traceback.format_exc())
+    except Exception as e:
+        import logging
+        logging.basicConfig()
+        logging.error('loggign initialization error')
+        logging.error(str(e))
+        logging.debug(traceback.format_exc())
         return 2
 
 

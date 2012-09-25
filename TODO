@@ -2,6 +2,7 @@ Blog generation:
 
  - Blog building
  - Feed directory structure:
+
    - Directory will be treated as a *feed root* if it contains subdirectory named 'feed' which is standardized case-sensitive name (public-static doesn't use any kind of prefixes to indicate special directory name like __feed, because it looks ugly).
    - Feed directory could contain only standardized file names. Others ones will be ignored during the build process.
    - It's ok if the *feed root* contains ordinary page files.
@@ -10,8 +11,6 @@ Blog generation:
    - /feed-name/feed/YEAR/YYYY-MM-DD_post-name.md → /feed-name/post-name
 
  - Use YAML parser for pages metadata (separated from content by \n\n; no boring dashes!) ← Don't use. Because the header is optional and \n\n could be not a separator. In the same time standard separator is too noisy. ←
-
-static/* should be deployed to s3.
 
 Test installation on Ubuntu and clean virtualenv.
 

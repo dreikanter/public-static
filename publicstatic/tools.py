@@ -8,6 +8,7 @@ import logging
 import os
 import re
 import shutil
+import sys
 import time
 import traceback
 
@@ -79,7 +80,7 @@ def browse(url, delay):
 def check_build(path):
     """Check if the web content was built and exit if it isn't"""
     if not os.path.isdir(path):
-        raise Exception("web content directory not exists: '%s'" % path)
+        sys.exit("web content directory not exists: '%s'" % path)
 
 
 def drop_build(path, create=False):
