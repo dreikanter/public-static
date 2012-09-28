@@ -12,9 +12,10 @@ from argh import ArghParser, arg
 from datetime import datetime
 from multiprocessing import Process
 
-import authoring
+import pyatom
 import pystache
 
+import authoring
 import conf
 import tools
 
@@ -111,6 +112,7 @@ def process_feed(path, name, entities):
         prev = data
 
     build_index(index, os.path.join(dest_path, 'index.html'))
+    build_feeds(index, dest_path)
 
 
 def process_file(source_root, source_file):
@@ -179,6 +181,26 @@ def build_page(data, dest_file, templates_path):
 def build_index(data, dest_file):
     # TODO: ...
     pass
+
+
+def build_feeds(data, dest_dir):
+    """Builds RSS feed"""
+    feed = pyatom.AtomFeed(title="",
+                           subtitle="",
+                           feed_url="",
+                           url="",
+                           author="")
+
+    for item in data:
+        feed.add(title="My Post",
+                 content="Body of my post",
+                 content_type="html",
+                 author="Me",
+                 url="http://example.org/entry1",
+                 updated=datetime.datetime.utcnow())
+
+    print feed.to_string()
+
 
 
 def read_page(source_file, is_post=False):
@@ -295,12 +317,6 @@ def build(args):
     log.info('processing contents...')
     process_dir(conf.get('contents_path'))
     log.info('done')
-
-    # TODO: Build feeds
-    # rebuild index - text file: path->title
-    # update archive page
-    # update rss
-    # update atom
 
 
 @source_arg
