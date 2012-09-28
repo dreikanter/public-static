@@ -72,7 +72,6 @@ def execute(cmd, critical=False):
 def browse(url, delay):
     """Opens specified @url with system default browser after @delay seconds"""
     time.sleep(delay)
-
     from webbrowser import open_new_tab
     open_new_tab(url)
 
