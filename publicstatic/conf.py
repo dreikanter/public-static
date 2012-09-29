@@ -12,6 +12,7 @@ CONSOLE_FMT = "%(asctime)s %(levelname)s: %(message)s"
 CONSOLE_DATE_FMT = "%H:%M:%S"
 FILE_FMT = "%(asctime)s %(levelname)s: %(message)s"
 FILE_DATE_FMT = "%Y/%m/%d %H:%M:%S"
+TIME_FMT = "%Y/%m/%d %H:%M:%S"
 
 # See the docs for parameters description
 DEFAULTS = [
@@ -20,9 +21,12 @@ DEFAULTS = [
     ('author', ''),
     ('generator', "public-static {version}"),
     ('build_path', 'www'),
-    ('contents_path', 'contents'),
+    ('pages_path', 'pages'),
+    ('posts_path', 'posts'),
     ('assets_path', 'assets'),
     ('templates_path', 'templates'),
+    ('post_name', '/{year}-{month}-{day}_{id}.md')
+    ('post_url', '/{year}/{month}/{day}/{id}.html'),
     ('port', 8000),
     ('browser_open_delay', 2.0),
     ('page_template', 'default-page'),
@@ -134,7 +138,7 @@ def _purify(params):
     gen = params['generator'].strip()
     params['generator'] = gen.format(version=authoring.VERSION)
 
-    params['contents_path'] = _expand(params['contents_path'])
+    params['pages_path'] = _expand(params['pages_path'])
     params['assets_path'] = _expand(params['assets_path'])
     params['build_path'] = _expand(params['build_path'])
     params['templates_path'] = _expand(params['templates_path'])

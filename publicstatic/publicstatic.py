@@ -240,12 +240,6 @@ def get_id(file_name):
     return parts[1] if len(parts) > 1 else None
 
 
-def id2url(id):
-    """Converts page id to relative URL"""
-    # TODO: ...
-    return "/%s.html" % str(id)
-
-
 def get_template(tpl_name):
     """Gets template file contents.
 
@@ -260,10 +254,74 @@ def get_template(tpl_name):
     raise Exception("template not exists: '%s'" % file_name)
 
 
-# General helpers =============================================================
+def create_page(name, text, date, force):
+    """Creates page file
+
+    Arguments:
+        name -- page name (will be used for file name and URL).
+        text -- page text.
+        date -- creation date and time (struct_time).
+        force -- True to overwrite existing file; False to throw exception."""
+
+    name = tools.urlify(name)
+    page_path = os.path.join(conf.get('pages_path'), name) + '.md'
+
+    if os.path.exists(page_path):
+        if force:
+            log.debug('existing page will be overwritten')
+        else:
+            raise Exception('page already exists, use -f to overwrite')
+
+    text = text.format(title=name, ctime=date.strftime(conf.TIME_FMT))
+    tools.makedirs(os.path.split(page_path)[0])
+
+    with codecs.open(page_path, mode='w', encoding='utf8') as f:
+        log.debug("creating page '%s'" % page_path)
+        f.write(text)
 
 
-# Commands
+def create_post(name, date, text, force):
+    """Generates post file placeholder with an unique name
+    and returns its name
+
+    Arguments:
+        name -- post name (will be used for file name and URL).
+        text -- post text.
+        date -- creation date and time (struct_time).
+        force -- True to overwrite existing file; False to throw exception."""
+
+    feed, post = os.path.split(name)
+
+    try:
+        parts = [conf.get('posts_path'), date.strftime('%Y')]
+        path = os.sep.join(parts)
+        tools.makedirs(path)
+    except:
+        log.error("error creating new feed at '%s'" % path)
+        raise
+
+    # Generate new post file name
+    parts = [date.strftime('%Y-%m-%d'), tools.urlify(post)]
+    post = '_'.join(filter(None, parts))
+    num = 1
+
+    # Preserve file with a new unique name
+    while True:
+        sfx = str(num) if num > 1 else ''
+        result = os.path.join(path, post) + sfx + '.md'
+
+        if force or not os.path.exists(result):
+            log.debug("creating post '%s'" % result)
+            text = text.format(title=name, ctime=date.strftime(conf.TIME_FMT))
+            with codecs.open(result, mode='w', encoding='utf8') as f:
+                f.write(text)
+            break
+
+        num += 1
+
+    return result
+
+# Common command line arguments
 
 source_arg = arg('-s', '--source', default=None, metavar='SRC',
                  help='website source path (default is the current directory)')
@@ -283,6 +341,8 @@ type_arg = arg('-t', '--type', default=None,
 edit_arg = arg('-e', '--edit', default=False,
                help='open with preconfigured editor')
 
+
+# Commands
 
 @source_arg
 @log_arg
@@ -394,7 +454,7 @@ def page(args):
         raise Exception('illegal page name')
 
     text = tools.get_generic(args.type or 'default-page')
-    page_path = tools.create_page(args.name, datetime.now(), text, args.force)
+    page_path = create_page(args.name, text, datetime.now(), args.force)
     log.info('page cerated')
 
     if args.edit:
@@ -415,7 +475,7 @@ def post(args):
         raise Exception('illegal feed or post name')
 
     text = tools.get_generic(args.type or 'default-post')
-    post_path = tools.create_post(args.name, datetime.now(), text, args.force)
+    post_path = create_post(args.name, text, datetime.now(), args.force)
     log.info('post cerated')
 
     if args.edit:
