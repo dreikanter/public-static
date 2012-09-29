@@ -281,3 +281,30 @@ def feed_name(path, root):
 
 def valid_name(value):
     return POST_PATTERN.match(value)
+
+
+def get_page_url(page_data):
+    got_id = page_data and 'id' in page_data
+    return ("/%s.html" % str(page_data['id'])) if got_id else None
+
+
+def get_page_meta(page_data):
+    return {
+        'title': page_data['title'],
+        'ctime': page_data['ctime'],
+        'mtime': page_data['mtime'],
+        'author': page_data['author'],
+    }
+
+
+def get_dest(build_path, rel_source):
+    """Gets relative destination file path"""
+    base, ext = os.path.splitext(rel_source)
+
+    new_ext = {
+        '.md': '.html',
+        '.less': '.css',
+    }
+
+    rel_dest = base + (new_ext[ext] if ext in new_ext else ext)
+    return os.path.join(build_path, rel_dest)

@@ -1,12 +1,13 @@
 Blog generation:
 
 - Blog building.
-- Configurable feed source dir structure
-- Configurable feed output dir structure (URLs)
-- tidy -i --wrap 80 -o index.html
-- Test installation on Ubuntu and clean virtualenv.
+- Build archive page
 - RSS feed generation.
 - ATOM feed generation.
+>> - Configurable feed source dir structure
+- Configurable feed output dir structure (URLs)
+- Test installation on Ubuntu and clean virtualenv.
+- tidy -i --wrap 80 -o index.html
 
 Readme and documentation:
 
