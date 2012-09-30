@@ -264,23 +264,25 @@ def create_page(name, text, date, force):
         force -- True to overwrite existing file; False to throw exception."""
 
     name = tools.urlify(name)
+    log.debug("creating page '%s'" % name)
     page_path = os.path.join(conf.get('pages_path'), name) + '.md'
 
     if os.path.exists(page_path):
         if force:
             log.debug('existing page will be overwritten')
         else:
-            raise Exception('page already exists, use -f to overwrite')
+            log.error('page already exists, use -f to overwrite')
+            return None
 
     text = text.format(title=name, ctime=date.strftime(conf.TIME_FMT))
     tools.makedirs(os.path.split(page_path)[0])
 
     with codecs.open(page_path, mode='w', encoding='utf8') as f:
-        log.debug("creating page '%s'" % page_path)
         f.write(text)
+    return page_path
 
 
-def create_post(name, date, text, force):
+def create_post(name, text, date, force):
     """Generates post file placeholder with an unique name
     and returns its name
 
@@ -290,36 +292,38 @@ def create_post(name, date, text, force):
         date -- creation date and time (struct_time).
         force -- True to overwrite existing file; False to throw exception."""
 
-    feed, post = os.path.split(name)
-
     try:
-        parts = [conf.get('posts_path'), date.strftime('%Y')]
-        path = os.sep.join(parts)
-        tools.makedirs(path)
+        post_name = conf.get('post_name').format(year=date.strftime('%Y'),
+                                                 month=date.strftime('%m'),
+                                                 day=date.strftime('%d'),
+                                                 name='{name}')
+        # print((conf.get('posts_path'), post_name, os.path.join(conf.get('posts_path'), post_name)))
+        # return
+        post_path = os.path.join(conf.get('posts_path'), post_name)
+        print(os.path.dirname(post_path))
+        tools.makedirs(os.path.dirname(post_path))
     except:
-        log.error("error creating new feed at '%s'" % path)
+        log.error('error creating new post')
         raise
 
-    # Generate new post file name
-    parts = [date.strftime('%Y-%m-%d'), tools.urlify(post)]
-    post = '_'.join(filter(None, parts))
+    # Generate new post file name and preserve file with a new unique name
+    file_name = tools.urlify(name)
     num = 1
-
-    # Preserve file with a new unique name
     while True:
-        sfx = str(num) if num > 1 else ''
-        result = os.path.join(path, post) + sfx + '.md'
-
+        suffix = str(num) if num > 1 else ''
+        result = post_path.format(name=file_name + suffix)
+        print("writing to '%s'" % result)
+        return
         if force or not os.path.exists(result):
             log.debug("creating post '%s'" % result)
-            text = text.format(title=name, ctime=date.strftime(conf.TIME_FMT))
+            text = text.format(title=name,
+                               ctime=date.strftime(conf.TIME_FMT))
             with codecs.open(result, mode='w', encoding='utf8') as f:
                 f.write(text)
-            break
+            return result
+        else:
+            num += 1
 
-        num += 1
-
-    return result
 
 # Common command line arguments
 
@@ -372,7 +376,7 @@ def build(args):
     log.info('processing assets...')
     process_dir(conf.get('assets_path'))
     log.info('processing contents...')
-    process_dir(conf.get('contents_path'))
+    process_dir(conf.get('pages_path'))
     log.info('done')
 
 
@@ -455,8 +459,11 @@ def page(args):
 
     text = tools.get_generic(args.type or 'default-page')
     page_path = create_page(args.name, text, datetime.now(), args.force)
-    log.info('page cerated')
 
+    if not page_path:
+        return
+
+    log.info('page cerated')
     if args.edit:
         tools.execute_proc(conf.get('editor_cmd'), page_path)
 

@@ -25,8 +25,8 @@ DEFAULTS = [
     ('posts_path', 'posts'),
     ('assets_path', 'assets'),
     ('templates_path', 'templates'),
-    ('post_name', '/{year}-{month}-{day}_{id}.md')
-    ('post_url', '/{year}/{month}/{day}/{id}.html'),
+    ('post_name', '{year}-{month}-{day}_{name}.md'),
+    ('post_url', '{year}/{month}/{day}/{name}.html'),
     ('port', 8000),
     ('browser_open_delay', 2.0),
     ('page_template', 'default-page'),
