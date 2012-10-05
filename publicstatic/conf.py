@@ -12,31 +12,37 @@ CONSOLE_FMT = "%(asctime)s %(levelname)s: %(message)s"
 CONSOLE_DATE_FMT = "%H:%M:%S"
 FILE_FMT = "%(asctime)s %(levelname)s: %(message)s"
 FILE_DATE_FMT = "%Y/%m/%d %H:%M:%S"
+TIME_FMT = "%Y/%m/%d %H:%M:%S"
 
 # See the docs for parameters description
-DEFAULTS = {
-    'generator': "public-static {version}",
-    'build_path': 'www',
-    'contents_path': 'contents',
-    'assets_path': 'assets',
-    'templates_path': 'templates',
-    'port': 8000,
-    'browser_open_delay': 2.0,
-    'page_template': 'default-page',
-    'post_template': 'default-post',
-    'author': '',
-    'minify_js': True,
-    'minify_css': True,
-    'minify_less': True,
-    'minify_js_cmd': "yuicompressor --type js --nomunge -o {dest} {source}",
-    'minify_css_cmd': "yuicompressor --type css -o {dest} {source}",
-    'sync_cmd': '',
-    'less_cmd': "lessc -x {source} > {dest}",
-    'markdown_extensions': ['nl2br', 'grid', 'smartypants'],
-    'editor_cmd': "$EDITOR \"{source}\"",
-    'max_size': 0,
-    'backup_cnt': 0,
-}
+DEFAULTS = [
+    ('title', ''),
+    ('subtitle', ''),
+    ('author', ''),
+    ('generator', "public-static {version}"),
+    ('build_path', 'www'),
+    ('pages_path', 'pages'),
+    ('posts_path', 'posts'),
+    ('assets_path', 'assets'),
+    ('templates_path', 'templates'),
+    ('post_name', '{year}-{month}-{day}_{name}.md'),
+    ('post_url', '{year}/{month}/{day}/{name}.html'),
+    ('port', 8000),
+    ('browser_open_delay', 2.0),
+    ('page_template', 'default-page'),
+    ('post_template', 'default-post'),
+    ('minify_js', True),
+    ('minify_css', True),
+    ('minify_less', True),
+    ('minify_js_cmd', "yuicompressor --type js --nomunge -o {dest} {source}"),
+    ('minify_css_cmd', "yuicompressor --type css -o {dest} {source}"),
+    ('sync_cmd', ''),
+    ('less_cmd', "lessc -x {source} > {dest}"),
+    ('markdown_extensions', ['nl2br', 'grid', 'smartypants']),
+    ('editor_cmd', "$EDITOR \"{source}\""),
+    ('max_size', 0),
+    ('backup_cnt', 0),
+]
 
 _params = {}  # Configuration parameters
 
@@ -111,8 +117,13 @@ def get_path():
 
 
 def write_defaults():
+    """Write default configuration to specified file"""
     _check(_path)
-    text = yaml.dump(DEFAULTS, width=80, indent=4, default_flow_style=False)
+    f = lambda x: yaml.dump({x[0]: x[1]},
+                            width=80,
+                            indent=4,
+                            default_flow_style=False)
+    text = ''.join([f(x) for x in DEFAULTS])
     with codecs.open(_path, mode='w', encoding='utf8') as f:
         f.write(text)
 
@@ -127,7 +138,7 @@ def _purify(params):
     gen = params['generator'].strip()
     params['generator'] = gen.format(version=authoring.VERSION)
 
-    params['contents_path'] = _expand(params['contents_path'])
+    params['pages_path'] = _expand(params['pages_path'])
     params['assets_path'] = _expand(params['assets_path'])
     params['build_path'] = _expand(params['build_path'])
     params['templates_path'] = _expand(params['templates_path'])

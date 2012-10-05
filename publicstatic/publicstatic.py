@@ -11,6 +11,7 @@ import traceback
 from argh import ArghParser, arg
 from datetime import datetime
 from multiprocessing import Process
+from pprint import pprint
 
 import pyatom
 import pystache
@@ -68,6 +69,10 @@ def process_dir(path):
             else:
                 files.append(relpath)
 
+    pprint(files)
+    pprint(feeds)
+    return
+
     for f in feeds:
         process_feed(path, f, feeds[f])
 
@@ -82,63 +87,46 @@ def process_feed(path, name, entities):
 
     entnum = len(entities)
     fullpath = lambda i: os.path.join(path, name, 'feed', entities[i])
-    dest_path = os.path.join(conf.get('build_path'), name)
-    tools.makedirs(dest_path)
+    dest_dir = os.path.join(conf.get('build_path'), name)
+    tools.makedirs(dest_dir)
 
     for i in range(entnum):
         data = next if next else read_page(fullpath(i), True)
         next = read_page(fullpath(i + 1), True) if (i + 1 < entnum) else None
 
-        if not index:
-            index.append(data)
-        else:
-            index.append({
-                'title': data['title'],
-                'ctime': data['ctime'],
-                'mtime': data['mtime'],
-                'author': data['author'],
-            })
+        index.append(tools.get_page_meta(data))
 
-        data['prev_url'] = id2url(prev['id']) if prev else None
-        data['prev_title'] = id2url(prev['title']) if prev else None
-        data['next_url'] = id2url(next['id']) if next else None
-        data['next_title'] = id2url(next['title']) if next else None
+        data['prev_url'] = tools.get_page_url(prev)
+        data['prev_title'] = prev['title'] if prev else None
+        data['next_url'] = tools.get_page_url(next)
+        data['next_title'] = next['title'] if next else None
 
         page_file = data['id'] + '.html'
         log.info(" * %s => %s" % (entities[i], os.path.join(name, page_file)))
-        dest_file = os.path.join(dest_path, page_file)
+        dest_file = os.path.join(dest_dir, page_file)
         build_page(data, dest_file, conf.get('templates_path'))
 
         prev = data
 
-    build_index(index, os.path.join(dest_path, 'index.html'))
-    build_feeds(index, dest_path)
+    build_indexes(index, dest_dir)
+    build_feeds(index, dest_dir)
 
 
-def process_file(source_root, source_file):
-    """Process single file.
+def process_file(root_dir, rel_source):
+    """Process single web page source file or static asset.
 
     Arguments:
-        source_root -- root files directory (e.g. 'pages').
-        source_file -- source file abs path to process."""
+        root_dir -- root files directory (e.g. 'pages').
+        rel_source -- source file relative path."""
 
-    rel_source = source_file  # os.path.relpath(os.path.join(source_root, source_file), source_root)
-    source_file = os.path.join(source_root, source_file)
-    base, ext = os.path.splitext(rel_source)
-
-    new_ext = {
-        '.md': '.html',
-        '.less': '.css',
-    }
-
-    rel_dest = base + (new_ext[ext] if ext in new_ext else ext)
-    dest_file = os.path.join(conf.get('build_path'), rel_dest)
+    source_file = os.path.join(root_dir, rel_source)
+    ext = os.path.splitext(rel_source)[1]
+    dest_file = tools.get_dest(conf.get('build_path'), rel_source)
     tools.makedirs(os.path.dirname(dest_file))
 
     if ext == '.md':
-        log.info("building page: %s => %s" % (rel_source, rel_dest))
-        data = read_page(source_file)
-        build_page(data, dest_file, conf.get('templates_path'))
+        log.info('building page:' + rel_source)
+        build_page(read_page(source_file), dest_file)
 
     elif ext == '.less':
         log.info('compiling LESS: ' + rel_source)
@@ -167,20 +155,20 @@ def process_file(source_root, source_file):
         shutil.copyfile(source_file, dest_file)
 
 
-def build_page(data, dest_file, templates_path):
-    """Builds a web page from dict and mustache template"""
+def build_page(data, dest_file):
+    """Builds a web page
+
+    Arguments:
+        data -- page data dict.
+        dest_file -- full path to the destination file."""
+
     try:
+        tpl = get_template(data['template'])
         with codecs.open(dest_file, mode='w', encoding='utf8') as f:
-            tpl = get_template(data['template'], templates_path)
             f.write(pystache.render(tpl, data))
     except Exception as e:
         log.debug(traceback.format_exc())
         log.error('content processing error: ' + str(e))
-
-
-def build_index(data, dest_file):
-    # TODO: ...
-    pass
 
 
 def build_feeds(data, dest_dir):
@@ -201,6 +189,16 @@ def build_feeds(data, dest_dir):
 
     print feed.to_string()
 
+
+def build_indexes(data, dest_dir):
+    """Build post list pages"""
+    data = {
+        'template': 'archive',
+        'title': 'Blog archive',
+        'posts': data,
+    }
+
+    build_page(data, os.path.join(dest_dir, 'archive.html'))
 
 
 def read_page(source_file, is_post=False):
@@ -242,20 +240,13 @@ def get_id(file_name):
     return parts[1] if len(parts) > 1 else None
 
 
-def id2url(id):
-    """Converts page id to relative URL"""
-    # TODO: ...
-    return "/%s.html" % str(id)
-
-
-def get_template(tpl_name, templates_path):
+def get_template(tpl_name):
     """Gets template file contents.
 
     Arguments:
         tpl_name -- template name (will be complemented
-            to file name using '.mustache').
-        templates_path -- template files path."""
-    file_name = os.path.join(templates_path, tpl_name + '.mustache')
+            to file name using '.mustache')."""
+    file_name = os.path.join(conf.get('templates_path'), tpl_name + '.mustache')
     if os.path.exists(file_name):
         with codecs.open(file_name, mode='r', encoding='utf8') as f:
             return f.read()
@@ -263,10 +254,78 @@ def get_template(tpl_name, templates_path):
     raise Exception("template not exists: '%s'" % file_name)
 
 
-# General helpers =============================================================
+def create_page(name, text, date, force):
+    """Creates page file
+
+    Arguments:
+        name -- page name (will be used for file name and URL).
+        text -- page text.
+        date -- creation date and time (struct_time).
+        force -- True to overwrite existing file; False to throw exception."""
+
+    name = tools.urlify(name)
+    log.debug("creating page '%s'" % name)
+    page_path = os.path.join(conf.get('pages_path'), name) + '.md'
+
+    if os.path.exists(page_path):
+        if force:
+            log.debug('existing page will be overwritten')
+        else:
+            log.error('page already exists, use -f to overwrite')
+            return None
+
+    text = text.format(title=name, ctime=date.strftime(conf.TIME_FMT))
+    tools.makedirs(os.path.split(page_path)[0])
+
+    with codecs.open(page_path, mode='w', encoding='utf8') as f:
+        f.write(text)
+    return page_path
 
 
-# Commands
+def create_post(name, text, date, force):
+    """Generates post file placeholder with an unique name
+    and returns its name
+
+    Arguments:
+        name -- post name (will be used for file name and URL).
+        text -- post text.
+        date -- creation date and time (struct_time).
+        force -- True to overwrite existing file; False to throw exception."""
+
+    try:
+        post_name = conf.get('post_name').format(year=date.strftime('%Y'),
+                                                 month=date.strftime('%m'),
+                                                 day=date.strftime('%d'),
+                                                 name='{name}')
+        # print((conf.get('posts_path'), post_name, os.path.join(conf.get('posts_path'), post_name)))
+        # return
+        post_path = os.path.join(conf.get('posts_path'), post_name)
+        print(os.path.dirname(post_path))
+        tools.makedirs(os.path.dirname(post_path))
+    except:
+        log.error('error creating new post')
+        raise
+
+    # Generate new post file name and preserve file with a new unique name
+    file_name = tools.urlify(name)
+    num = 1
+    while True:
+        suffix = str(num) if num > 1 else ''
+        result = post_path.format(name=file_name + suffix)
+        print("writing to '%s'" % result)
+        return
+        if force or not os.path.exists(result):
+            log.debug("creating post '%s'" % result)
+            text = text.format(title=name,
+                               ctime=date.strftime(conf.TIME_FMT))
+            with codecs.open(result, mode='w', encoding='utf8') as f:
+                f.write(text)
+            return result
+        else:
+            num += 1
+
+
+# Common command line arguments
 
 source_arg = arg('-s', '--source', default=None, metavar='SRC',
                  help='website source path (default is the current directory)')
@@ -286,6 +345,8 @@ type_arg = arg('-t', '--type', default=None,
 edit_arg = arg('-e', '--edit', default=False,
                help='open with preconfigured editor')
 
+
+# Commands
 
 @source_arg
 @log_arg
@@ -315,7 +376,7 @@ def build(args):
     log.info('processing assets...')
     process_dir(conf.get('assets_path'))
     log.info('processing contents...')
-    process_dir(conf.get('contents_path'))
+    process_dir(conf.get('pages_path'))
     log.info('done')
 
 
@@ -397,9 +458,12 @@ def page(args):
         raise Exception('illegal page name')
 
     text = tools.get_generic(args.type or 'default-page')
-    page_path = tools.create_page(args.name, datetime.now(), text, args.force)
-    log.info('page cerated')
+    page_path = create_page(args.name, text, datetime.now(), args.force)
 
+    if not page_path:
+        return
+
+    log.info('page cerated')
     if args.edit:
         tools.execute_proc(conf.get('editor_cmd'), page_path)
 
@@ -418,7 +482,7 @@ def post(args):
         raise Exception('illegal feed or post name')
 
     text = tools.get_generic(args.type or 'default-post')
-    post_path = tools.create_post(args.name, datetime.now(), text, args.force)
+    post_path = create_post(args.name, text, datetime.now(), args.force)
     log.info('post cerated')
 
     if args.edit:

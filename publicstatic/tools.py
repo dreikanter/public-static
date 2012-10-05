@@ -18,7 +18,6 @@ GENERIC_PATH = 'generic-site'
 GENERIC_PAGES = 'generic-pages'
 FEED_DIR = 'feed'
 
-TIME_FMT = "%Y/%m/%d %H:%M:%S"
 RE_FLAGS = re.I | re.M | re.U
 H1_PATTERN = re.compile(r"^\s*#\s*(.*)\s*", RE_FLAGS)
 POST_PATTERN = re.compile(r"[\w\\/]+")
@@ -100,7 +99,7 @@ def purify_time(page, time_parm, default):
     """Returns time value from page dict. If there is no
     specified value, default will be returned."""
     if time_parm in page:
-        page[time_parm] = time.strptime(page[time_parm], TIME_FMT)
+        page[time_parm] = time.strptime(page[time_parm], conf.TIME_FMT)
     else:
         page[time_parm] = datetime.fromtimestamp(default)
 
@@ -204,61 +203,6 @@ def urlify(string):
     return result.strip('-').lower()
 
 
-def create_page(name, date, text, force):
-    """Creates page file"""
-    name = urlify(name)
-    page_path = os.path.join(conf.get('contents_path'), name) + '.md'
-
-    if os.path.exists(page_path):
-        if force:
-            log.debug('existing page will be overwritten')
-        else:
-            raise Exception('page already exists, use -f to overwrite')
-
-    text = text.format(title=name, ctime=date.strftime(TIME_FMT))
-    makedirs(os.path.split(page_path)[0])
-
-    with codecs.open(page_path, mode='w', encoding='utf8') as f:
-        log.debug("creating page '%s'" % page_path)
-        f.write(text)
-
-
-def create_post(name, date, text, force):
-    """Generates post file placeholder with an unique name
-    and returns its name"""
-
-    feed, post = os.path.split(name)
-
-    try:
-        parts = [conf.get('contents_path'), feed, FEED_DIR, date.strftime('%Y')]
-        path = os.sep.join(parts)
-        makedirs(path)
-    except:
-        log.error("error creating new feed at '%s'" % path)
-        raise
-
-    # Generate new post file name
-    parts = [date.strftime('%Y-%m-%d'), urlify(post)]
-    post = '_'.join(filter(None, parts))
-    num = 1
-
-    # Preserve file with a new unique name
-    while True:
-        sfx = str(num) if num > 1 else ''
-        result = os.path.join(path, post) + sfx + '.md'
-
-        if force or not os.path.exists(result):
-            log.debug("creating post '%s'" % result)
-            text = text.format(title=name, ctime=date.strftime(TIME_FMT))
-            with codecs.open(result, mode='w', encoding='utf8') as f:
-                f.write(text)
-            break
-
-        num += 1
-
-    return result
-
-
 def feed_name(path, root):
     """Gets feed name from the feed path
 
@@ -281,3 +225,30 @@ def feed_name(path, root):
 
 def valid_name(value):
     return POST_PATTERN.match(value)
+
+
+def get_page_url(page_data):
+    got_id = page_data and 'id' in page_data
+    return ("/%s.html" % str(page_data['id'])) if got_id else None
+
+
+def get_page_meta(page_data):
+    return {
+        'title': page_data['title'],
+        'ctime': page_data['ctime'],
+        'mtime': page_data['mtime'],
+        'author': page_data['author'],
+    }
+
+
+def get_dest(build_path, rel_source):
+    """Gets relative destination file path"""
+    base, ext = os.path.splitext(rel_source)
+
+    new_ext = {
+        '.md': '.html',
+        '.less': '.css',
+    }
+
+    rel_dest = base + (new_ext[ext] if ext in new_ext else ext)
+    return os.path.join(build_path, rel_dest)

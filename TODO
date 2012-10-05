@@ -1,12 +1,21 @@
 Blog generation:
 
 - Blog building.
+- Configuration: 
+    + title @done (12-09-29 18:04)
+    + subtitle @done (12-09-29 18:04)
+    - feed_url?
+    - post_url ← could define blog root
+    - post_path
+- drop special dir name for feeds
+- drop ability to process multiple separate feeds
 - Configurable feed source dir structure
 - Configurable feed output dir structure (URLs)
-- tidy -i --wrap 80 -o index.html
-- Test installation on Ubuntu and clean virtualenv.
-- RSS feed generation.
+
+- Build archive page
 - ATOM feed generation.
+- Test installation on Ubuntu and clean virtualenv.
+- tidy -i --wrap 80 -o index.html
 
 Readme and documentation:
 
