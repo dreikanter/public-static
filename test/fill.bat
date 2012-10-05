@@ -1,19 +1,19 @@
 call env.bat
 
-python %pub% page page1 -s %sitedir% -v
-python %pub% page page2 -s %sitedir% -v
-python %pub% page page3 -s %sitedir% -v
-python %pub% page page4 -s %sitedir% -v
-python %pub% page page5 -s %sitedir% -v
+call create-page page1
+call create-page page2
+call create-page page3
+call create-page page4
+call create-page page5
 
-python %pub% page section\page1 -s %sitedir% -v
-python %pub% page section\page2 -s %sitedir% -v
-python %pub% page section\section\page3 -s %sitedir% -v
-python %pub% page section\section\page4 -s %sitedir% -v
-python %pub% page section\section\section\page5 -s %sitedir% -v
+call create-page section\page1
+call create-page section\page2
+call create-page section\section\page3
+call create-page section\section\page4
+call create-page section\section\section\page5
 
-python %pub% post issue1 -s %sitedir% -v
-python %pub% post issue2 -s %sitedir% -v
-python %pub% post issue3 -s %sitedir% -v
-python %pub% post issue -s %sitedir% -v
-python %pub% post issue -s %sitedir% -v
+call create-post issue1
+call create-post issue2
+call create-post issue3
+call create-post issue
+call create-post issue
