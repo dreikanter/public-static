@@ -141,7 +141,7 @@ def _purify(params):
     params['pages_path'] = _expand(params['pages_path'])
     params['assets_path'] = _expand(params['assets_path'])
     params['build_path'] = _expand(params['build_path'])
-    params['tpls_path'] = _expand(params['templates_path'])
+    params['tpl_path'] = _expand(params['tpl_path'])
 
     params['min_js_cmd'] = params['min_js_cmd'].strip()
     params['min_css_cmd'] = params['min_css_cmd'].strip()

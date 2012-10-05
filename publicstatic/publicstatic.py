@@ -11,7 +11,6 @@ import traceback
 from argh import ArghParser, arg
 from datetime import datetime
 from multiprocessing import Process
-from pprint import pprint
 
 import pyatom
 import pystache
@@ -29,13 +28,8 @@ __version__ = authoring.VERSION
 __status__ = authoring.STATUS
 __url__ = authoring.URL
 
-# TIME_FMT = "%Y/%m/%d %H:%M:%S"
 RE_FLAGS = re.I | re.M | re.U
 PARAM_PATTERN = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", RE_FLAGS)
-# H1_PATTERN = re.compile(r"^\s*#\s*(.*)\s*", RE_FLAGS)
-# POST_PATTERN = re.compile(r"[\w\\/]+")
-# URI_SEP_PATTERN = re.compile(r"[^a-z\d\%s]+" % os.sep, RE_FLAGS)
-# URI_EXCLUDE_PATTERN = re.compile(r"[,.`\'\"\!@\#\$\%\^\&\*\(\)\+]+", RE_FLAGS)
 
 log = None
 
@@ -47,7 +41,7 @@ def setup(args, use_defaults=False):
     log = conf.get_logger()
 
 
-# Website building ============================================================
+# Website building
 
 def process_dir(path):
     """Process a directory containing independent
@@ -127,7 +121,7 @@ def process_blog(path, name, entities):
         page_file = data['id'] + '.html'
         log.info(" * %s => %s" % (entities[i], os.path.join(name, page_file)))
         dest_file = os.path.join(dest_dir, page_file)
-        build_page(data, dest_file, conf.get('templates_path'))
+        build_page(data, dest_file, conf.get('tpl_path'))
 
         prev = data
 
@@ -226,7 +220,7 @@ def get_template(tpl_name):
     Arguments:
         tpl_name -- template name (will be complemented
             to file name using '.mustache')."""
-    file_name = os.path.join(conf.get('templates_path'), tpl_name + '.mustache')
+    file_name = os.path.join(conf.get('tpl_path'), tpl_name + '.mustache')
     if os.path.exists(file_name):
         with codecs.open(file_name, mode='r', encoding='utf8') as f:
             return f.read()
