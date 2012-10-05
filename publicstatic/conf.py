@@ -139,6 +139,7 @@ def _purify(params):
     params['generator'] = gen.format(version=authoring.VERSION)
 
     params['pages_path'] = _expand(params['pages_path'])
+    params['posts_path'] = _expand(params['posts_path'])
     params['assets_path'] = _expand(params['assets_path'])
     params['build_path'] = _expand(params['build_path'])
     params['tpl_path'] = _expand(params['tpl_path'])

@@ -271,10 +271,7 @@ def create_post(name, text, date, force):
                                                  month=date.strftime('%m'),
                                                  day=date.strftime('%d'),
                                                  name='{name}')
-        # print((conf.get('posts_path'), post_name, os.path.join(conf.get('posts_path'), post_name)))
-        # return
         post_path = os.path.join(conf.get('posts_path'), post_name)
-        print(os.path.dirname(post_path))
         tools.makedirs(os.path.dirname(post_path))
     except:
         log.error('error creating new post')
@@ -286,8 +283,6 @@ def create_post(name, text, date, force):
     while True:
         suffix = str(num) if num > 1 else ''
         result = post_path.format(name=file_name + suffix)
-        print("writing to '%s'" % result)
-        return
         if force or not os.path.exists(result):
             log.debug("creating post '%s'" % result)
             text = text.format(title=name,
