@@ -78,21 +78,21 @@ def process_file(root_dir, rel_source):
 
     elif ext == '.less':
         log.info('compiling LESS: ' + rel_source)
-        if conf.get('minify_less'):
+        if conf.get('min_less'):
             tmp_file = dest_file + '.tmp'
             tools.execute_proc(conf.get('less_cmd'), source_file, tmp_file)
-            tools.execute_proc(conf.get('minify_css_cmd'), tmp_file, dest_file)
+            tools.execute_proc(conf.get('min_css_cmd'), tmp_file, dest_file)
             os.remove(tmp_file)
         else:
             tools.execute_proc(conf.get('less_cmd'), source_file, dest_file)
 
-    elif ext == '.css' and conf.get('minify_css') and conf.get('minify_css_cmd'):
+    elif ext == '.css' and conf.get('min_css') and conf.get('min_css_cmd'):
         log.info('minifying CSS: ' + rel_source)
-        tools.execute_proc(conf.get('minify_css_cmd'), source_file, dest_file)
+        tools.execute_proc(conf.get('min_css_cmd'), source_file, dest_file)
 
-    elif ext == '.js' and conf.get('minify_js') and conf.get('minify_js_cmd'):
+    elif ext == '.js' and conf.get('min_js') and conf.get('min_js_cmd'):
         log.info('minifying JS: ' + rel_source)
-        tools.execute_proc(conf.get('minify_js_cmd'), source_file, dest_file)
+        tools.execute_proc(conf.get('min_js_cmd'), source_file, dest_file)
 
     elif os.path.basename(source_file) == 'humans.txt':
         log.info('copying: %s (updated)' % rel_source)
@@ -381,7 +381,7 @@ def run(args):
     try:
         if args.browse:
             url = "http://localhost:%s/" % port
-            delay = conf.get('browser_open_delay')
+            delay = conf.get('browser_delay')
             log.info("opening browser in %g seconds" % delay)
             p = Process(target=tools.browse, args=(url, delay))
             p.start()

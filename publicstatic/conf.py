@@ -24,18 +24,18 @@ DEFAULTS = [
     ('pages_path', 'pages'),
     ('posts_path', 'posts'),
     ('assets_path', 'assets'),
-    ('templates_path', 'templates'),
+    ('tpl_path', 'templates'),
     ('post_name', '{year}-{month}-{day}_{name}.md'),
     ('post_url', '{year}/{month}/{day}/{name}.html'),
     ('port', 8000),
-    ('browser_open_delay', 2.0),
-    ('page_template', 'default-page'),
-    ('post_template', 'default-post'),
-    ('minify_js', True),
-    ('minify_css', True),
-    ('minify_less', True),
-    ('minify_js_cmd', "yuicompressor --type js --nomunge -o {dest} {source}"),
-    ('minify_css_cmd', "yuicompressor --type css -o {dest} {source}"),
+    ('browser_delay', 2.0),
+    ('page_tpl', 'default-page'),
+    ('post_tpl', 'default-post'),
+    ('min_js', True),
+    ('min_css', True),
+    ('min_less', True),
+    ('min_js_cmd', "yuicompressor --type js --nomunge -o {dest} {source}"),
+    ('min_css_cmd', "yuicompressor --type css -o {dest} {source}"),
     ('sync_cmd', ''),
     ('less_cmd', "lessc -x {source} > {dest}"),
     ('markdown_extensions', ['nl2br', 'grid', 'smartypants']),
@@ -141,13 +141,13 @@ def _purify(params):
     params['pages_path'] = _expand(params['pages_path'])
     params['assets_path'] = _expand(params['assets_path'])
     params['build_path'] = _expand(params['build_path'])
-    params['templates_path'] = _expand(params['templates_path'])
+    params['tpls_path'] = _expand(params['templates_path'])
 
-    params['minify_js_cmd'] = params['minify_js_cmd'].strip()
-    params['minify_css_cmd'] = params['minify_css_cmd'].strip()
+    params['min_js_cmd'] = params['min_js_cmd'].strip()
+    params['min_css_cmd'] = params['min_css_cmd'].strip()
     params['sync_cmd'] = params['sync_cmd'].strip()
 
-    params['browser_open_delay'] = float(params['browser_open_delay'])
+    params['browser_delay'] = float(params['browser_delay'])
     params['port'] = int(params['port'])
 
     return params
