@@ -50,66 +50,14 @@ def setup(args, use_defaults=False):
 # Website building ============================================================
 
 def process_dir(path):
+    """Process a directory containing independent
+    files like website pages or assets."""
     log.debug("source path: '%s'" % path)
-
-    files = []
-    feeds = {}
-
     for curdir, _, curfiles in os.walk(path):
         for nextfile in curfiles:
             fullpath = os.path.join(curdir, nextfile)
             relpath = fullpath[len(path):].strip(os.sep)
-            parts = relpath.split(os.sep)
-            if 'feed' in parts:
-                pos = parts.index('feed')
-                feed = os.sep.join(parts[:pos])
-                if not feed in feeds:
-                    feeds[feed] = []
-                feeds[feed].append(os.sep.join(parts[pos + 1:]))
-            else:
-                files.append(relpath)
-
-    pprint(files)
-    pprint(feeds)
-    return
-
-    for f in feeds:
-        process_feed(path, f, feeds[f])
-
-    for f in files:
-        process_file(path, f)
-
-
-def process_feed(path, name, entities):
-    prev = None
-    next = None
-    index = []
-
-    entnum = len(entities)
-    fullpath = lambda i: os.path.join(path, name, 'feed', entities[i])
-    dest_dir = os.path.join(conf.get('build_path'), name)
-    tools.makedirs(dest_dir)
-
-    for i in range(entnum):
-        data = next if next else read_page(fullpath(i), True)
-        next = read_page(fullpath(i + 1), True) if (i + 1 < entnum) else None
-
-        index.append(tools.get_page_meta(data))
-
-        data['prev_url'] = tools.get_page_url(prev)
-        data['prev_title'] = prev['title'] if prev else None
-        data['next_url'] = tools.get_page_url(next)
-        data['next_title'] = next['title'] if next else None
-
-        page_file = data['id'] + '.html'
-        log.info(" * %s => %s" % (entities[i], os.path.join(name, page_file)))
-        dest_file = os.path.join(dest_dir, page_file)
-        build_page(data, dest_file, conf.get('templates_path'))
-
-        prev = data
-
-    build_indexes(index, dest_dir)
-    build_feeds(index, dest_dir)
+            process_file(path, relpath)
 
 
 def process_file(root_dir, rel_source):
@@ -153,6 +101,38 @@ def process_file(root_dir, rel_source):
     else:
         log.info('copying: ' + rel_source)
         shutil.copyfile(source_file, dest_file)
+
+
+def process_blog(path, name, entities):
+    prev = None
+    next = None
+    index = []
+
+    entnum = len(entities)
+    fullpath = lambda i: os.path.join(path, name, 'feed', entities[i])
+    dest_dir = os.path.join(conf.get('build_path'), name)
+    tools.makedirs(dest_dir)
+
+    for i in range(entnum):
+        data = next if next else read_page(fullpath(i), True)
+        next = read_page(fullpath(i + 1), True) if (i + 1 < entnum) else None
+
+        index.append(tools.get_page_meta(data))
+
+        data['prev_url'] = tools.get_page_url(prev)
+        data['prev_title'] = prev['title'] if prev else None
+        data['next_url'] = tools.get_page_url(next)
+        data['next_title'] = next['title'] if next else None
+
+        page_file = data['id'] + '.html'
+        log.info(" * %s => %s" % (entities[i], os.path.join(name, page_file)))
+        dest_file = os.path.join(dest_dir, page_file)
+        build_page(data, dest_file, conf.get('templates_path'))
+
+        prev = data
+
+    build_indexes(index, dest_dir)
+    build_feeds(index, dest_dir)
 
 
 def build_page(data, dest_file):
@@ -429,7 +409,8 @@ def deploy(args):
                         'defined by configuration')
 
     log.info('synchronizing...')
-    tools.execute(conf.get('sync_cmd').format(path=conf.get('build_path')), True)
+    cmd = conf.get('sync_cmd').format(path=conf.get('build_path'))
+    tools.execute(cmd, True)
     log.info('done')
 
 
