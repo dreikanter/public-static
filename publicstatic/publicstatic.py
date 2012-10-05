@@ -47,11 +47,7 @@ def process_dir(path):
     """Process a directory containing independent
     files like website pages or assets."""
     log.debug("source path: '%s'" % path)
-    for curdir, _, curfiles in os.walk(path):
-        for nextfile in curfiles:
-            fullpath = os.path.join(curdir, nextfile)
-            relpath = fullpath[len(path):].strip(os.sep)
-            process_file(path, relpath)
+    tools.walk(path, process_file)
 
 
 def process_file(root_dir, rel_source):
@@ -97,36 +93,43 @@ def process_file(root_dir, rel_source):
         shutil.copyfile(source_file, dest_file)
 
 
-def process_blog(path, name, entities):
-    prev = None
-    next = None
-    index = []
+def process_blog(path):
+    # prev = None
+    # next = None
+    # index = []
 
-    entnum = len(entities)
-    fullpath = lambda i: os.path.join(path, name, 'feed', entities[i])
-    dest_dir = os.path.join(conf.get('build_path'), name)
-    tools.makedirs(dest_dir)
+    print('\n\n\nposts path = ' + path)
+    posts = []
+    tools.walk(path, lambda root, rel: posts.append([root, rel]))
+    for p in posts:
+        print(p[1])
+    return
 
-    for i in range(entnum):
-        data = next if next else read_page(fullpath(i), True)
-        next = read_page(fullpath(i + 1), True) if (i + 1 < entnum) else None
+    # entnum = len(entities)
+    # fullpath = lambda i: os.path.join(path, name, 'feed', entities[i])
+    # dest_dir = os.path.join(conf.get('build_path'), name)
+    # tools.makedirs(dest_dir)
 
-        index.append(tools.get_page_meta(data))
+    # for i in range(entnum):
+    #     data = next if next else read_page(fullpath(i), True)
+    #     next = read_page(fullpath(i + 1), True) if (i + 1 < entnum) else None
 
-        data['prev_url'] = tools.get_page_url(prev)
-        data['prev_title'] = prev['title'] if prev else None
-        data['next_url'] = tools.get_page_url(next)
-        data['next_title'] = next['title'] if next else None
+    #     index.append(tools.get_page_meta(data))
 
-        page_file = data['id'] + '.html'
-        log.info(" * %s => %s" % (entities[i], os.path.join(name, page_file)))
-        dest_file = os.path.join(dest_dir, page_file)
-        build_page(data, dest_file, conf.get('tpl_path'))
+    #     data['prev_url'] = tools.get_page_url(prev)
+    #     data['prev_title'] = prev['title'] if prev else None
+    #     data['next_url'] = tools.get_page_url(next)
+    #     data['next_title'] = next['title'] if next else None
 
-        prev = data
+    #     page_file = data['id'] + '.html'
+    #     log.info(" * %s => %s" % (entities[i], os.path.join(name, page_file)))
+    #     dest_file = os.path.join(dest_dir, page_file)
+    #     build_page(data, dest_file, conf.get('tpl_path'))
 
-    build_indexes(index, dest_dir)
-    build_feeds(index, dest_dir)
+    #     prev = data
+
+    # build_indexes(index, dest_dir)
+    # build_feeds(index, dest_dir)
 
 
 def build_page(data, dest_file):
@@ -137,7 +140,7 @@ def build_page(data, dest_file):
         dest_file -- full path to the destination file."""
 
     try:
-        tpl = get_template(data['template'])
+        tpl = get_tpl(data['template'])
         with codecs.open(dest_file, mode='w', encoding='utf8') as f:
             f.write(pystache.render(tpl, data))
     except Exception as e:
@@ -191,7 +194,7 @@ def read_page(source_file, is_post=False):
 
     data['title'] = data.get('title', tools.get_h1(data['content'])).strip()
 
-    deftpl = conf.get('post_template' if is_post else 'page_template')
+    deftpl = conf.get('post_tpl' if is_post else 'page_tpl')
     data['template'] = data.get('template', deftpl).strip()
     data['author'] = data.get('author', conf.get('author')).strip()
 
@@ -214,7 +217,7 @@ def get_id(file_name):
     return parts[1] if len(parts) > 1 else None
 
 
-def get_template(tpl_name):
+def get_tpl(tpl_name):
     """Gets template file contents.
 
     Arguments:
@@ -267,10 +270,11 @@ def create_post(name, text, date, force):
         force -- True to overwrite existing file; False to throw exception."""
 
     try:
-        post_name = conf.get('post_name').format(year=date.strftime('%Y'),
-                                                 month=date.strftime('%m'),
-                                                 day=date.strftime('%d'),
-                                                 name='{name}')
+        post_name = conf.get('post_name')
+        post_name = post_name.format(year=date.strftime('%Y'),
+                                     month=date.strftime('%m'),
+                                     day=date.strftime('%d'),
+                                     name='{name}')
         post_path = os.path.join(conf.get('posts_path'), post_name)
         tools.makedirs(os.path.dirname(post_path))
     except:
@@ -344,8 +348,10 @@ def build(args):
     log.info("building path: '%s'" % conf.get('build_path'))
     log.info('processing assets...')
     process_dir(conf.get('assets_path'))
-    log.info('processing contents...')
+    log.info('processing pages...')
     process_dir(conf.get('pages_path'))
+    log.info('processing blog posts...')
+    process_blog(conf.get('posts_path'))
     log.info('done')
 
 

@@ -252,3 +252,11 @@ def get_dest(build_path, rel_source):
 
     rel_dest = base + (new_ext[ext] if ext in new_ext else ext)
     return os.path.join(build_path, rel_dest)
+
+
+def walk(path, operation):
+    for curdir, _, curfiles in os.walk(path):
+        for nextfile in curfiles:
+            fullpath = os.path.join(curdir, nextfile)
+            relpath = fullpath[len(path):].strip(os.sep)
+            operation(path, relpath)
