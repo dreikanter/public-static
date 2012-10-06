@@ -267,14 +267,6 @@ def walk(path, operation):
 
 def post_ctime(source_file):
     """Gets post creation time from file name"""
-    # file_name = os.path.basename(source_file)
-    # match = TIME_PREFIX_PATTERN.match(file_name)
-    # if not match:
-    #     return datetime.fromtimestamp(os.path.getctime(source_file))
-    # year = int(match.group(1))
-    # month = int(match.group(2))
-    # day = int(match.group(3))
-    # return datetime(year, month, day)
     with codecs.open(source_file, mode='r', encoding='utf8') as f:
         for line in f.readlines():
             match = PARAM_PATTERN.match(line)
@@ -285,3 +277,13 @@ def post_ctime(source_file):
                     return time.strptime(match.group(2), conf.TIME_FMT)
                 except:
                     return os.path.getmtime(source_file)
+
+
+def parse_param(text):
+    """Parse '<key>: <value>' string to (str, str) tuple. Returns None
+    when parsing fails."""
+    match = PARAM_PATTERN.match(text)
+    if match:
+        return (match.group(1).strip(), match.group(2).strip())
+    else:
+        return None

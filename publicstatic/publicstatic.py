@@ -194,12 +194,12 @@ def parse(source_file, is_post=False):
 
     data = {}
     with codecs.open(source_file, mode='r', encoding='utf8') as f:
-        # Extract page metadata if there are some header lines
+        # Extract page metadata if header lines presents
         lines = f.readlines()
         for num, line in enumerate(lines):
-            match = tools.PARAM_PATTERN.match(line)
-            if match:
-                data[match.group(1)] = match.group(2).strip()
+            parsed = tools.parse_param(line)
+            if parsed:
+                data[parsed[0]] = parsed[1]
             else:
                 data['content'] = ''.join(lines[num:])
                 break
