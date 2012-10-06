@@ -101,15 +101,24 @@ def process_blog(path):
     posts = []
     tools.walk(path, lambda root, rel:
         posts.append((rel, tools.post_ctime(os.path.join(root, rel)))))
-    from pprint import pprint
-    pprint(posts)
+    posts.sort(key=lambda item: item[1])
+    # from pprint import pprint
+    # pprint(os.path.join(path, item[0]))
 
-    # Collect {file names, ctime, title} to index
-    # Order index by ctime
     # Build posts: add prev/next to page data
     # Build ATOM
     # Build archive
 
+    for i in range(len(posts)):
+        source_path, ctime = posts[i]
+        ctime = datetime.fromtimestamp(ctime)
+        source_path = os.path.join(path, source_path)
+        # dest_path = conf.get('post_url').format(year=ctime.strftime('%Y'),
+        #                                         month=ctime.strftime('%m'),
+        #                                         day=ctime.strftime('%d'),
+        #                                         date=ctime.strftime('%Y%m%d'),
+        #                                         name='{name}')
+        # post_data = parse()
 
     # entnum = len(entities)
     # fullpath = lambda i: os.path.join(path, name, 'feed', entities[i])
@@ -282,21 +291,14 @@ def create_post(name, text, date, force):
         date -- creation date and time (struct_time).
         force -- True to overwrite existing file; False to throw exception."""
 
-    post_name = conf.get('post_name')
-    post_name = post_name.format(year=date.strftime('%Y'),
-                                 month=date.strftime('%m'),
-                                 day=date.strftime('%d'),
-                                 date=date.strftime('%Y%m%d'),
-                                 name='{name}')
+    post_name = '%s-%s{suffix}.md' % (date.strftime('%Y%m%d'), tools.urlify(name))
     post_path = os.path.join(conf.get('posts_path'), post_name)
     tools.makedirs(os.path.dirname(post_path))
 
     # Generate new post file name and preserve file with a new unique name
-    file_name = tools.urlify(name)
     num = 1
     while True:
-        suffix = str(num) if num > 1 else ''
-        result = post_path.format(name=file_name + suffix)
+        result = post_path.format(suffix=str(num) if num > 1 else '')
         if force or not os.path.exists(result):
             log.debug("creating post '%s'" % result)
             text = text.format(title=name,
