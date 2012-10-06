@@ -6,6 +6,7 @@ import re
 import sys
 import shutil
 import codecs
+import time
 import traceback
 
 from argh import ArghParser, arg
@@ -29,7 +30,6 @@ __status__ = authoring.STATUS
 __url__ = authoring.URL
 
 RE_FLAGS = re.I | re.M | re.U
-PARAM_PATTERN = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", RE_FLAGS)
 
 log = None
 
@@ -64,7 +64,7 @@ def process_file(root_dir, rel_source):
 
     if ext == '.md':
         log.info('building page:' + rel_source)
-        build_page(read_page(source_file), dest_file)
+        build_page(parse(source_file), dest_file)
 
     elif ext == '.less':
         log.info('compiling LESS: ' + rel_source)
@@ -98,12 +98,18 @@ def process_blog(path):
     # next = None
     # index = []
 
-    print('\n\n\nposts path = ' + path)
     posts = []
-    tools.walk(path, lambda root, rel: posts.append([root, rel]))
-    for p in posts:
-        print(p[1])
-    return
+    tools.walk(path, lambda root, rel:
+        posts.append((rel, tools.post_ctime(os.path.join(root, rel)))))
+    from pprint import pprint
+    pprint(posts)
+
+    # Collect {file names, ctime, title} to index
+    # Order index by ctime
+    # Build posts: add prev/next to page data
+    # Build ATOM
+    # Build archive
+
 
     # entnum = len(entities)
     # fullpath = lambda i: os.path.join(path, name, 'feed', entities[i])
@@ -111,8 +117,8 @@ def process_blog(path):
     # tools.makedirs(dest_dir)
 
     # for i in range(entnum):
-    #     data = next if next else read_page(fullpath(i), True)
-    #     next = read_page(fullpath(i + 1), True) if (i + 1 < entnum) else None
+    #     data = next if next else parse(fullpath(i), True)
+    #     next = parse(fullpath(i + 1), True) if (i + 1 < entnum) else None
 
     #     index.append(tools.get_page_meta(data))
 
@@ -178,21 +184,28 @@ def build_indexes(data, dest_dir):
     build_page(data, os.path.join(dest_dir, 'archive.html'))
 
 
-def read_page(source_file, is_post=False):
-    """Reads a post/page file to dictionary"""
+def parse(source_file, is_post=False):
+    """Reads a post/page file to dictionary.
+
+    Arguments:
+        source_files -- path to the source file.
+        is_post -- source file is a blog post.
+        header -- returns {file_name, ctime, and title} only."""
+
     data = {}
     with codecs.open(source_file, mode='r', encoding='utf8') as f:
         # Extract page metadata if there are some header lines
         lines = f.readlines()
         for num, line in enumerate(lines):
-            match = PARAM_PATTERN.match(line)
+            match = tools.PARAM_PATTERN.match(line)
             if match:
                 data[match.group(1)] = match.group(2).strip()
             else:
                 data['content'] = ''.join(lines[num:])
                 break
 
-    data['title'] = data.get('title', tools.get_h1(data['content'])).strip()
+    data['source'] = source_file
+    data['title'] = data.get('title', tools.get_h1(data['content']))
 
     deftpl = conf.get('post_tpl' if is_post else 'page_tpl')
     data['template'] = data.get('template', deftpl).strip()
@@ -269,17 +282,14 @@ def create_post(name, text, date, force):
         date -- creation date and time (struct_time).
         force -- True to overwrite existing file; False to throw exception."""
 
-    try:
-        post_name = conf.get('post_name')
-        post_name = post_name.format(year=date.strftime('%Y'),
-                                     month=date.strftime('%m'),
-                                     day=date.strftime('%d'),
-                                     name='{name}')
-        post_path = os.path.join(conf.get('posts_path'), post_name)
-        tools.makedirs(os.path.dirname(post_path))
-    except:
-        log.error('error creating new post')
-        raise
+    post_name = conf.get('post_name')
+    post_name = post_name.format(year=date.strftime('%Y'),
+                                 month=date.strftime('%m'),
+                                 day=date.strftime('%d'),
+                                 date=date.strftime('%Y%m%d'),
+                                 name='{name}')
+    post_path = os.path.join(conf.get('posts_path'), post_name)
+    tools.makedirs(os.path.dirname(post_path))
 
     # Generate new post file name and preserve file with a new unique name
     file_name = tools.urlify(name)
@@ -458,7 +468,12 @@ def post(args):
         raise Exception('illegal feed or post name')
 
     text = tools.get_generic(args.type or 'default-post')
-    post_path = create_post(args.name, text, datetime.now(), args.force)
+    try:
+        post_path = create_post(args.name, text, datetime.now(), args.force)
+    except:
+        log.error('error creating new post')
+        raise
+
     log.info('post cerated')
 
     if args.edit:

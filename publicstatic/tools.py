@@ -23,6 +23,8 @@ H1_PATTERN = re.compile(r"^\s*#\s*(.*)\s*", RE_FLAGS)
 POST_PATTERN = re.compile(r"[\w\\/]+")
 URI_SEP_PATTERN = re.compile(r"[^a-z\d\%s]+" % os.sep, RE_FLAGS)
 URI_EXCLUDE_PATTERN = re.compile(r"[,.`\'\"\!@\#\$\%\^\&\*\(\)\+]+", RE_FLAGS)
+PARAM_PATTERN = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", RE_FLAGS)
+# TIME_PREFIX_PATTERN = re.compile(r'^(\d+)(\d\d)(\d\d)', RE_FLAGS)
 
 log = logging.getLogger()
 
@@ -232,12 +234,13 @@ def get_page_url(page_data):
     return ("/%s.html" % str(page_data['id'])) if got_id else None
 
 
-def get_page_meta(page_data):
+def get_meta(page_data):
     return {
-        'title': page_data['title'],
-        'ctime': page_data['ctime'],
-        'mtime': page_data['mtime'],
-        'author': page_data['author'],
+        'source_file': page_data.get('source_file', None),
+        'title': page_data.get('title', None),
+        'ctime': page_data.get('ctime', None),
+        'mtime': page_data.get('mtime', None),
+        'author': page_data.get('author', None),
     }
 
 
@@ -260,3 +263,25 @@ def walk(path, operation):
             fullpath = os.path.join(curdir, nextfile)
             relpath = fullpath[len(path):].strip(os.sep)
             operation(path, relpath)
+
+
+def post_ctime(source_file):
+    """Gets post creation time from file name"""
+    # file_name = os.path.basename(source_file)
+    # match = TIME_PREFIX_PATTERN.match(file_name)
+    # if not match:
+    #     return datetime.fromtimestamp(os.path.getctime(source_file))
+    # year = int(match.group(1))
+    # month = int(match.group(2))
+    # day = int(match.group(3))
+    # return datetime(year, month, day)
+    with codecs.open(source_file, mode='r', encoding='utf8') as f:
+        for line in f.readlines():
+            match = PARAM_PATTERN.match(line)
+            if not match:
+                break
+            if match.group(1).lower() == 'ctime':
+                try:
+                    return time.strptime(match.group(2), conf.TIME_FMT)
+                except:
+                    return os.path.getmtime(source_file)
