@@ -63,7 +63,7 @@ def process_file(root_dir, rel_source):
     tools.makedirs(os.path.dirname(dest_file))
 
     if ext == '.md':
-        log.info('building page:' + rel_source)
+        log.info("- %s => %s" % (rel_source, os.path.relpath(dest_file, conf.get('build_path'))))
         build_page(parse(source_file), dest_file)
 
     elif ext == '.less':
@@ -94,54 +94,46 @@ def process_file(root_dir, rel_source):
 
 
 def process_blog(path):
-    # prev = None
-    # next = None
-    # index = []
-
     posts = []
     tools.walk(path, lambda root, rel:
         posts.append((rel, tools.post_ctime(os.path.join(root, rel)))))
     posts.sort(key=lambda item: item[1])
-    # from pprint import pprint
-    # pprint(os.path.join(path, item[0]))
 
-    # Build posts: add prev/next to page data
     # Build ATOM
     # Build archive
 
-    for i in range(len(posts)):
-        source_path, ctime = posts[i]
+    prev = None
+    next = None
+    index = []
+    pnum = len(posts)
+
+    for i in range(pnum):
+        source_file, ctime = posts[i]
         ctime = datetime.fromtimestamp(ctime)
-        source_path = os.path.join(path, source_path)
-        # dest_path = conf.get('post_url').format(year=ctime.strftime('%Y'),
-        #                                         month=ctime.strftime('%m'),
-        #                                         day=ctime.strftime('%d'),
-        #                                         date=ctime.strftime('%Y%m%d'),
-        #                                         name='{name}')
-        # post_data = parse()
+        name = os.path.splitext(os.path.basename(source_file))[0].lstrip('0123456789-')
+        dest_file = conf.get('post_url').format(year=ctime.strftime('%Y'),
+                                                month=ctime.strftime('%m'),
+                                                day=ctime.strftime('%d'),
+                                                date=ctime.strftime('%Y%m%d'),
+                                                name=name)
+        log.info("- %s => %s" % (posts[i][0], dest_file))
+        dest_file = os.path.join(conf.get('build_path'), dest_file)
+        tools.makedirs(os.path.dirname(dest_file))
 
-    # entnum = len(entities)
-    # fullpath = lambda i: os.path.join(path, name, 'feed', entities[i])
-    # dest_dir = os.path.join(conf.get('build_path'), name)
-    # tools.makedirs(dest_dir)
+        data = next if next else parse(os.path.join(path, source_file), is_post=True)
 
-    # for i in range(entnum):
-    #     data = next if next else parse(fullpath(i), True)
-    #     next = parse(fullpath(i + 1), True) if (i + 1 < entnum) else None
+        if i + 1 < pnum:
+            next = parse(os.path.join(path, posts[i + 1][0]), is_post=True)
+        else:
+            next = None
 
-    #     index.append(tools.get_page_meta(data))
-
-    #     data['prev_url'] = tools.get_page_url(prev)
-    #     data['prev_title'] = prev['title'] if prev else None
-    #     data['next_url'] = tools.get_page_url(next)
-    #     data['next_title'] = next['title'] if next else None
-
-    #     page_file = data['id'] + '.html'
-    #     log.info(" * %s => %s" % (entities[i], os.path.join(name, page_file)))
-    #     dest_file = os.path.join(dest_dir, page_file)
-    #     build_page(data, dest_file, conf.get('tpl_path'))
-
-    #     prev = data
+        data['prev_url'] = tools.get_page_url(prev)
+        data['prev_title'] = prev['title'] if prev else None
+        data['next_url'] = tools.get_page_url(next)
+        data['next_title'] = next['title'] if next else None
+        index.append(tools.page_meta(data))
+        build_page(data, dest_file)
+        prev = data
 
     # build_indexes(index, dest_dir)
     # build_feeds(index, dest_dir)

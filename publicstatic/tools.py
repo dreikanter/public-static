@@ -234,7 +234,7 @@ def get_page_url(page_data):
     return ("/%s.html" % str(page_data['id'])) if got_id else None
 
 
-def get_meta(page_data):
+def page_meta(page_data):
     return {
         'source_file': page_data.get('source_file', None),
         'title': page_data.get('title', None),
