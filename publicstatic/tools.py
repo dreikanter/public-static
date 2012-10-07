@@ -97,15 +97,6 @@ def get_h1(text):
     return matches.group(1) if matches else ''
 
 
-def purify_time(page, time_parm, default):
-    """Returns time value from page dict. If there is no
-    specified value, default will be returned."""
-    if time_parm in page:
-        page[time_parm] = time.strptime(page[time_parm], conf.TIME_FMT)
-    else:
-        page[time_parm] = datetime.fromtimestamp(default)
-
-
 def md(text, extensions):
     """Converts markdown formatted text to HTML"""
     try:
@@ -229,9 +220,25 @@ def valid_name(value):
     return POST_PATTERN.match(value)
 
 
-def get_page_url(page_data):
-    got_id = page_data and 'id' in page_data
-    return ("/%s.html" % str(page_data['id'])) if got_id else None
+def page_url(page_data):
+    return ("/%s.html" % page_name(page_data['source'])) if page_data else None
+
+
+def post_path(source_file, ctime):
+    name = page_name(source_file)
+    return conf.get('post_location').format(year=ctime.strftime('%Y'),
+                                            month=ctime.strftime('%m'),
+                                            day=ctime.strftime('%d'),
+                                            date=ctime.strftime('%Y%m%d'),
+                                            name=name)
+
+
+def post_url(page_data):
+    return post_path(page_data['source'], page_data['ctime'])
+
+
+def page_name(source_file):
+    return os.path.splitext(os.path.basename(source_file))[0].lstrip('0123456789-')
 
 
 def page_meta(page_data):
@@ -265,6 +272,13 @@ def walk(path, operation):
             operation(path, relpath)
 
 
+def get_posts(path):
+    posts = []
+    walk(path, lambda root, rel: posts.append((rel, post_ctime(os.path.join(root, rel)))))
+    posts.sort(key=lambda item: item[1])
+    return posts
+
+
 def post_ctime(source_file):
     """Gets post creation time from file name"""
     with codecs.open(source_file, mode='r', encoding='utf8') as f:
@@ -274,9 +288,11 @@ def post_ctime(source_file):
                 break
             if match.group(1).lower() == 'ctime':
                 try:
-                    return time.strptime(match.group(2), conf.TIME_FMT)
+                    ctime = time.strptime(match.group(2), conf.TIME_FMT)
                 except:
-                    return os.path.getmtime(source_file)
+                    ctime = os.path.getmtime(source_file)
+
+                return datetime.fromtimestamp(ctime)
 
 
 def parse_param(text):

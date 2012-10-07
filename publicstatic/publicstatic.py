@@ -94,42 +94,27 @@ def process_file(root_dir, rel_source):
 
 
 def process_blog(path):
-    posts = []
-    tools.walk(path, lambda root, rel:
-        posts.append((rel, tools.post_ctime(os.path.join(root, rel)))))
-    posts.sort(key=lambda item: item[1])
-
-    # Build ATOM
-    # Build archive
-
+    posts = tools.get_posts(path)
     prev = None
     next = None
     index = []
-    pnum = len(posts)
 
-    for i in range(pnum):
+    for i in range(len(posts)):
         source_file, ctime = posts[i]
-        ctime = datetime.fromtimestamp(ctime)
-        name = os.path.splitext(os.path.basename(source_file))[0].lstrip('0123456789-')
-        dest_file = conf.get('post_url').format(year=ctime.strftime('%Y'),
-                                                month=ctime.strftime('%m'),
-                                                day=ctime.strftime('%d'),
-                                                date=ctime.strftime('%Y%m%d'),
-                                                name=name)
-        log.info("- %s => %s" % (posts[i][0], dest_file))
-        dest_file = os.path.join(conf.get('build_path'), dest_file)
-        tools.makedirs(os.path.dirname(dest_file))
-
         data = next if next else parse(os.path.join(path, source_file), is_post=True)
-
-        if i + 1 < pnum:
+        if i + 1 < len(posts):
             next = parse(os.path.join(path, posts[i + 1][0]), is_post=True)
         else:
             next = None
 
-        data['prev_url'] = tools.get_page_url(prev)
+        dest_file = tools.post_path(source_file, ctime)
+        log.info("- %s => %s" % (posts[i][0], dest_file))
+        dest_file = os.path.join(conf.get('build_path'), dest_file)
+        tools.makedirs(os.path.dirname(dest_file))
+
+        data['prev_url'] = tools.post_url(prev)
         data['prev_title'] = prev['title'] if prev else None
-        data['next_url'] = tools.get_page_url(next)
+        data['next_url'] = tools.post_url(next)
         data['next_title'] = next['title'] if next else None
         index.append(tools.page_meta(data))
         build_page(data, dest_file)
@@ -217,9 +202,14 @@ def parse(source_file, is_post=False):
 
     data['id'] = get_id(source_file)
 
-    # Take date/time from file system if not explicitly defined
-    tools.purify_time(data, 'ctime', os.path.getctime(source_file))
-    tools.purify_time(data, 'mtime', os.path.getmtime(source_file))
+    def purify_time(param, get_time):
+        if param in data:
+            data[param] = time.strptime(data[param], conf.TIME_FMT)
+        else:
+            data[param] = datetime.fromtimestamp(get_time(source_file))
+
+    purify_time('ctime', os.path.getctime)
+    purify_time('mtime', os.path.getmtime)
 
     return data
 
