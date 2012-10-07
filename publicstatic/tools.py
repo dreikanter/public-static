@@ -234,6 +234,8 @@ def post_path(source_file, ctime):
 
 
 def post_url(page_data):
+    if not page_data:
+        return None
     return post_path(page_data['source'], page_data['ctime'])
 
 
@@ -288,10 +290,9 @@ def post_ctime(source_file):
                 break
             if match.group(1).lower() == 'ctime':
                 try:
-                    ctime = time.strptime(match.group(2), conf.TIME_FMT)
+                    ctime = time.mktime(time.strptime(match.group(2), conf.TIME_FMT))
                 except:
                     ctime = os.path.getmtime(source_file)
-
                 return datetime.fromtimestamp(ctime)
 
 
