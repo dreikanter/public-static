@@ -1,17 +1,9 @@
 Blog generation:
 
 - Blog building.
-+ Configuration: @done (12-10-05 19:10)
-    + title @done (12-09-29 18:04)
-    + subtitle @done (12-09-29 18:04)
-    + post_url ← could define blog root @done (12-10-05 19:10)
-    + post_path @done (12-10-05 19:10)
-+ drop special dir name for feeds @done (12-10-05 19:10)
-+ drop ability to process multiple separate feeds @done (12-10-05 19:10)
-+ Configurable feed source dir structure @done (12-10-05 19:38)
-+ Configurable feed output dir structure (URLs) @done (12-10-06 23:26)
-- Build archive page
-- ATOM feed generation.
+    - Build archive page.
+    - Page data: add archive page URL
+    - ATOM feed generation.
 - Test installation on Ubuntu and clean virtualenv.
 - tidy -i --wrap 80 -o index.html
 - Create post: add command line argument for manual creation date specification

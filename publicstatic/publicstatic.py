@@ -120,8 +120,8 @@ def process_blog(path):
         build_page(data, dest_file)
         prev = data
 
-    # build_indexes(index, dest_dir)
-    # build_feeds(index, dest_dir)
+    build_indexes(index)
+    # build_feeds(index)
 
 
 def build_page(data, dest_file):
@@ -159,15 +159,17 @@ def build_feeds(data, dest_dir):
     print feed.to_string()
 
 
-def build_indexes(data, dest_dir):
+def build_indexes(data):
     """Build post list pages"""
     data = {
         'template': 'archive',
         'title': 'Blog archive',
         'posts': data,
     }
+    from pprint import pprint
+    pprint(data)
 
-    build_page(data, os.path.join(dest_dir, 'archive.html'))
+    build_page(data, os.path.join(conf.get('build_path'), 'archive.html'))
 
 
 def parse(source_file, is_post=False):
@@ -482,7 +484,6 @@ def main():
     except Exception as e:
         import logging
         logging.basicConfig()
-        logging.error('loggign initialization error')
         logging.error(str(e))
         logging.debug(traceback.format_exc())
         return 2

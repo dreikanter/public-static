@@ -215,11 +215,11 @@ def post_path(source_file, ctime, strip_slash=True):
                            month=ctime.strftime('%m'),
                            day=ctime.strftime('%d'),
                            date=ctime.strftime('%Y%m%d'),
-                           name=page_name(source_file))
+                           name=page_name(source_file, True))
     return result.lstrip('/') if strip_slash else result
 
 
-def page_name(pdata, trim_time=False):
+def page_name(source_file, trim_time=False):
     """Extracts name part from source file name.
 
     Usage:
@@ -230,7 +230,7 @@ def page_name(pdata, trim_time=False):
         >>> page_name("20121005-hola.md", True)
         "hola"
     """
-    name = os.path.splitext(os.path.basename(pdata['source']))[0]
+    name = os.path.splitext(os.path.basename(source_file))[0]
     return name.lstrip('0123456789-') if trim_time else name
 
 
