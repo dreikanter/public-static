@@ -139,7 +139,7 @@ def update_humans(source_file, dest_file):
         raise
 
 
-def spawn(path):
+def spawn_site(path):
     """Clones generic site to specified directory"""
     if os.path.isdir(path):
         raise Exception("directory already exists: '%s'" % path)
@@ -149,7 +149,7 @@ def spawn(path):
     cp(generic, path)
 
 
-def get_generic(name):
+def generic(name):
     """Returns full path to specified generic page"""
     try:
         generic = os.path.dirname(os.path.abspath(__file__))
@@ -196,32 +196,17 @@ def urlify(string):
     return result.strip('-').lower()
 
 
-def feed_name(path, root):
-    """Gets feed name from the feed path
-
-    Usage:
-        >>> feed_name('/test/pages/feed/', '/test/pages')
-        ''
-
-        >>> feed_name('/test/pages/blog/feed', '/test/pages')
-        'blog'
-
-        >>> feed_name('/test/pages/other/blog/feed/', '/test/pages')
-        'other/blog'
-    """
-    path = path[len(root):]
-    while True:
-        path, next = os.path.split(path)
-        if next == 'feed' or not path:
-            return path.strip(os.sep + os.altsep)
-
-
 def valid_name(value):
     return POST_PATTERN.match(value)
 
 
-def page_url(page_data):
-    return ("/%s.html" % page_name(page_data['source'])) if page_data else None
+def page_url(pdata):
+    return ("/%s.html" % page_name(pdata['source'])) if pdata else None
+
+
+def post_url(pdata):
+    """Generates post URL from page data"""
+    return pdata and post_path(pdata['source'], pdata['ctime'], False)
 
 
 def post_path(source_file, ctime, strip_slash=True):
@@ -234,25 +219,32 @@ def post_path(source_file, ctime, strip_slash=True):
     return result.lstrip('/') if strip_slash else result
 
 
-def post_url(page_data):
-    return page_data and post_path(page_data['source'], page_data['ctime'], False)
+def page_name(pdata, trim_time=False):
+    """Extracts name part from source file name.
+
+    Usage:
+
+        >>> page_name("hello.md")
+        "hello"
+
+        >>> page_name("20121005-hola.md", True)
+        "hola"
+    """
+    name = os.path.splitext(os.path.basename(pdata['source']))[0]
+    return name.lstrip('0123456789-') if trim_time else name
 
 
-def page_name(source_file):
-    return os.path.splitext(os.path.basename(source_file))[0].lstrip('0123456789-')
-
-
-def page_meta(page_data):
+def page_meta(pdata):
     return {
-        'source_file': page_data.get('source_file', None),
-        'title': page_data.get('title', None),
-        'ctime': page_data.get('ctime', None),
-        'mtime': page_data.get('mtime', None),
-        'author': page_data.get('author', None),
+        'source_file': pdata.get('source_file', None),
+        'title': pdata.get('title', None),
+        'ctime': pdata.get('ctime', None),
+        'mtime': pdata.get('mtime', None),
+        'author': pdata.get('author', None),
     }
 
 
-def get_dest(build_path, rel_source):
+def dest(build_path, rel_source):
     """Gets relative destination file path"""
     base, ext = os.path.splitext(rel_source)
 
@@ -266,6 +258,9 @@ def get_dest(build_path, rel_source):
 
 
 def walk(path, operation):
+    """Performs operation for each file in the specified path.
+    Operation should take two arguments: the original path and
+    additional relative path to each file."""
     for curdir, _, curfiles in os.walk(path):
         for nextfile in curfiles:
             fullpath = os.path.join(curdir, nextfile)
@@ -273,15 +268,15 @@ def walk(path, operation):
             operation(path, relpath)
 
 
-def get_posts(path):
+def posts(path):
     posts = []
-    walk(path, lambda root, rel: posts.append((rel, post_ctime(os.path.join(root, rel)))))
+    walk(path, lambda root, rel: posts.append((rel, page_ctime(os.path.join(root, rel)))))
     posts.sort(key=lambda item: item[1])
     return posts
 
 
-def post_ctime(source_file):
-    """Gets post creation time from file name"""
+def page_ctime(source_file):
+    """Gets post/page creation time using header or file system data"""
     with codecs.open(source_file, mode='r', encoding='utf8') as f:
         for line in f.readlines():
             match = PARAM_PATTERN.match(line)
@@ -297,6 +292,7 @@ def post_ctime(source_file):
 
 
 def parse_time(value):
+    """Converts string to datetime using TIME_FMT format"""
     return time.mktime(time.strptime(value.strip(), conf.TIME_FMT))
 
 

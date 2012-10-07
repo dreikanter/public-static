@@ -59,7 +59,7 @@ def process_file(root_dir, rel_source):
 
     source_file = os.path.join(root_dir, rel_source)
     ext = os.path.splitext(rel_source)[1]
-    dest_file = tools.get_dest(conf.get('build_path'), rel_source)
+    dest_file = tools.dest(conf.get('build_path'), rel_source)
     tools.makedirs(os.path.dirname(dest_file))
 
     if ext == '.md':
@@ -94,7 +94,7 @@ def process_file(root_dir, rel_source):
 
 
 def process_blog(path):
-    posts = tools.get_posts(path)
+    posts = tools.posts(path)
     prev = None
     next = None
     index = []
@@ -324,7 +324,7 @@ def init(args):
     setup(args, use_defaults=True)
 
     try:
-        tools.spawn(os.path.dirname(conf.get_path()))
+        tools.spawn_site(os.path.dirname(conf.get_path()))
         conf.write_defaults()
         log.info('website created successfully, have fun!')
     except:
@@ -428,7 +428,7 @@ def page(args):
     if not tools.valid_name(args.name):
         raise Exception('illegal page name')
 
-    text = tools.get_generic(args.type or 'default-page')
+    text = tools.generic(args.type or 'default-page')
     page_path = create_page(args.name, text, datetime.now(), args.force)
 
     if not page_path:
@@ -452,7 +452,7 @@ def post(args):
     if not tools.valid_name(args.name):
         raise Exception('illegal feed or post name')
 
-    text = tools.get_generic(args.type or 'default-post')
+    text = tools.generic(args.type or 'default-post')
     try:
         post_path = create_post(args.name, text, datetime.now(), args.force)
     except:
