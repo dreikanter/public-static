@@ -224,19 +224,18 @@ def page_url(page_data):
     return ("/%s.html" % page_name(page_data['source'])) if page_data else None
 
 
-def post_path(source_file, ctime):
-    name = page_name(source_file)
-    return conf.get('post_location').format(year=ctime.strftime('%Y'),
-                                            month=ctime.strftime('%m'),
-                                            day=ctime.strftime('%d'),
-                                            date=ctime.strftime('%Y%m%d'),
-                                            name=name)
+def post_path(source_file, ctime, strip_slash=True):
+    result = conf.get('post_location')
+    result = result.format(year=ctime.strftime('%Y'),
+                           month=ctime.strftime('%m'),
+                           day=ctime.strftime('%d'),
+                           date=ctime.strftime('%Y%m%d'),
+                           name=page_name(source_file))
+    return result.lstrip('/') if strip_slash else result
 
 
 def post_url(page_data):
-    if not page_data:
-        return None
-    return post_path(page_data['source'], page_data['ctime'])
+    return page_data and post_path(page_data['source'], page_data['ctime'], False)
 
 
 def page_name(source_file):
@@ -289,11 +288,16 @@ def post_ctime(source_file):
             if not match:
                 break
             if match.group(1).lower() == 'ctime':
+                ctime = parse_time(match.group(2))
                 try:
-                    ctime = time.mktime(time.strptime(match.group(2), conf.TIME_FMT))
+                    ctime = parse_time(match.group(2))
                 except:
                     ctime = os.path.getmtime(source_file)
                 return datetime.fromtimestamp(ctime)
+
+
+def parse_time(value):
+    return time.mktime(time.strptime(value.strip(), conf.TIME_FMT))
 
 
 def parse_param(text):

@@ -204,7 +204,7 @@ def parse(source_file, is_post=False):
 
     def purify_time(param, get_time):
         if param in data:
-            data[param] = time.mktime(time.strptime(data[param], conf.TIME_FMT))
+            data[param] = tools.parse_time(data[param])
         else:
             data[param] = get_time(source_file)
         data[param] = datetime.fromtimestamp(data[param])
