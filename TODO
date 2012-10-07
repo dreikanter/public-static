@@ -7,6 +7,7 @@ Blog generation:
 - Test installation on Ubuntu and clean virtualenv.
 - tidy -i --wrap 80 -o index.html
 - Create post: add command line argument for manual creation date specification
+- generic-pages -> generic-site/generics
 
 Readme and documentation:
 

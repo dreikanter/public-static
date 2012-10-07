@@ -6,7 +6,6 @@ import re
 import sys
 import shutil
 import codecs
-import time
 import traceback
 
 from argh import ArghParser, arg
@@ -162,13 +161,12 @@ def build_feeds(data, dest_dir):
 def build_indexes(data):
     """Build post list pages"""
     data = {
+        'title': '%s: %s' % (conf.get('title'), 'Archive'),
+        'author': conf.get('author'),
+        'generator': conf.get('generator'),
         'template': 'archive',
-        'title': 'Blog archive',
         'posts': data,
     }
-    from pprint import pprint
-    pprint(data)
-
     build_page(data, os.path.join(conf.get('build_path'), 'archive.html'))
 
 

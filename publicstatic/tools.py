@@ -236,11 +236,22 @@ def page_name(source_file, trim_time=False):
 
 def page_meta(pdata):
     return {
-        'source_file': pdata.get('source_file', None),
+        'source': pdata.get('source', None),
         'title': pdata.get('title', None),
-        'ctime': pdata.get('ctime', None),
-        'mtime': pdata.get('mtime', None),
-        'author': pdata.get('author', None),
+        'ctime': expand_time(pdata.get('ctime', None)),
+        'mtime': expand_time(pdata.get('mtime', None)),
+        'author': pdata.get('author', conf.get('author')),
+        'url': post_url(pdata),
+    }
+
+
+def expand_time(value):
+    return value and {
+        'year': value.strftime('%Y'),
+        'month': value.strftime('%m'),
+        'day': value.strftime('%d'),
+        'hour': value.strftime('%H'),
+        'minute': value.strftime('%M'),
     }
 
 
