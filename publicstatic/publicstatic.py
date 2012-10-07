@@ -62,7 +62,8 @@ def process_file(root_dir, rel_source):
     tools.makedirs(os.path.dirname(dest_file))
 
     if ext == '.md':
-        log.info("- %s => %s" % (rel_source, os.path.relpath(dest_file, conf.get('build_path'))))
+        log.info("- %s => %s" % (rel_source,
+            os.path.relpath(dest_file, conf.get('build_path'))))
         build_page(parse(source_file), dest_file)
 
     elif ext == '.less':
@@ -100,7 +101,7 @@ def process_blog(path):
 
     for i in range(len(posts)):
         source_file, ctime = posts[i]
-        data = next if next else parse(os.path.join(path, source_file), is_post=True)
+        data = next or parse(os.path.join(path, source_file), is_post=True)
         if i + 1 < len(posts):
             next = parse(os.path.join(path, posts[i + 1][0]), is_post=True)
         else:
@@ -112,9 +113,10 @@ def process_blog(path):
         tools.makedirs(os.path.dirname(dest_file))
 
         data['prev_url'] = tools.post_url(prev)
-        data['prev_title'] = prev['title'] if prev else None
+        data['prev_title'] = prev and prev['title']
         data['next_url'] = tools.post_url(next)
-        data['next_title'] = next['title'] if next else None
+        data['next_title'] = next and next['title']
+        data['archive_url'] = conf.get('root_url') + 'archive.html'
         index.append(tools.page_meta(data))
         build_page(data, dest_file)
         prev = data
@@ -200,7 +202,7 @@ def parse(source_file, is_post=False):
     extensions = conf.get('markdown_extensions')
     data['content'] = tools.md(data.get('content', ''), extensions)
 
-    data['id'] = get_id(source_file)
+    # data['id'] = get_id(source_file)
 
     def purify_time(param, get_time):
         if param in data:
@@ -215,11 +217,11 @@ def parse(source_file, is_post=False):
     return data
 
 
-def get_id(file_name):
-    """Extracts page id from source file path"""
-    name = os.path.splitext(os.path.basename(file_name))[0]
-    parts = name.split('_', 1)
-    return parts[1] if len(parts) > 1 else None
+# def get_id(file_name):
+#     """Extracts page id from source file path"""
+#     name = os.path.splitext(os.path.basename(file_name))[0]
+#     parts = name.split('_', 1)
+#     return parts[1] if len(parts) > 1 else None
 
 
 def get_tpl(tpl_name):

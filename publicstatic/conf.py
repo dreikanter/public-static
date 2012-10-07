@@ -25,7 +25,8 @@ DEFAULTS = [
     ('posts_path', 'posts'),
     ('assets_path', 'assets'),
     ('tpl_path', 'templates'),
-    ('post_location', '/{year}/{month}/{day}/{name}.html'),
+    ('root_url', '/'),
+    ('post_location', '{year}/{month}/{day}/{name}.html'),
     ('port', 8000),
     ('browser_delay', 2.0),
     ('page_tpl', 'default-page'),
@@ -149,6 +150,8 @@ def _purify(params):
 
     params['browser_delay'] = float(params['browser_delay'])
     params['port'] = int(params['port'])
+
+    params['root_url'] = params['root_url'].strip() or '/'
 
     return params
 

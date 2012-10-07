@@ -201,22 +201,26 @@ def valid_name(value):
 
 
 def page_url(pdata):
-    return ("/%s.html" % page_name(pdata['source'])) if pdata else None
+    return pdata and (rurl(page_name(pdata['source'])) + '.html')
 
 
 def post_url(pdata):
     """Generates post URL from page data"""
-    return pdata and post_path(pdata['source'], pdata['ctime'], False)
+    return pdata and rurl(post_path(pdata['source'], pdata['ctime']))
 
 
-def post_path(source_file, ctime, strip_slash=True):
+def rurl(rel_url):
+    """Appends root URL to the beginning of the specified relative URL"""
+    return conf.get('root_url') + rel_url
+
+
+def post_path(source_file, ctime):
     result = conf.get('post_location')
-    result = result.format(year=ctime.strftime('%Y'),
-                           month=ctime.strftime('%m'),
-                           day=ctime.strftime('%d'),
-                           date=ctime.strftime('%Y%m%d'),
-                           name=page_name(source_file, True))
-    return result.lstrip('/') if strip_slash else result
+    return result.format(year=ctime.strftime('%Y'),
+                         month=ctime.strftime('%m'),
+                         day=ctime.strftime('%d'),
+                         date=ctime.strftime('%Y%m%d'),
+                         name=page_name(source_file, True))
 
 
 def page_name(source_file, trim_time=False):
@@ -281,7 +285,8 @@ def walk(path, operation):
 
 def posts(path):
     posts = []
-    walk(path, lambda root, rel: posts.append((rel, page_ctime(os.path.join(root, rel)))))
+    walk(path, lambda root, rel:
+        posts.append((rel, page_ctime(os.path.join(root, rel)))))
     posts.sort(key=lambda item: item[1])
     return posts
 
