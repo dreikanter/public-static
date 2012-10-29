@@ -8,7 +8,7 @@ Inspired by [Jekyll](http://jekyllrb.com), [Octopress](http://octopress.org), [a
 
 The script could be installed directly from GitHub:
 
-	pip install -e git+git://github.com/dreikanter/wp2md#egg=wp2md
+	pip install -e git+git://github.com/dreikanter/public-static#egg=public-static
 
 Dependencies will be installed automatically:
 
