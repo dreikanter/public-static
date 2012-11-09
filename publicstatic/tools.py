@@ -284,6 +284,7 @@ def walk(path, operation):
 
 
 def posts(path):
+    """Returns a list of post relative pathes in chronological order"""
     posts = []
     walk(path, lambda root, rel:
         posts.append((rel, page_ctime(os.path.join(root, rel)))))

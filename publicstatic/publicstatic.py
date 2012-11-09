@@ -94,6 +94,7 @@ def process_file(root_dir, rel_source):
 
 
 def process_blog(path):
+    """Generate blog post pages"""
     posts = tools.posts(path)
     prev = None
     next = None
@@ -119,6 +120,15 @@ def process_blog(path):
         data['archive_url'] = conf.get('root_url') + 'archive.html'
         index.append(tools.page_meta(data))
         build_page(data, dest_file)
+
+        if next == None:
+            # Generate a copy for the latest post in the site root
+            dest_file = tools.dest(conf.get('build_path'), 'index.html')
+            if os.path.exists(dest_file):
+                message = "index page will be overwritten by latest post: '%s'"
+                log.warn(message % dest_file)
+            build_page(data, dest_file)
+
         prev = data
 
     build_indexes(index)
