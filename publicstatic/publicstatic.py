@@ -123,7 +123,8 @@ def process_blog(path):
 
         if next == None:
             # Generate a copy for the latest post in the site root
-            dest_file = tools.dest(conf.get('build_path'), 'index.html')
+            index_page = conf.get('index_page')
+            dest_file = tools.dest(conf.get('build_path'), index_page)
             if os.path.exists(dest_file):
                 message = "index page will be overwritten by latest post: '%s'"
                 log.warn(message % dest_file)
@@ -212,8 +213,6 @@ def parse(source_file, is_post=False):
     extensions = conf.get('markdown_extensions')
     data['content'] = tools.md(data.get('content', ''), extensions)
 
-    # data['id'] = get_id(source_file)
-
     def purify_time(param, get_time):
         if param in data:
             data[param] = tools.parse_time(data[param])
@@ -225,13 +224,6 @@ def parse(source_file, is_post=False):
     purify_time('mtime', os.path.getmtime)
 
     return data
-
-
-# def get_id(file_name):
-#     """Extracts page id from source file path"""
-#     name = os.path.splitext(os.path.basename(file_name))[0]
-#     parts = name.split('_', 1)
-#     return parts[1] if len(parts) > 1 else None
 
 
 def get_tpl(tpl_name):

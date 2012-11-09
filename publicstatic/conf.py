@@ -43,6 +43,7 @@ DEFAULTS = [
     ('editor_cmd', "$EDITOR \"{source}\""),
     ('max_size', 0),
     ('backup_cnt', 0),
+    ('index_page', 'index.html'),
 ]
 
 _params = {}  # Configuration parameters
