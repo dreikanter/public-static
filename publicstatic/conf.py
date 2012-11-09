@@ -16,7 +16,7 @@ TIME_FMT = "%Y/%m/%d %H:%M:%S"
 
 # See the docs for parameters description
 DEFAULTS = [
-    ('title', ''),
+    ('title', 'Untitled Blog'),
     ('subtitle', ''),
     ('author', ''),
     ('generator', "public-static {version}"),
@@ -44,6 +44,7 @@ DEFAULTS = [
     ('max_size', 0),
     ('backup_cnt', 0),
     ('index_page', 'index.html'),
+    ('atom_feed', 'feed.atom'),
 ]
 
 _params = {}  # Configuration parameters
