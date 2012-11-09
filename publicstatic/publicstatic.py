@@ -100,6 +100,10 @@ def process_blog(path):
     next = None
     index = []
 
+    # Put the latest post at site root URL if True
+    root_post = conf.get('post_at_root_url')
+    build_path = conf.get('build_path')
+
     for i in range(len(posts)):
         source_file, ctime = posts[i]
         data = next or parse(os.path.join(path, source_file), is_post=True)
@@ -110,7 +114,7 @@ def process_blog(path):
 
         dest_file = tools.post_path(source_file, ctime)
         log.info("- %s => %s" % (posts[i][0], dest_file))
-        dest_file = os.path.join(conf.get('build_path'), dest_file)
+        dest_file = os.path.join(build_path, dest_file)
         tools.makedirs(os.path.dirname(dest_file))
 
         data['prev_url'] = tools.post_url(prev)
@@ -121,13 +125,11 @@ def process_blog(path):
         index.append(tools.feed_data(data))
         build_page(data, dest_file)
 
-        if next == None:
+        if next == None and root_post:
             # Generate a copy for the latest post in the site root
-            index_page = conf.get('index_page')
-            dest_file = tools.dest(conf.get('build_path'), index_page)
+            dest_file = os.path.join(build_path, conf.get('index_page'))
             if os.path.exists(dest_file):
-                message = "index page will be overwritten by latest post: '%s'"
-                log.warn(message % dest_file)
+                log.warn('index page will be overwritten by latest post')
             build_page(data, dest_file)
 
         prev = data

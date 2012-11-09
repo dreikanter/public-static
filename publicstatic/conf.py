@@ -47,6 +47,7 @@ DEFAULTS = [
     ('index_page', 'index.html'),
     ('archive_page', 'archive.html'),
     ('atom_feed', 'feed.atom'),
+    ('post_at_root_url', True),
 ]
 
 _params = {}  # Configuration parameters
