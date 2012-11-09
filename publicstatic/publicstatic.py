@@ -157,11 +157,11 @@ def build_page(data, dest_file):
 
 def build_feed(data):
     """Builds atom feed for the blog"""
-    feed_url = "%s/%s" % (conf.get('rel_root_url'), conf.get('atom_feed'))
+    feed_url = conf.get('root_url') + conf.get('atom_feed')
     feed = pyatom.AtomFeed(title=conf.get('title'),
                            subtitle=conf.get('subtitle'),
                            feed_url=feed_url,
-                           url=conf.get('rel_root_url'),
+                           url=conf.get('root_url'),
                            author=conf.get('author'))
 
     for item in data:
@@ -169,7 +169,7 @@ def build_feed(data):
                  content=item['content'],
                  content_type='html',
                  author=item['author'],
-                 url=item['url'],
+                 url=item['full_url'],
                  updated=item['updateddt'])
 
     try:

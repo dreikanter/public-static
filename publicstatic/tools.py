@@ -24,7 +24,6 @@ POST_PATTERN = re.compile(r"[\w\\/]+")
 URI_SEP_PATTERN = re.compile(r"[^a-z\d\%s]+" % os.sep, RE_FLAGS)
 URI_EXCLUDE_PATTERN = re.compile(r"[,.`\'\"\!@\#\$\%\^\&\*\(\)\+]+", RE_FLAGS)
 PARAM_PATTERN = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", RE_FLAGS)
-# TIME_PREFIX_PATTERN = re.compile(r'^(\d+)(\d\d)(\d\d)', RE_FLAGS)
 
 log = logging.getLogger()
 
@@ -198,15 +197,10 @@ def valid_name(value):
     return POST_PATTERN.match(value)
 
 
-def page_url(page_data):
-    """Generates page URL from page data"""
-    return page_data and (conf.get('root_url') +
-        page_name(page_data['source']) + '.html')
-
-
-def post_url(page_data):
+def post_url(page_data, full=False):
     """Generates post URL from page data"""
-    return page_data and (conf.get('root_url') +
+    url = conf.get('root_url') if full else conf.get('rel_root_url')
+    return page_data and (url +
         post_path(page_data['source'], page_data['created']))
 
 
@@ -234,17 +228,19 @@ def page_name(source_file, trim_time=False):
     return name.lstrip('0123456789-') if trim_time else name
 
 
-def feed_data(pdata):
+def feed_data(page_data):
+    """Returns part of the page data dict, relevant to feed generation"""
     return {
-        'source': pdata.get('source'),
-        'title': pdata.get('title'),
-        'created': expand_time(pdata.get('created')),
-        'updated': expand_time(pdata.get('updated')),
-        'createddt': pdata.get('created'),
-        'updateddt': pdata.get('updated'),
-        'author': pdata.get('author', conf.get('author')),
-        'url': post_url(pdata),
-        'content': pdata.get('content'),
+        'source': page_data.get('source'),
+        'title': page_data.get('title'),
+        'created': expand_time(page_data.get('created')),
+        'updated': expand_time(page_data.get('updated')),
+        'createddt': page_data.get('created'),
+        'updateddt': page_data.get('updated'),
+        'author': page_data.get('author', conf.get('author')),
+        'url': post_url(page_data),
+        'full_url': post_url(page_data, True),
+        'content': page_data.get('content'),
     }
 
 
