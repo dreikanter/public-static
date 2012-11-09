@@ -25,6 +25,7 @@ DEFAULTS = [
     ('posts_path', 'posts'),
     ('assets_path', 'assets'),
     ('tpl_path', 'templates'),
+    ('prototypes_path', 'prototypes'),
     ('root_url', '/'),
     ('post_location', '{year}/{month}/{day}/{name}.html'),
     ('port', 8000),
@@ -143,6 +144,7 @@ def _purify(params):
     params['assets_path'] = _expand(params['assets_path'])
     params['build_path'] = _expand(params['build_path'])
     params['tpl_path'] = _expand(params['tpl_path'])
+    params['prototypes_path'] = _expand(params['prototypes_path'])
 
     params['min_js_cmd'] = params['min_js_cmd'].strip()
     params['min_css_cmd'] = params['min_css_cmd'].strip()

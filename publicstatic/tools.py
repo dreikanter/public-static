@@ -152,10 +152,8 @@ def spawn_site(path):
 def generic(name):
     """Returns full path to specified generic page"""
     try:
-        generic = os.path.dirname(os.path.abspath(__file__))
-        generic = os.path.join(generic, GENERIC_PAGES)
-        generic = os.path.join(generic, str(name) + '.md')
-        with codecs.open(generic, mode='r', encoding='utf8') as f:
+        file_name = os.path.join(conf.get('prototypes_path'), str(name) + '.md')
+        with codecs.open(file_name, mode='r', encoding='utf8') as f:
             return f.read()
     except:
         log.error("error reading generic post: '%s'" % str(name))
