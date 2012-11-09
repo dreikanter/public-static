@@ -27,6 +27,7 @@ DEFAULTS = [
     ('tpl_path', 'templates'),
     ('prototypes_path', 'prototypes'),
     ('rel_root_url', '/'),
+    ('root_url', 'http://example.com/'),
     ('post_location', '{year}/{month}/{day}/{name}.html'),
     ('port', 8000),
     ('browser_delay', 2.0),
@@ -155,6 +156,7 @@ def _purify(params):
     params['browser_delay'] = float(params['browser_delay'])
     params['port'] = int(params['port'])
 
+    params['root_url'] = params['root_url'].strip()
     params['rel_root_url'] = params['rel_root_url'].strip() or '/'
 
     return params
