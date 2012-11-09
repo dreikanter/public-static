@@ -117,7 +117,7 @@ def process_blog(path):
         data['prev_title'] = prev and prev['title']
         data['next_url'] = tools.post_url(next)
         data['next_title'] = next and next['title']
-        data['archive_url'] = conf.get('rel_root_url') + 'archive.html'
+
         index.append(tools.feed_data(data))
         build_page(data, dest_file)
 
@@ -146,10 +146,19 @@ def build_page(data, dest_file):
         data -- page data dict.
         dest_file -- full path to the destination file."""
 
+    cdata = {
+        'root_url': conf.get('root_url'),
+        'rel_root_url': conf.get('rel_root_url'),
+        'archive_url': conf.get('rel_root_url') + 'archive.html',
+        'site_title': conf.get('title'),
+        'site_subtitle': conf.get('subtitle'),
+    }
+    cdata.update(data)
+
     try:
         tpl = get_tpl(data['template'])
         with codecs.open(dest_file, mode='w', encoding='utf8') as f:
-            f.write(pystache.render(tpl, data))
+            f.write(pystache.render(tpl, cdata))
     except Exception as e:
         log.debug(traceback.format_exc())
         log.error('content processing error: ' + str(e))
