@@ -198,18 +198,16 @@ def valid_name(value):
     return POST_PATTERN.match(value)
 
 
-def page_url(pdata):
-    return pdata and (rurl(page_name(pdata['source'])) + '.html')
+def page_url(page_data):
+    """Generates page URL from page data"""
+    return page_data and (conf.get('root_url') +
+        page_name(page_data['source']) + '.html')
 
 
-def post_url(pdata):
+def post_url(page_data):
     """Generates post URL from page data"""
-    return pdata and rurl(post_path(pdata['source'], pdata['ctime']))
-
-
-def rurl(rel_url):
-    """Appends root URL to the beginning of the specified relative URL"""
-    return conf.get('root_url') + rel_url
+    return page_data and (conf.get('root_url') +
+        post_path(page_data['source'], page_data['created']))
 
 
 def post_path(source_file, ctime):
@@ -242,8 +240,8 @@ def feed_data(pdata):
         'title': pdata.get('title'),
         'created': expand_time(pdata.get('created')),
         'updated': expand_time(pdata.get('updated')),
-        'ctime': pdata.get('created'),
-        'mtime': pdata.get('updated'),
+        'createddt': pdata.get('created'),
+        'updateddt': pdata.get('updated'),
         'author': pdata.get('author', conf.get('author')),
         'url': post_url(pdata),
         'content': pdata.get('content'),

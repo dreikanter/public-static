@@ -167,14 +167,12 @@ def build_feed(data):
     from pprint import pprint
 
     for item in data:
-        pprint(item)
-        exit()
         feed.add(title=item['title'],
                  content=item['content'],
                  content_type='html',
                  author=item['author'],
                  url=item['url'],
-                 updated=item['mtimedt'])
+                 updated=item['updateddt'])
 
     try:
         feed_file = tools.dest(conf.get('build_path'), conf.get('atom_feed'))
