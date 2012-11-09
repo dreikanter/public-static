@@ -440,7 +440,7 @@ def page(args):
     if not tools.valid_name(args.name):
         raise Exception('illegal page name')
 
-    text = tools.generic(args.type or 'default-page')
+    text = tools.prototype(args.type or 'default-page')
     page_path = create_page(args.name, text, datetime.now(), args.force)
 
     if not page_path:
@@ -464,7 +464,7 @@ def post(args):
     if not tools.valid_name(args.name):
         raise Exception('illegal feed or post name')
 
-    text = tools.generic(args.type or 'default-post')
+    text = tools.prototype(args.type or 'default-post')
     try:
         post_path = create_post(args.name, text, datetime.now(), args.force)
     except:
