@@ -117,7 +117,7 @@ def process_blog(path):
         data['prev_title'] = prev and prev['title']
         data['next_url'] = tools.post_url(next)
         data['next_title'] = next and next['title']
-        data['archive_url'] = conf.get('root_url') + 'archive.html'
+        data['archive_url'] = conf.get('rel_root_url') + 'archive.html'
         index.append(tools.feed_data(data))
         build_page(data, dest_file)
 
@@ -157,14 +157,12 @@ def build_page(data, dest_file):
 
 def build_feed(data):
     """Builds atom feed for the blog"""
-    feed_url = "%s/%s" % (conf.get('root_url'), conf.get('atom_feed'))
+    feed_url = "%s/%s" % (conf.get('rel_root_url'), conf.get('atom_feed'))
     feed = pyatom.AtomFeed(title=conf.get('title'),
                            subtitle=conf.get('subtitle'),
                            feed_url=feed_url,
-                           url=conf.get('root_url'),
+                           url=conf.get('rel_root_url'),
                            author=conf.get('author'))
-
-    from pprint import pprint
 
     for item in data:
         feed.add(title=item['title'],
