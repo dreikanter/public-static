@@ -1,5 +1,5 @@
 title: {title}
-ctime: {ctime}
+created: {created}
 
 # {title}
 
