@@ -149,7 +149,7 @@ def build_page(data, dest_file):
     cdata = {
         'root_url': conf.get('root_url'),
         'rel_root_url': conf.get('rel_root_url'),
-        'archive_url': conf.get('rel_root_url') + 'archive.html',
+        'archive_url': conf.get('rel_root_url') + conf.get('archive_page'),
         'site_title': conf.get('title'),
         'site_subtitle': conf.get('subtitle'),
     }
@@ -199,7 +199,8 @@ def build_indexes(data):
         'template': 'archive',
         'posts': data,
     }
-    build_page(data, os.path.join(conf.get('build_path'), 'archive.html'))
+    dest_file = os.path.join(conf.get('build_path'), conf.get('archive_page'))
+    build_page(data, dest_file)
 
 
 def parse(source_file, is_post=False):
