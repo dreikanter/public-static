@@ -157,8 +157,8 @@ def _purify(params):
     params['browser_delay'] = float(params['browser_delay'])
     params['port'] = int(params['port'])
 
-    params['root_url'] = params['root_url'].strip()
-    params['rel_root_url'] = params['rel_root_url'].strip() or '/'
+    params['root_url'] = _trslash(params['root_url'].strip())
+    params['rel_root_url'] = _trslash(params['rel_root_url'].strip())
 
     return params
 
@@ -170,3 +170,8 @@ def _expand(rel_path):
         base = os.path.dirname(os.path.abspath(_path))
         rel_path = os.path.join(base, rel_path)
     return rel_path
+
+
+def  _trslash(url):
+    """Guarantees the URL have a single trailing slash"""
+    return url.rstrip('/') + '/'
