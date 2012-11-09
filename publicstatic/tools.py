@@ -236,14 +236,17 @@ def page_name(source_file, trim_time=False):
     return name.lstrip('0123456789-') if trim_time else name
 
 
-def page_meta(pdata):
+def feed_data(pdata):
     return {
-        'source': pdata.get('source', None),
-        'title': pdata.get('title', None),
-        'ctime': expand_time(pdata.get('ctime', None)),
-        'mtime': expand_time(pdata.get('mtime', None)),
+        'source': pdata.get('source'),
+        'title': pdata.get('title'),
+        'created': expand_time(pdata.get('created')),
+        'updated': expand_time(pdata.get('updated')),
+        'ctime': pdata.get('created'),
+        'mtime': pdata.get('updated'),
         'author': pdata.get('author', conf.get('author')),
         'url': post_url(pdata),
+        'content': pdata.get('content'),
     }
 
 
@@ -258,7 +261,7 @@ def expand_time(value):
 
 
 def dest(build_path, rel_source):
-    """Gets relative destination file path"""
+    """Gets destination file path"""
     base, ext = os.path.splitext(rel_source)
 
     new_ext = {
@@ -297,12 +300,12 @@ def page_ctime(source_file):
             match = PARAM_PATTERN.match(line)
             if not match:
                 break
-            if match.group(1).lower() == 'ctime':
+            if match.group(1).lower() == 'created':
                 ctime = parse_time(match.group(2))
                 try:
                     ctime = parse_time(match.group(2))
                 except:
-                    ctime = os.path.getmtime(source_file)
+                    ctime = os.path.getctime(source_file)
                 return datetime.fromtimestamp(ctime)
 
 

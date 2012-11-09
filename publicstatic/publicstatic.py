@@ -118,7 +118,7 @@ def process_blog(path):
         data['next_url'] = tools.post_url(next)
         data['next_title'] = next and next['title']
         data['archive_url'] = conf.get('root_url') + 'archive.html'
-        index.append(tools.page_meta(data))
+        index.append(tools.feed_data(data))
         build_page(data, dest_file)
 
         if next == None:
@@ -132,8 +132,11 @@ def process_blog(path):
 
         prev = data
 
+    log.info('building blog index...')
     build_indexes(index)
-    # build_feeds(index)
+
+    log.info('building atom feed...')
+    build_feed(index)
 
 
 def build_page(data, dest_file):
@@ -152,23 +155,34 @@ def build_page(data, dest_file):
         log.error('content processing error: ' + str(e))
 
 
-def build_feeds(data, dest_dir):
-    """Builds RSS feed"""
-    feed = pyatom.AtomFeed(title="",
-                           subtitle="",
-                           feed_url="",
-                           url="",
-                           author="")
+def build_feed(data):
+    """Builds atom feed for the blog"""
+    feed_url = "%s/%s" % (conf.get('root_url'), conf.get('atom_feed'))
+    feed = pyatom.AtomFeed(title=conf.get('title'),
+                           subtitle=conf.get('subtitle'),
+                           feed_url=feed_url,
+                           url=conf.get('root_url'),
+                           author=conf.get('author'))
+
+    from pprint import pprint
 
     for item in data:
-        feed.add(title="My Post",
-                 content="Body of my post",
-                 content_type="html",
-                 author="Me",
-                 url="http://example.org/entry1",
-                 updated=datetime.datetime.utcnow())
+        pprint(item)
+        exit()
+        feed.add(title=item['title'],
+                 content=item['content'],
+                 content_type='html',
+                 author=item['author'],
+                 url=item['url'],
+                 updated=item['mtimedt'])
 
-    print feed.to_string()
+    try:
+        feed_file = tools.dest(conf.get('build_path'), conf.get('atom_feed'))
+        with codecs.open(feed_file, mode='w', encoding='utf8') as f:
+            f.write(feed.to_string())
+    except:
+        log.error("error writing atom feed to '%s'" % feed_file)
+        raise
 
 
 def build_indexes(data):
@@ -189,7 +203,7 @@ def parse(source_file, is_post=False):
     Arguments:
         source_files -- path to the source file.
         is_post -- source file is a blog post.
-        header -- returns {file_name, ctime, and title} only."""
+        header -- returns {file_name, created, and title} only."""
 
     data = {}
     with codecs.open(source_file, mode='r', encoding='utf8') as f:
@@ -215,13 +229,13 @@ def parse(source_file, is_post=False):
 
     def purify_time(param, get_time):
         if param in data:
-            data[param] = tools.parse_time(data[param])
+            value = tools.parse_time(data[param])
         else:
-            data[param] = get_time(source_file)
-        data[param] = datetime.fromtimestamp(data[param])
+            value = get_time(source_file)
+        data[param] = datetime.fromtimestamp(value)
 
-    purify_time('ctime', os.path.getctime)
-    purify_time('mtime', os.path.getmtime)
+    purify_time('created', os.path.getctime)
+    purify_time('updated', os.path.getmtime)
 
     return data
 
@@ -260,7 +274,7 @@ def create_page(name, text, date, force):
             log.error('page already exists, use -f to overwrite')
             return None
 
-    text = text.format(title=name, ctime=date.strftime(conf.TIME_FMT))
+    text = text.format(title=name, created=date.strftime(conf.TIME_FMT))
     tools.makedirs(os.path.split(page_path)[0])
 
     with codecs.open(page_path, mode='w', encoding='utf8') as f:
@@ -289,7 +303,7 @@ def create_post(name, text, date, force):
         if force or not os.path.exists(result):
             log.debug("creating post '%s'" % result)
             text = text.format(title=name,
-                               ctime=date.strftime(conf.TIME_FMT))
+                               created=date.strftime(conf.TIME_FMT))
             with codecs.open(result, mode='w', encoding='utf8') as f:
                 f.write(text)
             return result
