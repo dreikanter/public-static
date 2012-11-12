@@ -1,3 +1,5 @@
+# coding: utf-8
+
 AUTHOR = 'Alex Musayev'
 EMAIL = 'alex.musayev@gmail.com'
 COPYRIGHT = "Copyright 2012, %s <http://alex.musayev.com>" % AUTHOR

@@ -1,3 +1,7 @@
+# coding: utf-8
+
+"""Configuration-related fuctionality and defaults"""
+
 import codecs
 import logging
 from logging.handlers import RotatingFileHandler as RFH
@@ -143,24 +147,19 @@ def _purify(params):
     """Preprocess configuration parameters"""
     gen = params['generator'].strip()
     params['generator'] = gen.format(version=authoring.VERSION)
-
     params['pages_path'] = _expand(params['pages_path'])
     params['posts_path'] = _expand(params['posts_path'])
     params['assets_path'] = _expand(params['assets_path'])
     params['build_path'] = _expand(params['build_path'])
     params['tpl_path'] = _expand(params['tpl_path'])
     params['prototypes_path'] = _expand(params['prototypes_path'])
-
     params['min_js_cmd'] = params['min_js_cmd'].strip()
     params['min_css_cmd'] = params['min_css_cmd'].strip()
     params['sync_cmd'] = params['sync_cmd'].strip()
-
     params['browser_delay'] = float(params['browser_delay'])
     params['port'] = int(params['port'])
-
     params['root_url'] = _trslash(params['root_url'].strip())
     params['rel_root_url'] = _trslash(params['rel_root_url'].strip())
-
     return params
 
 

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+"""public-static - static website builder"""
+
 import os
 import re
 import sys

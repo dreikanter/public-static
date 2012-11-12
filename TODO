@@ -1,3 +1,4 @@
 - Move templates to Jinja2 - http://jinja.pocoo.org
 - Create a good template
-- Add docstrings
+
++ Add docstrings @done (12-11-12 14:58)

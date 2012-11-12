@@ -1,3 +1,5 @@
+# coding: utf-8
+
 """General purpose helper functions"""
 
 import codecs
