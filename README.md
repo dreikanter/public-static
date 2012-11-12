@@ -1,6 +1,6 @@
 # public-static
 
-A small Python script used to build static websites from [Markdown](http://daringfireball.net/projects/markdown) source, [Mustache](http://mustache.github.com) template and [Twitter Bootstrap](http://getskeleton.com) framework.
+A small Python script used to build static websites from [Markdown](http://daringfireball.net/projects/markdown) source, [Jinja2](http://jinja.pocoo.org) template and [Twitter Bootstrap](http://getskeleton.com) framework.
 
 Inspired by [Jekyll](http://jekyllrb.com), [Octopress](http://octopress.org), [addmeto.cc](https://github.com/bobuk/addmeto.cc), and couple of other geeky projects.
 
