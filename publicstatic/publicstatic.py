@@ -12,10 +12,9 @@ import traceback
 
 from argh import ArghParser, arg
 from datetime import datetime
+import jinja2
 from multiprocessing import Process
-
 import pyatom
-import pystache
 
 import authoring
 import conf
@@ -33,6 +32,7 @@ __url__ = authoring.URL
 RE_FLAGS = re.I | re.M | re.U
 
 log = None
+tplenv = None
 
 
 def setup(args, use_defaults=False):
@@ -158,14 +158,21 @@ def build_page(data, dest_file):
         'site_subtitle': conf.get('subtitle'),
     }
     cdata.update(data)
-
     try:
         tpl = get_tpl(data['template'])
         with codecs.open(dest_file, mode='w', encoding='utf8') as f:
-            f.write(pystache.render(tpl, cdata))
+            f.write(tpl.render(cdata))
+    except jinja2.TemplateSyntaxError as e:
+        message = 'template syntax error: %s (file: %s; line: %d)'
+        log.error(message % (e.message, e.filename, e.lineno))
+        raise
+    except jinja2.TemplateNotFound as e:
+        message = "template not found: '%s' at '%s'"
+        log.error(message % (e.name, conf.get('tpl_path')))
+        raise
     except Exception as e:
+        log.error('page building error: ' + str(e))
         log.debug(traceback.format_exc())
-        log.error('content processing error: ' + str(e))
 
 
 def build_feed(data):
@@ -247,6 +254,9 @@ def parse(source_file, is_post=False):
     purify_time('created', os.path.getctime)
     purify_time('updated', os.path.getmtime)
 
+    if not tplenv:
+        print tplenv
+
     return data
 
 
@@ -256,12 +266,14 @@ def get_tpl(tpl_name):
     Arguments:
         tpl_name -- template name (will be complemented
             to file name using '.mustache')."""
-    file_name = os.path.join(conf.get('tpl_path'), tpl_name + '.mustache')
-    if os.path.exists(file_name):
-        with codecs.open(file_name, mode='r', encoding='utf8') as f:
-            return f.read()
 
-    raise Exception("template not exists: '%s'" % file_name)
+    global tplenv
+    if tplenv is None:
+        loader = jinja2.FileSystemLoader(searchpath=conf.get('tpl_path'))
+        tplenv = jinja2.Environment(loader=loader)
+
+    file_name = tpl_name + '.html'
+    return tplenv.get_template(file_name)
 
 
 def create_page(name, text, date, force):
