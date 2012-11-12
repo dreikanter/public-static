@@ -33,7 +33,7 @@ setup(
         'markdown',
         'mdx_grid',
         'mdx_smartypants',
-        'pystache',
+        'jinja2',
         'baker',
         'yuicompressor',
     ],
