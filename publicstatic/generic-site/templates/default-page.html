@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <title>{{title}}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-{{#description}}<meta name="description" content="{{description}}">{{/description}}
-{{#keywords}}<meta name="keywords" content="{{keywords}}">{{/keywords}}
-{{#author}}<meta name="author" content="{{author}}">{{/author}}
-{{#generator}}<meta name="generator" content="{{generator}}">{{/generator}}
+{% if description %}<meta name="description" content="{{ description }}">
+{% endif %}{% if keywords %}<meta name="keywords" content="{{keywords}}">
+{% endif %}{% if author %}<meta name="author" content="{{author}}">
+{% endif %}{% if generator %}<meta name="generator" content="{{generator}}">
+{% endif %}
 <link href="/css/bootstrap.css" rel="stylesheet">
 <style type="text/css">
 body {
@@ -49,12 +50,8 @@ background-color: transparent;
 
 <body>
 <div class="container">
-<ul>
-{{#posts}}
-<li>{{#ctime}}{{year}}/{{month}}/{{day}} {{/ctime}}<a href='{{url}}'>{{title}}</a></li>
-{{/posts}}
+{{ content }}
 </div>
-</ul>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
 <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.0.4/bootstrap.min.js"></script>
 </body>
