@@ -19,7 +19,7 @@ def get_data_files(path):
 
 setup(
     name='publicstatic',
-    description='Yet another static website builder.',
+    description='Yet another static website builder. A good one.',
     version=publicstatic.authoring.VERSION,
     license=publicstatic.authoring.LICENSE,
     author=publicstatic.authoring.AUTHOR,
