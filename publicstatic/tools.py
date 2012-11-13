@@ -227,7 +227,7 @@ def page_name(source_file, trim_time=False):
         "hola"
     """
     name = os.path.splitext(os.path.basename(source_file))[0]
-    return name.lstrip('0123456789-') if trim_time else name
+    return name.lstrip('0123456789-_') if trim_time else name
 
 
 def feed_data(page_data):
