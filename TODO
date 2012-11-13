@@ -1,3 +1,4 @@
+- Isolate logging initialization from configuration processing
 - Create a good template
 
 + Move templates to Jinja2 - http://jinja.pocoo.org @done (12-11-12 16:21)

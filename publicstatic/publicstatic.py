@@ -512,12 +512,12 @@ def main():
         p.dispatch()
         return 0
 
-    except KeyboardInterrupt:
-        log.info('killed by user')
-        return 0
+    # except KeyboardInterrupt:
+    #     log.info('killed by user')
+    #     return 0
 
-    except SystemExit as e:
-        log.info(str(e))
+    # except SystemExit as e:
+    #     log.info(str(e))
 
     except Exception as e:
         import logging
