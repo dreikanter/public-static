@@ -291,18 +291,19 @@ def posts(path):
 
 def page_ctime(source_file):
     """Gets post/page creation time using header or file system data"""
-    with codecs.open(source_file, mode='r', encoding='utf8') as f:
-        for line in f.readlines():
-            match = PARAM_PATTERN.match(line)
-            if not match:
-                break
-            if match.group(1).lower() == 'created':
-                ctime = parse_time(match.group(2))
-                try:
-                    ctime = parse_time(match.group(2))
-                except:
-                    ctime = os.path.getctime(source_file)
-                return datetime.fromtimestamp(ctime)
+    result = None
+    try:
+        with codecs.open(source_file, mode='r', encoding='utf8') as f:
+            for line in f.readlines():
+                match = PARAM_PATTERN.match(line)
+                if not match:
+                    break
+                if match.group(1).lower() == 'created':
+                    result = parse_time(match.group(2))
+                    break
+    except Exception as e:
+        log.debug('error reading page ctime: ' + str(e))
+    return datetime.fromtimestamp(result or os.path.getctime(source_file))
 
 
 def parse_time(value):
