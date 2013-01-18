@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding: utf-8
 
 import os
 from setuptools import setup, find_packages
@@ -18,7 +19,7 @@ def get_data_files(path):
 
 setup(
     name='publicstatic',
-    description='Yet another static website builder.',
+    description='Yet another static website builder. A good one.',
     version=publicstatic.authoring.VERSION,
     license=publicstatic.authoring.LICENSE,
     author=publicstatic.authoring.AUTHOR,
@@ -32,7 +33,7 @@ setup(
         'markdown',
         'mdx_grid',
         'mdx_smartypants',
-        'pystache',
+        'jinja2',
         'baker',
         'yuicompressor',
     ],

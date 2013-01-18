@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+"""public-static - static website builder"""
+
 import os
 import re
 import sys
@@ -10,10 +12,9 @@ import traceback
 
 from argh import ArghParser, arg
 from datetime import datetime
+import jinja2
 from multiprocessing import Process
-
 import pyatom
-import pystache
 
 import authoring
 import conf
@@ -31,6 +32,7 @@ __url__ = authoring.URL
 RE_FLAGS = re.I | re.M | re.U
 
 log = None
+tplenv = None
 
 
 def setup(args, use_defaults=False):
@@ -94,10 +96,15 @@ def process_file(root_dir, rel_source):
 
 
 def process_blog(path):
+    """Generate blog post pages"""
     posts = tools.posts(path)
     prev = None
     next = None
     index = []
+
+    # Put the latest post at site root URL if True
+    root_post = conf.get('post_at_root_url')
+    build_path = conf.get('build_path')
 
     for i in range(len(posts)):
         source_file, ctime = posts[i]
@@ -109,24 +116,35 @@ def process_blog(path):
 
         dest_file = tools.post_path(source_file, ctime)
         log.info("- %s => %s" % (posts[i][0], dest_file))
-        dest_file = os.path.join(conf.get('build_path'), dest_file)
+        dest_file = os.path.join(build_path, dest_file)
         tools.makedirs(os.path.dirname(dest_file))
 
         data['prev_url'] = tools.post_url(prev)
         data['prev_title'] = prev and prev['title']
         data['next_url'] = tools.post_url(next)
         data['next_title'] = next and next['title']
-        data['archive_url'] = conf.get('root_url') + 'archive.html'
-        index.append(tools.page_meta(data))
+
+        index.append(tools.feed_data(data))
         build_page(data, dest_file)
+
+        if next == None and root_post:
+            # Generate a copy for the latest post in the site root
+            dest_file = os.path.join(build_path, conf.get('index_page'))
+            if os.path.exists(dest_file):
+                log.warn('index page will be overwritten by latest post')
+            build_page(data, dest_file)
+
         prev = data
 
     # TODO: Put 'index.html' to configuration w/ default value
     dest_file = os.path.join(conf.get('build_path'), 'index.html')
     build_page(data, dest_file)
 
+    log.info('building blog index...')
     build_indexes(index)
-    # build_feeds(index)
+
+    log.info('building atom feed...')
+    build_feed(index)
 
 
 def build_page(data, dest_file):
@@ -136,32 +154,55 @@ def build_page(data, dest_file):
         data -- page data dict.
         dest_file -- full path to the destination file."""
 
+    cdata = {
+        'root_url': conf.get('root_url'),
+        'rel_root_url': conf.get('rel_root_url'),
+        'archive_url': conf.get('rel_root_url') + conf.get('archive_page'),
+        'site_title': conf.get('title'),
+        'site_subtitle': conf.get('subtitle'),
+    }
+    cdata.update(data)
     try:
         tpl = get_tpl(data['template'])
         with codecs.open(dest_file, mode='w', encoding='utf8') as f:
-            f.write(pystache.render(tpl, data))
+            f.write(tpl.render(cdata))
+    except jinja2.TemplateSyntaxError as e:
+        message = 'template syntax error: %s (file: %s; line: %d)'
+        log.error(message % (e.message, e.filename, e.lineno))
+        raise
+    except jinja2.TemplateNotFound as e:
+        message = "template not found: '%s' at '%s'"
+        log.error(message % (e.name, conf.get('tpl_path')))
+        raise
     except Exception as e:
+        log.error('page building error: ' + str(e))
         log.debug(traceback.format_exc())
-        log.error('content processing error: ' + str(e))
 
 
-def build_feeds(data, dest_dir):
-    """Builds RSS feed"""
-    feed = pyatom.AtomFeed(title="",
-                           subtitle="",
-                           feed_url="",
-                           url="",
-                           author="")
+def build_feed(data):
+    """Builds atom feed for the blog"""
+    feed_url = conf.get('root_url') + conf.get('atom_feed')
+    feed = pyatom.AtomFeed(title=conf.get('title'),
+                           subtitle=conf.get('subtitle'),
+                           feed_url=feed_url,
+                           url=conf.get('root_url'),
+                           author=conf.get('author'))
 
     for item in data:
-        feed.add(title="My Post",
-                 content="Body of my post",
-                 content_type="html",
-                 author="Me",
-                 url="http://example.org/entry1",
-                 updated=datetime.datetime.utcnow())
+        feed.add(title=item['title'],
+                 content=item['content'],
+                 content_type='html',
+                 author=item['author'],
+                 url=item['full_url'],
+                 updated=item['updateddt'])
 
-    print feed.to_string()
+    try:
+        feed_file = tools.dest(conf.get('build_path'), conf.get('atom_feed'))
+        with codecs.open(feed_file, mode='w', encoding='utf8') as f:
+            f.write(feed.to_string())
+    except:
+        log.error("error writing atom feed to '%s'" % feed_file)
+        raise
 
 
 def build_indexes(data):
@@ -173,7 +214,8 @@ def build_indexes(data):
         'template': 'archive',
         'posts': data,
     }
-    build_page(data, os.path.join(conf.get('build_path'), 'archive.html'))
+    dest_file = os.path.join(conf.get('build_path'), conf.get('archive_page'))
+    build_page(data, dest_file)
 
 
 def parse(source_file, is_post=False):
@@ -182,7 +224,7 @@ def parse(source_file, is_post=False):
     Arguments:
         source_files -- path to the source file.
         is_post -- source file is a blog post.
-        header -- returns {file_name, ctime, and title} only."""
+        header -- returns {file_name, created, and title} only."""
 
     data = {}
     with codecs.open(source_file, mode='r', encoding='utf8') as f:
@@ -206,26 +248,20 @@ def parse(source_file, is_post=False):
     extensions = conf.get('markdown_extensions')
     data['content'] = tools.md(data.get('content', ''), extensions)
 
-    # data['id'] = get_id(source_file)
-
     def purify_time(param, get_time):
         if param in data:
-            data[param] = tools.parse_time(data[param])
+            value = tools.parse_time(data[param])
         else:
-            data[param] = get_time(source_file)
-        data[param] = datetime.fromtimestamp(data[param])
+            value = get_time(source_file)
+        data[param] = datetime.fromtimestamp(value)
 
-    purify_time('ctime', os.path.getctime)
-    purify_time('mtime', os.path.getmtime)
+    purify_time('created', os.path.getctime)
+    purify_time('updated', os.path.getmtime)
+
+    if not tplenv:
+        print tplenv
 
     return data
-
-
-# def get_id(file_name):
-#     """Extracts page id from source file path"""
-#     name = os.path.splitext(os.path.basename(file_name))[0]
-#     parts = name.split('_', 1)
-#     return parts[1] if len(parts) > 1 else None
 
 
 def get_tpl(tpl_name):
@@ -234,12 +270,14 @@ def get_tpl(tpl_name):
     Arguments:
         tpl_name -- template name (will be complemented
             to file name using '.mustache')."""
-    file_name = os.path.join(conf.get('tpl_path'), tpl_name + '.mustache')
-    if os.path.exists(file_name):
-        with codecs.open(file_name, mode='r', encoding='utf8') as f:
-            return f.read()
 
-    raise Exception("template not exists: '%s'" % file_name)
+    global tplenv
+    if tplenv is None:
+        loader = jinja2.FileSystemLoader(searchpath=conf.get('tpl_path'))
+        tplenv = jinja2.Environment(loader=loader)
+
+    file_name = tpl_name + '.html'
+    return tplenv.get_template(file_name)
 
 
 def create_page(name, text, date, force):
@@ -262,7 +300,7 @@ def create_page(name, text, date, force):
             log.error('page already exists, use -f to overwrite')
             return None
 
-    text = text.format(title=name, ctime=date.strftime(conf.TIME_FMT))
+    text = text.format(title=name, created=date.strftime(conf.TIME_FMT))
     tools.makedirs(os.path.split(page_path)[0])
 
     with codecs.open(page_path, mode='w', encoding='utf8') as f:
@@ -291,7 +329,7 @@ def create_post(name, text, date, force):
         if force or not os.path.exists(result):
             log.debug("creating post '%s'" % result)
             text = text.format(title=name,
-                               ctime=date.strftime(conf.TIME_FMT))
+                               created=date.strftime(conf.TIME_FMT))
             with codecs.open(result, mode='w', encoding='utf8') as f:
                 f.write(text)
             return result
@@ -434,7 +472,7 @@ def page(args):
     if not tools.valid_name(args.name):
         raise Exception('illegal page name')
 
-    text = tools.generic(args.type or 'default-page')
+    text = tools.prototype(args.type or 'default-page')
     page_path = create_page(args.name, text, datetime.now(), args.force)
 
     if not page_path:
@@ -458,7 +496,7 @@ def post(args):
     if not tools.valid_name(args.name):
         raise Exception('illegal feed or post name')
 
-    text = tools.generic(args.type or 'default-post')
+    text = tools.prototype(args.type or 'default-post')
     try:
         post_path = create_post(args.name, text, datetime.now(), args.force)
     except:
@@ -478,12 +516,12 @@ def main():
         p.dispatch()
         return 0
 
-    except KeyboardInterrupt:
-        log.info('killed by user')
-        return 0
+    # except KeyboardInterrupt:
+    #     log.info('killed by user')
+    #     return 0
 
-    except SystemExit as e:
-        log.info(str(e))
+    # except SystemExit as e:
+    #     log.info(str(e))
 
     except Exception as e:
         import logging

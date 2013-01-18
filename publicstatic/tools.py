@@ -1,3 +1,5 @@
+# coding: utf-8
+
 """General purpose helper functions"""
 
 import codecs
@@ -24,7 +26,6 @@ POST_PATTERN = re.compile(r"[\w\\/]+")
 URI_SEP_PATTERN = re.compile(r"[^a-z\d\%s]+" % os.sep, RE_FLAGS)
 URI_EXCLUDE_PATTERN = re.compile(r"[,.`\'\"\!@\#\$\%\^\&\*\(\)\+]+", RE_FLAGS)
 PARAM_PATTERN = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", RE_FLAGS)
-# TIME_PREFIX_PATTERN = re.compile(r'^(\d+)(\d\d)(\d\d)', RE_FLAGS)
 
 log = logging.getLogger()
 
@@ -149,16 +150,14 @@ def spawn_site(path):
     cp(generic, path)
 
 
-def generic(name):
-    """Returns full path to specified generic page"""
+def prototype(name):
+    """Returns full path to specified prototype page"""
     try:
-        generic = os.path.dirname(os.path.abspath(__file__))
-        generic = os.path.join(generic, GENERIC_PAGES)
-        generic = os.path.join(generic, str(name) + '.md')
-        with codecs.open(generic, mode='r', encoding='utf8') as f:
+        file_name = os.path.join(conf.get('prototypes_path'), str(name) + '.md')
+        with codecs.open(file_name, mode='r', encoding='utf8') as f:
             return f.read()
     except:
-        log.error("error reading generic post: '%s'" % str(name))
+        log.error("error reading prototype post: '%s'" % str(name))
         raise
 
 
@@ -200,18 +199,11 @@ def valid_name(value):
     return POST_PATTERN.match(value)
 
 
-def page_url(pdata):
-    return pdata and (rurl(page_name(pdata['source'])) + '.html')
-
-
-def post_url(pdata):
+def post_url(page_data, full=False):
     """Generates post URL from page data"""
-    return pdata and rurl(post_path(pdata['source'], pdata['ctime']))
-
-
-def rurl(rel_url):
-    """Appends root URL to the beginning of the specified relative URL"""
-    return conf.get('root_url') + rel_url
+    url = conf.get('root_url') if full else conf.get('rel_root_url')
+    return page_data and (url +
+        post_path(page_data['source'], page_data['created']))
 
 
 def post_path(source_file, ctime):
@@ -235,17 +227,22 @@ def page_name(source_file, trim_time=False):
         "hola"
     """
     name = os.path.splitext(os.path.basename(source_file))[0]
-    return name.lstrip('0123456789-') if trim_time else name
+    return name.lstrip('0123456789-_') if trim_time else name
 
 
-def page_meta(pdata):
+def feed_data(page_data):
+    """Returns part of the page data dict, relevant to feed generation"""
     return {
-        'source': pdata.get('source', None),
-        'title': pdata.get('title', None),
-        'ctime': expand_time(pdata.get('ctime', None)),
-        'mtime': expand_time(pdata.get('mtime', None)),
-        'author': pdata.get('author', conf.get('author')),
-        'url': post_url(pdata),
+        'source': page_data.get('source'),
+        'title': page_data.get('title'),
+        'created': expand_time(page_data.get('created')),
+        'updated': expand_time(page_data.get('updated')),
+        'createddt': page_data.get('created'),
+        'updateddt': page_data.get('updated'),
+        'author': page_data.get('author', conf.get('author')),
+        'url': post_url(page_data),
+        'full_url': post_url(page_data, True),
+        'content': page_data.get('content'),
     }
 
 
@@ -260,7 +257,7 @@ def expand_time(value):
 
 
 def dest(build_path, rel_source):
-    """Gets relative destination file path"""
+    """Gets destination file path"""
     base, ext = os.path.splitext(rel_source)
 
     new_ext = {
@@ -284,6 +281,7 @@ def walk(path, operation):
 
 
 def posts(path):
+    """Returns a list of post relative pathes in chronological order"""
     posts = []
     walk(path, lambda root, rel:
         posts.append((rel, page_ctime(os.path.join(root, rel)))))
@@ -293,18 +291,19 @@ def posts(path):
 
 def page_ctime(source_file):
     """Gets post/page creation time using header or file system data"""
-    with codecs.open(source_file, mode='r', encoding='utf8') as f:
-        for line in f.readlines():
-            match = PARAM_PATTERN.match(line)
-            if not match:
-                break
-            if match.group(1).lower() == 'ctime':
-                ctime = parse_time(match.group(2))
-                try:
-                    ctime = parse_time(match.group(2))
-                except:
-                    ctime = os.path.getmtime(source_file)
-                return datetime.fromtimestamp(ctime)
+    result = None
+    try:
+        with codecs.open(source_file, mode='r', encoding='utf8') as f:
+            for line in f.readlines():
+                match = PARAM_PATTERN.match(line)
+                if not match:
+                    break
+                if match.group(1).lower() == 'created':
+                    result = parse_time(match.group(2))
+                    break
+    except Exception as e:
+        log.debug('error reading page ctime: ' + str(e))
+    return datetime.fromtimestamp(result or os.path.getctime(source_file))
 
 
 def parse_time(value):

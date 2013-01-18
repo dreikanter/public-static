@@ -1,13 +1,6 @@
-Blog generation:
-
-- Blog building.
-    - Build archive page.
-    - Page data: add archive page URL
-    - ATOM feed generation.
+- ATOM feed generation.
 - Test installation on Ubuntu and clean virtualenv.
 - tidy -i --wrap 80 -o index.html
-- Create post: add command line argument for manual creation date specification
-- generic-pages -> generic-site/generics
 
 Readme and documentation:
 
@@ -65,11 +58,6 @@ Readme and documentation:
     - If *feed root* contains pages and posts with a same name, pages will override posts.
     - In addition to the individual post pages, an archive and index pages will be generated in the feed root. Index will contain the latest post contents.
     - /feed-name/feed/YEAR/YYYY-MM-DD_post-name.md → /feed-name/post-name
-
-Published field: yes/no (draft):
-
-- Don't build pages which status is draft.
-- Consider a command to switch draft/published status?
 
 Image management:
 

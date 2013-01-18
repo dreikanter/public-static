@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
+
 """A script to update integrated Twitter Bootstrap"""
 
 import logging
@@ -7,7 +8,7 @@ import os
 import shutil
 import yaml
 
-BS_URL = 'git://github.com/twitter/bootstrap.git'
+BS_URL = 'http://github.com/twitter/bootstrap.git'
 BS_PATH = 'bootstrap'
 CONF = 'updatebs.conf'
 PKG_PATH = 'publicstatic'

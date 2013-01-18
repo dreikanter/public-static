@@ -1,3 +1,7 @@
+# coding: utf-8
+
+"""Configuration-related fuctionality and defaults"""
+
 import codecs
 import logging
 from logging.handlers import RotatingFileHandler as RFH
@@ -16,7 +20,7 @@ TIME_FMT = "%Y/%m/%d %H:%M:%S"
 
 # See the docs for parameters description
 DEFAULTS = [
-    ('title', ''),
+    ('title', 'Untitled Blog'),
     ('subtitle', ''),
     ('author', ''),
     ('generator', "public-static {version}"),
@@ -25,7 +29,9 @@ DEFAULTS = [
     ('posts_path', 'posts'),
     ('assets_path', 'assets'),
     ('tpl_path', 'templates'),
-    ('root_url', '/'),
+    ('prototypes_path', 'prototypes'),
+    ('rel_root_url', '/'),
+    ('root_url', 'http://example.com/'),
     ('post_location', '{year}/{month}/{day}/{name}.html'),
     ('port', 8000),
     ('browser_delay', 2.0),
@@ -42,6 +48,10 @@ DEFAULTS = [
     ('editor_cmd', "$EDITOR \"{source}\""),
     ('max_size', 0),
     ('backup_cnt', 0),
+    ('index_page', 'index.html'),
+    ('archive_page', 'archive.html'),
+    ('atom_feed', 'feed.atom'),
+    ('post_at_root_url', True),
 ]
 
 _params = {}  # Configuration parameters
@@ -137,22 +147,19 @@ def _purify(params):
     """Preprocess configuration parameters"""
     gen = params['generator'].strip()
     params['generator'] = gen.format(version=authoring.VERSION)
-
     params['pages_path'] = _expand(params['pages_path'])
     params['posts_path'] = _expand(params['posts_path'])
     params['assets_path'] = _expand(params['assets_path'])
     params['build_path'] = _expand(params['build_path'])
     params['tpl_path'] = _expand(params['tpl_path'])
-
+    params['prototypes_path'] = _expand(params['prototypes_path'])
     params['min_js_cmd'] = params['min_js_cmd'].strip()
     params['min_css_cmd'] = params['min_css_cmd'].strip()
     params['sync_cmd'] = params['sync_cmd'].strip()
-
     params['browser_delay'] = float(params['browser_delay'])
     params['port'] = int(params['port'])
-
-    params['root_url'] = params['root_url'].strip() or '/'
-
+    params['root_url'] = _trslash(params['root_url'].strip())
+    params['rel_root_url'] = _trslash(params['rel_root_url'].strip())
     return params
 
 
@@ -163,3 +170,8 @@ def _expand(rel_path):
         base = os.path.dirname(os.path.abspath(_path))
         rel_path = os.path.join(base, rel_path)
     return rel_path
+
+
+def  _trslash(url):
+    """Guarantees the URL have a single trailing slash"""
+    return url.rstrip('/') + '/'
