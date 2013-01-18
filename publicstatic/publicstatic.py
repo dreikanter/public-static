@@ -121,6 +121,10 @@ def process_blog(path):
         build_page(data, dest_file)
         prev = data
 
+    # TODO: Put 'index.html' to configuration w/ default value
+    dest_file = os.path.join(conf.get('build_path'), 'index.html')
+    build_page(data, dest_file)
+
     build_indexes(index)
     # build_feeds(index)
 
@@ -345,10 +349,10 @@ def build(args):
     log.info("building path: '%s'" % conf.get('build_path'))
     log.info('processing assets...')
     process_dir(conf.get('assets_path'))
-    log.info('processing pages...')
-    process_dir(conf.get('pages_path'))
     log.info('processing blog posts...')
     process_blog(conf.get('posts_path'))
+    log.info('processing pages...')
+    process_dir(conf.get('pages_path'))
     log.info('done')
 
 
