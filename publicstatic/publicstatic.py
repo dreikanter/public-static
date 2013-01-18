@@ -207,15 +207,16 @@ def build_feed(data):
 
 def build_indexes(data):
     """Build post list pages"""
-    data = {
-        'title': '%s: %s' % (conf.get('title'), 'Archive'),
+    index_data = {
+        'title': conf.get('title'),
         'author': conf.get('author'),
         'generator': conf.get('generator'),
         'template': 'archive',
+        'posts_num': len(data),
         'posts': data,
     }
     dest_file = os.path.join(conf.get('build_path'), conf.get('archive_page'))
-    build_page(data, dest_file)
+    build_page(index_data, dest_file)
 
 
 def parse(source_file, is_post=False):
