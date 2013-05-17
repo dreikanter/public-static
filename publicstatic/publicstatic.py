@@ -13,11 +13,14 @@ import traceback
 from argh import ArghParser, arg
 from datetime import datetime
 import jinja2
+from logging.handlers import RotatingFileHandler
 from multiprocessing import Process
 import pyatom
 
 import authoring
 import conf
+import constants
+import logger
 import tools
 
 __author__ = authoring.AUTHOR
@@ -29,17 +32,15 @@ __version__ = authoring.VERSION
 __status__ = authoring.STATUS
 __url__ = authoring.URL
 
-RE_FLAGS = re.I | re.M | re.U
-
-log = None
-tplenv = None
+_tplenv = None
 
 
-def setup(args, use_defaults=False):
+def init(args, use_defaults=False):
     """Init configuration and logger"""
-    conf.init(args, use_defaults=use_defaults)
-    global log
-    log = conf.get_logger()
+    logger.init(args.verbose)
+    conf.init(args.source, use_defaults=use_defaults)
+    logger.open_file_channel(conf.get('log_file'),
+        conf.get('log_max_size'), conf.get('log_backup_cnt'))
 
 
 # Website building
@@ -47,7 +48,7 @@ def setup(args, use_defaults=False):
 def process_dir(path):
     """Process a directory containing independent
     files like website pages or assets."""
-    log.debug("source path: '%s'" % path)
+    logger.debug("source path: '%s'" % path)
     tools.walk(path, process_file)
 
 
@@ -64,12 +65,12 @@ def process_file(root_dir, rel_source):
     tools.makedirs(os.path.dirname(dest_file))
 
     if ext == '.md':
-        log.info("- %s => %s" % (rel_source,
+        logger.info("- %s => %s" % (rel_source,
             os.path.relpath(dest_file, conf.get('build_path'))))
         build_page(parse(source_file), dest_file)
 
     elif ext == '.less':
-        log.info('compiling LESS: ' + rel_source)
+        logger.info('compiling LESS: ' + rel_source)
         if conf.get('min_less'):
             tmp_file = dest_file + '.tmp'
             tools.execute_proc(conf.get('less_cmd'), source_file, tmp_file)
@@ -79,19 +80,19 @@ def process_file(root_dir, rel_source):
             tools.execute_proc(conf.get('less_cmd'), source_file, dest_file)
 
     elif ext == '.css' and conf.get('min_css') and conf.get('min_css_cmd'):
-        log.info('minifying CSS: ' + rel_source)
+        logger.info('minifying CSS: ' + rel_source)
         tools.execute_proc(conf.get('min_css_cmd'), source_file, dest_file)
 
     elif ext == '.js' and conf.get('min_js') and conf.get('min_js_cmd'):
-        log.info('minifying JS: ' + rel_source)
+        logger.info('minifying JS: ' + rel_source)
         tools.execute_proc(conf.get('min_js_cmd'), source_file, dest_file)
 
     elif os.path.basename(source_file) == 'humans.txt':
-        log.info('copying: %s (updated)' % rel_source)
+        logger.info('copying: %s (updated)' % rel_source)
         tools.update_humans(source_file, dest_file)
 
     else:
-        log.info('copying: ' + rel_source)
+        logger.info('copying: ' + rel_source)
         shutil.copyfile(source_file, dest_file)
 
 
@@ -115,7 +116,7 @@ def process_blog(path):
             next = None
 
         dest_file = tools.post_path(source_file, ctime)
-        log.info("- %s => %s" % (posts[i][0], dest_file))
+        logger.info("- %s => %s" % (posts[i][0], dest_file))
         dest_file = os.path.join(build_path, dest_file)
         tools.makedirs(os.path.dirname(dest_file))
 
@@ -131,15 +132,15 @@ def process_blog(path):
             # Generate a copy for the latest post in the site root
             dest_file = os.path.join(build_path, conf.get('index_page'))
             if os.path.exists(dest_file):
-                log.warn('index page will be overwritten by latest post')
+                logger.warn('index page will be overwritten by latest post')
             build_page(data, dest_file)
 
         prev = data
 
-    log.info('building blog index...')
+    logger.info('building blog index...')
     build_indexes(index)
 
-    log.info('building atom feed...')
+    logger.info('building atom feed...')
     build_feed(index)
 
 
@@ -164,15 +165,15 @@ def build_page(data, dest_file):
             f.write(tpl.render(cdata))
     except jinja2.TemplateSyntaxError as e:
         message = 'template syntax error: %s (file: %s; line: %d)'
-        log.error(message % (e.message, e.filename, e.lineno))
+        logger.error(message % (e.message, e.filename, e.lineno))
         raise
     except jinja2.TemplateNotFound as e:
         message = "template not found: '%s' at '%s'"
-        log.error(message % (e.name, conf.get('tpl_path')))
+        logger.error(message % (e.name, conf.get('tpl_path')))
         raise
     except Exception as e:
-        log.error('page building error: ' + str(e))
-        log.debug(traceback.format_exc())
+        logger.error('page building error: ' + str(e))
+        logger.debug(traceback.format_exc())
 
 
 def build_feed(data):
@@ -197,7 +198,7 @@ def build_feed(data):
         with codecs.open(feed_file, mode='w', encoding='utf8') as f:
             f.write(feed.to_string())
     except:
-        log.error("error writing atom feed to '%s'" % feed_file)
+        logger.error("error writing atom feed to '%s'" % feed_file)
         raise
 
 
@@ -254,8 +255,8 @@ def parse(source_file, is_post=False):
     purify_time('created', os.path.getctime)
     purify_time('updated', os.path.getmtime)
 
-    if not tplenv:
-        print tplenv
+    if not _tplenv:
+        print _tplenv
 
     return data
 
@@ -267,13 +268,13 @@ def get_tpl(tpl_name):
         tpl_name -- template name (will be complemented
             to file name using '.mustache')."""
 
-    global tplenv
-    if tplenv is None:
+    global _tplenv
+    if _tplenv is None:
         loader = jinja2.FileSystemLoader(searchpath=conf.get('tpl_path'))
-        tplenv = jinja2.Environment(loader=loader)
+        _tplenv = jinja2.Environment(loader=loader)
 
     file_name = tpl_name + '.html'
-    return tplenv.get_template(file_name)
+    return _tplenv.get_template(file_name)
 
 
 def create_page(name, text, date, force):
@@ -286,14 +287,14 @@ def create_page(name, text, date, force):
         force -- True to overwrite existing file; False to throw exception."""
 
     name = tools.urlify(name)
-    log.debug("creating page '%s'" % name)
+    logger.debug("creating page '%s'" % name)
     page_path = os.path.join(conf.get('pages_path'), name) + '.md'
 
     if os.path.exists(page_path):
         if force:
-            log.debug('existing page will be overwritten')
+            logger.debug('existing page will be overwritten')
         else:
-            log.error('page already exists, use -f to overwrite')
+            logger.error('page already exists, use -f to overwrite')
             return None
 
     text = text.format(title=name, created=date.strftime(conf.TIME_FMT))
@@ -323,7 +324,7 @@ def create_post(name, text, date, force):
     while True:
         result = post_path.format(suffix=str(num) if num > 1 else '')
         if force or not os.path.exists(result):
-            log.debug("creating post '%s'" % result)
+            logger.debug("creating post '%s'" % result)
             text = text.format(title=name,
                                created=date.strftime(conf.TIME_FMT))
             with codecs.open(result, mode='w', encoding='utf8') as f:
@@ -361,14 +362,13 @@ edit_arg = arg('-e', '--edit', default=False,
 @verbose_arg
 def init(args):
     """create new website"""
-    setup(args, use_defaults=True)
+    init(args, use_defaults=True)
 
     try:
-        tools.spawn_site(os.path.dirname(conf.get_path()))
         conf.write_defaults()
-        log.info('website created successfully, have fun!')
+        logger.info('website created successfully, have fun!')
     except:
-        log.error('initialization failed')
+        logger.error('initialization failed')
         raise
 
 
@@ -377,17 +377,16 @@ def init(args):
 @verbose_arg
 def build(args):
     """generate web content from source"""
-    setup(args)
+    init(args)
     tools.drop_build(conf.get('build_path'))
-    tools.makedirs(conf.get('build_path'))
-    log.info("building path: '%s'" % conf.get('build_path'))
-    log.info('processing assets...')
+
+    logger.info('processing assets...')
     process_dir(conf.get('assets_path'))
-    log.info('processing pages...')
+    logger.info('processing pages...')
     process_dir(conf.get('pages_path'))
-    log.info('processing blog posts...')
+    logger.info('processing blog posts...')
     process_blog(conf.get('posts_path'))
-    log.info('done')
+    logger.info('done')
 
 
 @source_arg
@@ -397,11 +396,10 @@ def build(args):
 @verbose_arg
 def run(args):
     """run local web server to preview generated website"""
-    setup(args)
+    init(args)
     tools.check_build(conf.get('build_path'))
-    original_cwd = os.getcwd()
-    port = tools.str2int(args.port, conf.get('port'))
-    log.info("running HTTP server on port %d..." % port)
+
+    logger.info("running HTTP server on port %d..." % port)
 
     from SimpleHTTPServer import SimpleHTTPRequestHandler
     from SocketServer import TCPServer
@@ -412,16 +410,16 @@ def run(args):
         if args.browse:
             url = "http://localhost:%s/" % port
             delay = conf.get('browser_delay')
-            log.info("opening browser in %g seconds" % delay)
+            logger.info("opening browser in %g seconds" % delay)
             p = Process(target=tools.browse, args=(url, delay))
             p.start()
 
-        log.info('use Ctrl-Break to stop webserver')
+        logger.info('use Ctrl-Break to stop webserver')
         os.chdir(conf.get('build_path'))
         httpd.serve_forever()
 
     except KeyboardInterrupt:
-        log.info('server was stopped by user')
+        logger.info('server was stopped by user')
     finally:
         os.chdir(original_cwd)
 
@@ -431,17 +429,17 @@ def run(args):
 @verbose_arg
 def deploy(args):
     """deploy generated website to the remote web server"""
-    setup(args)
+    init(args)
     tools.check_build(conf.get('build_path'))
 
     if not conf.get('sync_cmd'):
         raise Exception('synchronizing command is not '
                         'defined by configuration')
 
-    log.info('synchronizing...')
+    logger.info('synchronizing...')
     cmd = conf.get('sync_cmd').format(path=conf.get('build_path'))
     tools.execute(cmd, True)
-    log.info('done')
+    logger.info('done')
 
 
 @source_arg
@@ -449,10 +447,9 @@ def deploy(args):
 @verbose_arg
 def clean(args):
     """delete all generated content"""
-    setup(args)
-    log.info('cleaning output...')
-    tools.drop_build(conf.get('build_path'))
-    log.info('done')
+    init(args)
+    logger.info('cleaning output...')
+
 
 
 @arg('name', help='page name (may include path)')
@@ -464,9 +461,8 @@ def clean(args):
 @verbose_arg
 def page(args):
     """create new page"""
-    setup(args)
+    init(args)
     if not tools.valid_name(args.name):
-        raise Exception('illegal page name')
 
     text = tools.prototype(args.type or 'default-page')
     page_path = create_page(args.name, text, datetime.now(), args.force)
@@ -474,7 +470,7 @@ def page(args):
     if not page_path:
         return
 
-    log.info('page cerated')
+    logger.info('page cerated')
     if args.edit:
         tools.execute_proc(conf.get('editor_cmd'), page_path)
 
@@ -488,18 +484,17 @@ def page(args):
 @verbose_arg
 def post(args):
     """create new post"""
-    setup(args)
+    init(args)
     if not tools.valid_name(args.name):
-        raise Exception('illegal feed or post name')
 
     text = tools.prototype(args.type or 'default-post')
     try:
         post_path = create_post(args.name, text, datetime.now(), args.force)
     except:
-        log.error('error creating new post')
+        logger.error('error creating new post')
         raise
 
-    log.info('post cerated')
+    logger.info('post cerated')
 
     if args.edit:
         tools.execute_proc(conf.get('editor_cmd'), post_path)
@@ -513,11 +508,11 @@ def main():
         return 0
 
     # except KeyboardInterrupt:
-    #     log.info('killed by user')
+    #     logger.info('killed by user')
     #     return 0
 
     # except SystemExit as e:
-    #     log.info(str(e))
+    #     logger.info(str(e))
 
     except Exception as e:
         import logging

@@ -16,16 +16,8 @@ import traceback
 
 import markdown
 
-GENERIC_PATH = 'generic-site'
-GENERIC_PAGES = 'generic-pages'
-FEED_DIR = 'feed'
+import constants
 
-RE_FLAGS = re.I | re.M | re.U
-H1_PATTERN = re.compile(r"^\s*#\s*(.*)\s*", RE_FLAGS)
-POST_PATTERN = re.compile(r"[\w\\/]+")
-URI_SEP_PATTERN = re.compile(r"[^a-z\d\%s]+" % os.sep, RE_FLAGS)
-URI_EXCLUDE_PATTERN = re.compile(r"[,.`\'\"\!@\#\$\%\^\&\*\(\)\+]+", RE_FLAGS)
-PARAM_PATTERN = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", RE_FLAGS)
 
 log = logging.getLogger()
 
@@ -94,7 +86,7 @@ def drop_build(path, create=False):
 
 def get_h1(text):
     """Extracts the first h1-header from markdown text"""
-    matches = H1_PATTERN.search(text)
+    matches = constants.H1_PATTERN.search(text)
     return matches.group(1) if matches else ''
 
 
@@ -146,7 +138,7 @@ def spawn_site(path):
         raise Exception("directory already exists: '%s'" % path)
 
     generic = os.path.dirname(os.path.abspath(__file__))
-    generic = os.path.join(generic, GENERIC_PATH)
+    generic = os.path.join(generic, constants.GENERIC_PATH)
     cp(generic, path)
 
 
@@ -188,15 +180,15 @@ def urlify(string):
         >>> urlify("long/way home")
         "long/way-home"
     """
-    result = URI_EXCLUDE_PATTERN.sub('', string)
+    result = constants.URI_EXCLUDE_PATTERN.sub('', string)
     if os.altsep:
         result = result.replace(os.altsep, os.sep)
-    result = URI_SEP_PATTERN.sub('-', result)
+    result = constants.URI_SEP_PATTERN.sub('-', result)
     return result.strip('-').lower()
 
 
 def valid_name(value):
-    return POST_PATTERN.match(value)
+    return constants.POST_PATTERN.match(value)
 
 
 def post_url(page_data, full=False):
@@ -295,7 +287,7 @@ def page_ctime(source_file):
     try:
         with codecs.open(source_file, mode='r', encoding='utf8') as f:
             for line in f.readlines():
-                match = PARAM_PATTERN.match(line)
+                match = constants.PARAM_PATTERN.match(line)
                 if not match:
                     break
                 if match.group(1).lower() == 'created':
@@ -314,7 +306,7 @@ def parse_time(value):
 def parse_param(text):
     """Parse '<key>: <value>' string to (str, str) tuple. Returns None
     when parsing fails."""
-    match = PARAM_PATTERN.match(text)
+    match = constants.PARAM_PATTERN.match(text)
     if match:
         return (match.group(1).strip(), match.group(2).strip())
     else:

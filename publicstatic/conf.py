@@ -3,70 +3,22 @@
 """Configuration-related fuctionality and defaults"""
 
 import codecs
-import logging
-from logging.handlers import RotatingFileHandler as RFH
 import os
 import yaml
 
 import authoring
-
-CONF_NAME = 'pub.conf'
-
-CONSOLE_FMT = "%(asctime)s %(levelname)s: %(message)s"
-CONSOLE_DATE_FMT = "%H:%M:%S"
-FILE_FMT = "%(asctime)s %(levelname)s: %(message)s"
-FILE_DATE_FMT = "%Y/%m/%d %H:%M:%S"
-TIME_FMT = "%Y/%m/%d %H:%M:%S"
-
-# See the docs for parameters description
-DEFAULTS = [
-    ('title', 'Untitled Blog'),
-    ('subtitle', ''),
-    ('author', ''),
-    ('generator', "public-static {version}"),
-    ('build_path', 'www'),
-    ('pages_path', 'pages'),
-    ('posts_path', 'posts'),
-    ('assets_path', 'assets'),
-    ('tpl_path', 'templates'),
-    ('prototypes_path', 'prototypes'),
-    ('rel_root_url', '/'),
-    ('root_url', 'http://example.com/'),
-    ('post_location', '{year}/{month}/{day}/{name}.html'),
-    ('port', 8000),
-    ('browser_delay', 2.0),
-    ('page_tpl', 'default-page'),
-    ('post_tpl', 'default-post'),
-    ('min_js', True),
-    ('min_css', True),
-    ('min_less', True),
-    ('min_js_cmd', "yuicompressor --type js --nomunge -o {dest} {source}"),
-    ('min_css_cmd', "yuicompressor --type css -o {dest} {source}"),
-    ('sync_cmd', ''),
-    ('less_cmd', "lessc -x {source} > {dest}"),
-    ('markdown_extensions', ['nl2br', 'grid', 'smartypants']),
-    ('editor_cmd', "$EDITOR \"{source}\""),
-    ('max_size', 0),
-    ('backup_cnt', 0),
-    ('index_page', 'index.html'),
-    ('archive_page', 'archive.html'),
-    ('atom_feed', 'feed.atom'),
-    ('post_at_root_url', True),
-]
+import constants
 
 _params = {}  # Configuration parameters
-
 _path = ''  # Configuration file absolute path
 
-_logger = None
 
-
-def init(args, use_defaults=False):
-    """Initializes configuration and logging from Baker arguments"""
+def init(conf_path, use_defaults=False):
+    """Initializes configuration from Baker arguments"""
     global _path
-    _path = os.path.abspath(os.path.join(args.source or '.', CONF_NAME))
+    _path = os.path.abspath(os.path.join(conf_path or '.', constants.CONF_NAME))
 
-    params = dict(DEFAULTS)
+    params = dict(constants.DEFAULTS)
 
     if not use_defaults:  # Reads configuration file and override defaults
         with codecs.open(_path, mode='r', encoding='utf8') as f:
@@ -77,33 +29,6 @@ def init(args, use_defaults=False):
     global _params
     _params = _purify(params)
 
-    global _logger
-    _logger = logging.getLogger()
-    _logger.setLevel(logging.DEBUG)
-
-    level = logging.DEBUG if args.verbose else logging.INFO
-
-    channel = logging.StreamHandler()
-    channel.setLevel(level)
-    fmt = logging.Formatter(CONSOLE_FMT, CONSOLE_DATE_FMT)
-    channel.setFormatter(fmt)
-    _logger.addHandler(channel)
-
-    log_file = args.log
-    if log_file:
-        path = os.path.dirname(log_file)
-        if not os.path.isdir(path):
-            os.makedirs(path)
-
-        max_size = get('max_size')
-        backup_cnt = get('backup_cnt')
-
-        channel = RFH(log_file, maxBytes=max_size, backupCount=backup_cnt)
-        channel.setLevel(logging.DEBUG)
-        fmt = logging.Formatter(FILE_FMT, FILE_DATE_FMT)
-        channel.setFormatter(fmt)
-        _logger.addHandler(channel)
-
 
 def get(param):
     """Returns a single configuration parameter"""
@@ -113,12 +38,6 @@ def get(param):
         raise Exception('Unknown configuration parameter')
     except TypeError:
         raise Exception('Configuration was not initialized')
-
-
-def get_logger():
-    """Configures and returns root logger"""
-    _check(_logger)
-    return _logger
 
 
 def get_path():
@@ -133,7 +52,7 @@ def write_defaults():
                             width=80,
                             indent=4,
                             default_flow_style=False)
-    text = ''.join([f(x) for x in DEFAULTS])
+    text = ''.join([f(x) for x in constants.DEFAULTS])
     with codecs.open(_path, mode='w', encoding='utf8') as f:
         f.write(text)
 
@@ -160,6 +79,9 @@ def _purify(params):
     params['port'] = int(params['port'])
     params['root_url'] = _trslash(params['root_url'].strip())
     params['rel_root_url'] = _trslash(params['rel_root_url'].strip())
+    params['log_file'] = _expand(params['log_file'])
+    params['log_max_size'] = int(params['log_max_size'])
+    params['log_backup_cnt'] = int(params['log_backup_cnt'])
     return params
 
 
