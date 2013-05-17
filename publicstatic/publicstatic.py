@@ -167,18 +167,19 @@ def build_page(data, dest_file):
         data -- page data dict.
         dest_file -- full path to the destination file."""
 
-    cdata = {
+    common_data = {
         'root_url': conf.get('root_url'),
         'rel_root_url': conf.get('rel_root_url'),
         'archive_url': conf.get('rel_root_url') + conf.get('archive_page'),
         'site_title': conf.get('title'),
         'site_subtitle': conf.get('subtitle'),
+        'menu': conf.get('menu'),
     }
-    cdata.update(data)
+    common_data.update(data)
     try:
         tpl = get_tpl(data['template'])
         with codecs.open(dest_file, mode='w', encoding='utf8') as f:
-            f.write(tpl.render(cdata))
+            f.write(tpl.render(common_data))
     except jinja2.TemplateSyntaxError as e:
         message = 'template syntax error: %s (file: %s; line: %d)'
         logger.error(message % (e.message, e.filename, e.lineno))

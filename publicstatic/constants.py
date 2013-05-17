@@ -57,4 +57,5 @@ DEFAULTS = [
     ('archive_page', 'archive.html'),
     ('atom_feed', 'feed.atom'),
     ('post_at_root_url', True),
+    ('menu', ['About: /about.html', 'Archive: /archive.html'])
 ]
