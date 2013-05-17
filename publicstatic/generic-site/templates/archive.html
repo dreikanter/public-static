@@ -10,6 +10,7 @@
 {% endif %}{% if generator %}<meta name="generator" content="{{generator}}">
 {% endif %}
 <link href="/css/bootstrap.css" rel="stylesheet">
+<link href="/css/bootstrap-responsive.css" rel="stylesheet">
 <style type="text/css">
 body {
 padding-top: 60px !important;
@@ -51,9 +52,9 @@ background-color: transparent;
 <body>
 <div class="container">
 <ul>
-{% if posts %}
-<li>{% if ctime %}{{year}}/{{month}}/{{day}} {% endif %}<a href='{{url}}'>{{title}}</a></li>
-{% endif %}
+{% for post in posts %}
+<li>{{post.created.year}}/{{post.created.month}}/{{post.created.day}}&nbsp;— <a href='{{post.url}}'>{{post.title}}</a></li>
+{% endfor %}
 </div>
 </ul>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
