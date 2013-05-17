@@ -15,7 +15,7 @@ from datetime import datetime
 import jinja2
 from logging.handlers import RotatingFileHandler
 from multiprocessing import Process
-import pyatom
+from lib.pyatom import AtomFeed
 
 import authoring
 import conf
@@ -191,11 +191,11 @@ def build_page(data, dest_file):
 def build_feed(data):
     """Builds atom feed for the blog"""
     feed_url = conf.get('root_url') + conf.get('atom_feed')
-    feed = pyatom.AtomFeed(title=conf.get('title'),
-                           subtitle=conf.get('subtitle'),
-                           feed_url=feed_url,
-                           url=conf.get('root_url'),
-                           author=conf.get('author'))
+    feed = AtomFeed(title=conf.get('title'),
+                    subtitle=conf.get('subtitle'),
+                    feed_url=feed_url,
+                    url=conf.get('root_url'),
+                    author=conf.get('author'))
 
     for item in data:
         feed.add(title=item['title'],
