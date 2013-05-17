@@ -11,51 +11,29 @@
 {% endif %}
 <link href="/css/bootstrap.css" rel="stylesheet">
 <link href="/css/bootstrap-responsive.css" rel="stylesheet">
-<style type="text/css">
-body {
-padding-top: 60px !important;
-padding-bottom: 40px;
-}
-h1, h2, h3, h4 {
-font-family: 'PT Sans Narrow', sans-serif;
-font-weight: normal;
-color: #006699;
-background-color: transparent;
-}
-h2 {
-margin-top: 12px;
-}
-p strong {
-font-weight: normal;
-color: inherit;
-background-color: #ffffdd;
-}
-@media print {
-.noprint {
-display:none;
-}
-}
-.nav, .nav a {
-font-size: 14px;
-color: gray;
-background-color: transparent;
-}
-</style>
+<link href="/css/custom.css" rel="stylesheet">
 <!--[if lt IE 9]>
 <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 <![endif]-->
 <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
-<link href='http://fonts.googleapis.com/css?family=PT+Sans+Narrow&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
-<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="http://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 </head>
 
 <body>
-<div class="container">
+<div class="container-narrow">
+<div class="masthead">
+{% if menu %}
+<ul class="nav nav-pills pull-right">
+{% for item in menu %}
+<li><a href="{{item.url}}"{% if item.active %} class="active"{% endif %}>{{item.title}}</a></li>
+{% endfor %}
+</ul>
+{% endif %}<h3 class="muted"><a href="{{rel_root_url}}">{{site_title}}</a></h3>
+</div>
 {{ content }}
 <div class="nav">
-{% if prev_url %}&larr;&nbsp;<a href="{{prev_url}}">{{prev_title}}</a> |{% endif %}
-{% if archive_url %}<a href="{{archive_url}}">Archive</a>{% endif %}
-{% if next_url %}| <a href="{{next_url}}">{{next_title}}</a>&nbsp;&rarr;{% endif %}
+{% if prev_url %}&larr;&nbsp;<a href="{{prev_url}}">{{prev_title}}</a>{% endif %}
+{% if prev_url %}{% if next_url %}|{% endif %}{% endif %}
+{% if next_url %}<a href="{{next_url}}">{{next_title}}</a>&nbsp;&rarr;{% endif %}
 </div>
 </div>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
