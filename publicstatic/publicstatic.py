@@ -413,8 +413,8 @@ def run(args):
     port = tools.str2int(args.port, conf.get('port'))
     logger.info("running HTTP server on port %d..." % port)
 
-    from SimpleHTTPServer import SimpleHTTPRequestHandler
-    from SocketServer import TCPServer
+    from http.server import SimpleHTTPRequestHandler
+    from socketserver import TCPServer
     handler = SimpleHTTPRequestHandler
     httpd = TCPServer(('', port), handler)
 
