@@ -35,10 +35,10 @@ __url__ = authoring.URL
 _tplenv = None
 
 
-def init(args, use_defaults=False):
+def _init(args, use_defaults=False):
     """Init configuration and logger"""
     logger.init(args.verbose)
-    conf.init(args.source, use_defaults=use_defaults)
+    conf.init(args.source, use_defaults)
     logger.open_file_channel(conf.get('log_file'),
         conf.get('log_max_size'), conf.get('log_backup_cnt'))
 
@@ -297,7 +297,7 @@ def create_page(name, text, date, force):
             logger.error('page already exists, use -f to overwrite')
             return None
 
-    text = text.format(title=name, created=date.strftime(conf.TIME_FMT))
+    text = text.format(title=name, created=date.strftime(constants.TIME_FMT))
     tools.makedirs(os.path.split(page_path)[0])
 
     with codecs.open(page_path, mode='w', encoding='utf8') as f:
@@ -326,7 +326,7 @@ def create_post(name, text, date, force):
         if force or not os.path.exists(result):
             logger.debug("creating post '%s'" % result)
             text = text.format(title=name,
-                               created=date.strftime(conf.TIME_FMT))
+                               created=date.strftime(constants.TIME_FMT))
             with codecs.open(result, mode='w', encoding='utf8') as f:
                 f.write(text)
             return result
@@ -362,9 +362,10 @@ edit_arg = arg('-e', '--edit', default=False,
 @verbose_arg
 def init(args):
     """create new website"""
-    init(args, use_defaults=True)
+    _init(args, True)
 
     try:
+        tools.spawn_site(os.path.dirname(conf.get_path()))
         conf.write_defaults()
         logger.info('website created successfully, have fun!')
     except:
@@ -377,9 +378,10 @@ def init(args):
 @verbose_arg
 def build(args):
     """generate web content from source"""
-    init(args)
+    _init(args)
     tools.drop_build(conf.get('build_path'))
-
+    tools.makedirs(conf.get('build_path'))
+    logger.info("building path: '%s'" % conf.get('build_path'))
     logger.info('processing assets...')
     process_dir(conf.get('assets_path'))
     logger.info('processing pages...')
@@ -396,9 +398,10 @@ def build(args):
 @verbose_arg
 def run(args):
     """run local web server to preview generated website"""
-    init(args)
+    _init(args)
     tools.check_build(conf.get('build_path'))
-
+    original_cwd = os.getcwd()
+    port = tools.str2int(args.port, conf.get('port'))
     logger.info("running HTTP server on port %d..." % port)
 
     from SimpleHTTPServer import SimpleHTTPRequestHandler
@@ -429,7 +432,7 @@ def run(args):
 @verbose_arg
 def deploy(args):
     """deploy generated website to the remote web server"""
-    init(args)
+    _init(args)
     tools.check_build(conf.get('build_path'))
 
     if not conf.get('sync_cmd'):
@@ -447,9 +450,10 @@ def deploy(args):
 @verbose_arg
 def clean(args):
     """delete all generated content"""
-    init(args)
+    _init(args)
     logger.info('cleaning output...')
-
+    tools.drop_build(conf.get('build_path'))
+    logger.info('done')
 
 
 @arg('name', help='page name (may include path)')
@@ -461,8 +465,9 @@ def clean(args):
 @verbose_arg
 def page(args):
     """create new page"""
-    init(args)
+    _init(args)
     if not tools.valid_name(args.name):
+        raise Exception('illegal page name')
 
     text = tools.prototype(args.type or 'default-page')
     page_path = create_page(args.name, text, datetime.now(), args.force)
@@ -484,8 +489,9 @@ def page(args):
 @verbose_arg
 def post(args):
     """create new post"""
-    init(args)
+    _init(args)
     if not tools.valid_name(args.name):
+        raise Exception('illegal feed or post name')
 
     text = tools.prototype(args.type or 'default-post')
     try:

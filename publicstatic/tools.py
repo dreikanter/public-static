@@ -123,7 +123,7 @@ def update_humans(source_file, dest_file):
             text = f.read()
         repl = r"\1 " + time.strftime("%Y/%m/%d", time.gmtime())
         text = re.sub(r"^(\s*Last\s+update\s*\:).*", repl, text,
-                      flags=RE_FLAGS, count=1)
+                      flags=constants.RE_FLAGS, count=1)
         with codecs.open(dest_file, mode='w', encoding='utf8') as f:
             f.write(text)
     except:
@@ -300,7 +300,7 @@ def page_ctime(source_file):
 
 def parse_time(value):
     """Converts string to datetime using TIME_FMT format"""
-    return time.mktime(time.strptime(value.strip(), conf.TIME_FMT))
+    return time.mktime(time.strptime(value.strip(), constants.TIME_FMT))
 
 
 def parse_param(text):
