@@ -6,7 +6,6 @@ import codecs
 import conf
 from datetime import datetime
 import errno
-import logging
 import os
 import re
 import shutil
@@ -17,9 +16,6 @@ import traceback
 import markdown
 
 import constants
-
-
-log = logging.getLogger()
 
 
 def str2int(value, default=None):
@@ -73,16 +69,13 @@ def md(text, extensions):
         # New Markdown instanse works faster on large amounts of text
         # than reused one (for some reason)
         mkdn = markdown.Markdown(extension=extensions)
-    except:
-        log.error('markdown initialization error: '
-                  'probably bad extension names')
-        raise
+    except Exception as ex:
+        raise Exception('markdown initialization error: probably bad extension names') from ex
 
     try:
         return mkdn.convert(text.strip())
-    except:
-        log.error('markdown processing error')
-        raise
+    except Exception as ex:
+        raise Exception('markdown processing error') from ex
 
 
 def update_humans(source_file, dest_file):
@@ -103,10 +96,9 @@ def update_humans(source_file, dest_file):
                       flags=constants.RE_FLAGS, count=1)
         with codecs.open(dest_file, mode='w', encoding='utf8') as f:
             f.write(text)
-    except:
+    except Exception as ex:
         message = "humans.txt processing failed ('%s' to '%s')"
-        log.error(message % (source_file, dest_file))
-        raise
+        raise Exception(message % (source_file, dest_file)) from ex
 
 
 def spawn_site(path):
@@ -269,8 +261,8 @@ def page_ctime(source_file):
                 if match.group(1).lower() == 'created':
                     result = parse_time(match.group(2))
                     break
-    except Exception as e:
-        log.debug('error reading page ctime: ' + str(e))
+    except Exception as ex:
+        raise Exception('error reading page ctime: ' + str(e)) from ex
     return datetime.fromtimestamp(result or os.path.getctime(source_file))
 
 
