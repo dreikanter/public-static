@@ -267,9 +267,6 @@ def parse(source_file, is_post=False):
     purify_time('created', os.path.getctime)
     purify_time('updated', os.path.getmtime)
 
-    if not _tplenv:
-        print _tplenv
-
     return data
 
 

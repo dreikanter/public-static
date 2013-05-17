@@ -13,3 +13,4 @@ generic-site/www
 *.log
 bootstrap
 test/test-site
+__pycache__

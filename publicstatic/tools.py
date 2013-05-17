@@ -125,9 +125,8 @@ def prototype(name):
         file_name = os.path.join(conf.get('prototypes_path'), str(name) + '.md')
         with codecs.open(file_name, mode='r', encoding='utf8') as f:
             return f.read()
-    except:
-        log.error("error reading prototype post: '%s'" % str(name))
-        raise
+    except Exception as ex:
+        raise Exception("error reading prototype post: '%s'" % str(name)) from ex
 
 
 def cp(src, dest):
