@@ -40,29 +40,6 @@ def makedirs(dir_path):
     return False
 
 
-def execute_proc(command, source, dest=None):
-    """Executes one of the preconfigured commands
-    with {source} and {dest} parameters replacement"""
-    if dest:
-        cmd = command.format(source=source, dest=dest)
-    else:
-        cmd = command.format(source=source)
-    execute(os.path.expandvars(cmd))
-
-
-def execute(cmd, critical=False):
-    """Execute system command"""
-    try:
-        log.debug("executing '%s'" % cmd)
-        os.system(cmd)
-    except:
-        log.error('error executing system command')
-        if critical:
-            raise
-        else:
-            log.debug(traceback.format_exc())
-
-
 def browse(url, delay):
     """Opens specified @url with system default browser after @delay seconds"""
     time.sleep(delay)

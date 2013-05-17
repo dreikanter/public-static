@@ -43,6 +43,18 @@ def _init(args, use_defaults=False):
         conf.get('log_max_size'), conf.get('log_backup_cnt'))
 
 
+def _exec(command, source, dest=''):
+    """Safely executes one of the preconfigured commands
+    with {source} and {dest} parameter replacements"""
+    cmd = os.path.expandvars(command.format(source=source, dest=dest))
+    logger.debug("executing '%s'" % cmd)
+    try:
+        os.system(cmd)
+    except:
+        logger.error('error executing system command')
+        logger.debug(traceback.format_exc())
+
+
 # Website building
 
 def process_dir(path):
@@ -73,19 +85,19 @@ def process_file(root_dir, rel_source):
         logger.info('compiling LESS: ' + rel_source)
         if conf.get('min_less'):
             tmp_file = dest_file + '.tmp'
-            tools.execute_proc(conf.get('less_cmd'), source_file, tmp_file)
-            tools.execute_proc(conf.get('min_css_cmd'), tmp_file, dest_file)
+            _exec(conf.get('less_cmd'), source_file, tmp_file)
+            _exec(conf.get('min_css_cmd'), tmp_file, dest_file)
             os.remove(tmp_file)
         else:
-            tools.execute_proc(conf.get('less_cmd'), source_file, dest_file)
+            _exec(conf.get('less_cmd'), source_file, dest_file)
 
     elif ext == '.css' and conf.get('min_css') and conf.get('min_css_cmd'):
         logger.info('minifying CSS: ' + rel_source)
-        tools.execute_proc(conf.get('min_css_cmd'), source_file, dest_file)
+        _exec(conf.get('min_css_cmd'), source_file, dest_file)
 
     elif ext == '.js' and conf.get('min_js') and conf.get('min_js_cmd'):
         logger.info('minifying JS: ' + rel_source)
-        tools.execute_proc(conf.get('min_js_cmd'), source_file, dest_file)
+        _exec(conf.get('min_js_cmd'), source_file, dest_file)
 
     elif os.path.basename(source_file) == 'humans.txt':
         logger.info('copying: %s (updated)' % rel_source)
@@ -441,7 +453,7 @@ def deploy(args):
 
     logger.info('synchronizing...')
     cmd = conf.get('sync_cmd').format(path=conf.get('build_path'))
-    tools.execute(cmd, True)
+    os.execute(cmd)
     logger.info('done')
 
 
@@ -477,7 +489,7 @@ def page(args):
 
     logger.info('page cerated')
     if args.edit:
-        tools.execute_proc(conf.get('editor_cmd'), page_path)
+        _exec(conf.get('editor_cmd'), page_path)
 
 
 @arg('name', help='post name and optional feed name')
@@ -503,7 +515,7 @@ def post(args):
     logger.info('post cerated')
 
     if args.edit:
-        tools.execute_proc(conf.get('editor_cmd'), post_path)
+        _exec(conf.get('editor_cmd'), post_path)
 
 
 def main():
