@@ -39,8 +39,6 @@ def _init(args, use_defaults=False):
     """Init configuration and logger"""
     logger.init(args.verbose)
     conf.init(args.source, use_defaults)
-    logger.open_file_channel(conf.get('log_file'),
-        conf.get('log_max_size'), conf.get('log_backup_cnt'))
 
 
 def _exec(command, source, dest=''):

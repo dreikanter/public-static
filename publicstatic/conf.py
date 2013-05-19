@@ -79,9 +79,6 @@ def _purify(params):
     params['port'] = int(params['port'])
     params['root_url'] = _trslash(params['root_url'].strip())
     params['rel_root_url'] = _trslash(params['rel_root_url'].strip())
-    params['log_file'] = params['log_file']
-    params['log_max_size'] = int(params['log_max_size'])
-    params['log_backup_cnt'] = int(params['log_backup_cnt'])
     menu = params['menu']
     for item in menu:
         item['id'] = item['id'].strip() if 'id' in item else ''
