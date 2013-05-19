@@ -148,7 +148,7 @@ def process_blog(path):
         prev = data
 
     logger.info('building blog index...')
-    build_indexes(index)
+    build_indexes(index[::-1])
 
     logger.info('building atom feed...')
     build_feed(index)
@@ -216,7 +216,7 @@ def build_feed(data):
 def build_indexes(data):
     """Build post list pages"""
     index_data = {
-        'title': conf.get('title'),
+        'title': conf.get('archive_page_title'),
         'author': conf.get('author'),
         'generator': conf.get('generator'),
         'template': 'archive',

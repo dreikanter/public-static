@@ -52,6 +52,7 @@ DEFAULTS = [
     ('editor_cmd', "$EDITOR \"{source}\""),
     ('index_page', 'index.html'),
     ('archive_page', 'archive.html'),
+    ('archive_page_title', 'Archive'),
     ('atom_feed', 'feed.atom'),
     ('post_at_root_url', True),
     ('menu', [
