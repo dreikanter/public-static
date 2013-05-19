@@ -1,6 +1,11 @@
 {% include '_header.html' %}
 {{ content }}
-<div class="nav">{% if prev_url %}
-&larr;&nbsp;<a href="{{prev_url}}">{{prev_title}}</a>{% if next_url %} |
-{% endif %}{% endif %}{% if next_url %}<a href="{{next_url}}">{{next_title}}</a>&nbsp;&rarr;{% endif %}</div>
-{% include '_footer.html' %}
+<div class="nav">
+{%- if prev_url -%}
+	&larr;&nbsp;<a href="{{prev_url}}">{{prev_title}}</a>
+	{%- if next_url %} | {% endif -%}
+{%- endif -%}
+{%- if next_url -%}
+	<a href="{{next_url}}">{{next_title}}</a>&nbsp;&rarr;
+{%- endif %}</div>
+{% include '_footer.html' -%}

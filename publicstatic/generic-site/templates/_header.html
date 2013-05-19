@@ -4,11 +4,18 @@
 <meta charset="utf-8">
 <title>{{title}}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-{% if description %}<meta name="description" content="{{ description }}">
-{% endif %}{% if keywords %}<meta name="keywords" content="{{keywords}}">
-{% endif %}{% if author %}<meta name="author" content="{{author}}">
-{% endif %}{% if generator %}<meta name="generator" content="{{generator}}">
-{% endif %}
+{% if description -%}
+<meta name="description" content="{{ description }}">
+{% endif -%}
+{% if keywords -%}
+<meta name="keywords" content="{{keywords}}">
+{% endif -%}
+{%- if author -%}
+<meta name="author" content="{{author}}">
+{% endif -%}
+{%- if generator -%}
+<meta name="generator" content="{{generator}}">
+{% endif -%}
 <link href="/css/bootstrap.css" rel="stylesheet">
 <link href="/css/bootstrap-responsive.css" rel="stylesheet">
 <link href="/css/custom.css" rel="stylesheet">
@@ -21,11 +28,12 @@
 <body>
 <div class="container-narrow">
 <div class="masthead">
-{% if menu %}
+{% if menu -%}
 <ul class="nav nav-pills pull-right">
-{% for item in menu %}
+{%- for item in menu %}
 <li><a href="{{item.url}}"{% if item.active %} class="active"{% endif %}>{{item.title}}</a></li>
-{% endfor %}
+{%- endfor %}
 </ul>
-{% endif %}<h3 class="muted"><a href="{{rel_root_url}}">{{site_title}}</a></h3>
+{%- endif %}
+<h3 class="muted"><a href="{{rel_root_url}}">{{site_title}}</a></h3>
 </div>
