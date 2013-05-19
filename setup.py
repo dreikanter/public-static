@@ -30,11 +30,11 @@ setup(
     packages=find_packages(),
     package_data={'publicstatic': get_data_files('publicstatic')},
     install_requires=[
+        'argh',
         'markdown',
         'mdx_grid',
         'mdx_smartypants',
         'jinja2',
-        'baker',
         'yuicompressor',
     ],
     entry_points={'console_scripts': ['pub = publicstatic.publicstatic:main']},
@@ -46,7 +46,7 @@ setup(
        'License :: OSI Approved :: MIT License',
        'Programming Language :: Python',
        'Programming Language :: Python :: 2.7',
-       # TODO: Test and add other versions
+       'Programming Language :: Python :: 3.3',
     ],
     dependency_links=[
         'https://github.com/dreikanter/markdown-grid/tarball/master#egg=mdx_grid'

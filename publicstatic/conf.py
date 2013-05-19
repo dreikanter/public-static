@@ -14,7 +14,7 @@ _path = ''  # Configuration file absolute path
 
 
 def init(conf_path, use_defaults=False):
-    """Initializes configuration from Baker arguments"""
+    """Initializes configuration"""
     global _path
     _path = os.path.abspath(os.path.join(conf_path or '.', constants.CONF_NAME))
 
