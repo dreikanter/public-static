@@ -19,21 +19,15 @@ p strong {
 	}
 }
 
-.nav, .nav a {
-	font-size: 14px;
-	color: gray;
-	background-color: transparent;
-}
-
 .container-narrow {
 	margin: 0 auto;
 	max-width: 700px;
 }
 
-.container-narrow > hr {
-	margin: 30px 0;
+.right {
+	text-align: right;
 }
 
-.muted a, .muted a:hover {
+.muted a {
 	color: #999;
 }
