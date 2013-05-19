@@ -72,16 +72,12 @@ def _purify(params):
     params['build_path'] = _expand(params['build_path'])
     params['tpl_path'] = _expand(params['tpl_path'])
     params['prototypes_path'] = _expand(params['prototypes_path'])
-    params['min_js_cmd'] = params['min_js_cmd'].strip()
-    params['min_css_cmd'] = params['min_css_cmd'].strip()
-    params['sync_cmd'] = params['sync_cmd'].strip()
     params['browser_delay'] = float(params['browser_delay'])
     params['port'] = int(params['port'])
     params['root_url'] = _trslash(params['root_url'].strip())
     params['rel_root_url'] = _trslash(params['rel_root_url'].strip())
     menu = params['menu']
     for item in menu:
-        item['id'] = item['id'].strip() if 'id' in item else ''
         item['href'] = item['href'].strip() if 'href' in item else ''
         item['title'] = item['title'].strip() if 'title' in item else ''
     return params
