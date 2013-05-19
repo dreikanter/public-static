@@ -149,10 +149,6 @@ def process_blog(path):
 
         prev = data
 
-    # TODO: Put 'index.html' to configuration w/ default value
-    dest_file = os.path.join(conf.get('build_path'), 'index.html')
-    build_page(data, dest_file)
-
     logger.info('building blog index...')
     build_indexes(index)
 

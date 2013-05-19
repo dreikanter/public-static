@@ -82,14 +82,11 @@ def _purify(params):
     params['log_file'] = params['log_file']
     params['log_max_size'] = int(params['log_max_size'])
     params['log_backup_cnt'] = int(params['log_backup_cnt'])
-    menu_items = []
-    for item in params['menu']:
-        if ':' in item:
-            title, url = item.split(':')
-        else:
-            title = url = item
-        menu_items.append({'url': url, 'title': title})
-    params['menu'] = menu_items
+    menu = params['menu']
+    for item in menu:
+        item['id'] = item['id'].strip() if 'id' in item else ''
+        item['href'] = item['href'].strip() if 'href' in item else ''
+        item['title'] = item['title'].strip() if 'title' in item else ''
     return params
 
 

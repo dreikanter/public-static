@@ -31,7 +31,7 @@
 {% if menu -%}
 <ul class="nav nav-pills pull-right">
 {%- for item in menu %}
-<li><a href="{{item.url}}"{% if item.active %} class="active"{% endif %}>{{item.title}}</a></li>
+<li><a href="{{item.href}}">{{item.title}}</a></li>
 {%- endfor %}
 </ul>
 {%- endif %}
