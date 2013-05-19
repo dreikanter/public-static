@@ -1,11 +1,13 @@
 {% include '_header.html' %}
 {{ content }}
-<div class="nav">
-{%- if prev_url -%}
-	&larr;&nbsp;<a href="{{prev_url}}">{{prev_title}}</a>
-	{%- if next_url %} | {% endif -%}
-{%- endif -%}
-{%- if next_url -%}
-	<a href="{{next_url}}">{{next_title}}</a>&nbsp;&rarr;
-{%- endif %}</div>
+<div class="row-fluid muted">
+{%- set lclass = ' class="span6"' if prev_url and next_url else '' -%}
+{%- set rclass = ' class="span6 right"' if prev_url and next_url else ' class="right"' -%}
+{%- if prev_url %}
+<div{{ lclass }}>&larr;&nbsp;<a href="{{ prev_url }}">{{ prev_title }}</a></div>
+{% endif -%}
+{%- if next_url %}
+<div{{ rclass }}><a href="{{ next_url }}">{{ next_title }}</a>&nbsp;&rarr;</div>
+{% endif -%}
+</div>
 {% include '_footer.html' -%}

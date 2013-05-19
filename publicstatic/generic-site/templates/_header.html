@@ -27,7 +27,7 @@
 
 <body>
 <div class="container-narrow">
-<div class="masthead">
+<div class="row">
 {% if menu -%}
 <ul class="nav nav-pills pull-right">
 {%- for item in menu %}
@@ -37,3 +37,4 @@
 {%- endif %}
 <h3 class="muted"><a href="{{rel_root_url}}">{{site_title}}</a></h3>
 </div>
+<div class="row">
