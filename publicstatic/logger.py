@@ -4,7 +4,7 @@ import logging
 import logging.handlers
 import os
 import os.path
-import constants
+from . import constants
 
 
 _logger = None

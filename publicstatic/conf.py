@@ -5,9 +5,8 @@
 import codecs
 import os
 import yaml
-
-import authoring
-import constants
+from . import authoring
+from . import constants
 
 _params = {}  # Configuration parameters
 _path = ''  # Configuration file absolute path

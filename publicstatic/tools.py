@@ -3,7 +3,6 @@
 """General purpose helper functions"""
 
 import codecs
-import conf
 from datetime import datetime
 import errno
 import os
@@ -12,10 +11,9 @@ import shutil
 import sys
 import time
 import traceback
-
 import markdown
-
-import constants
+from . import conf
+from . import constants
 
 
 def str2int(value, default=None):

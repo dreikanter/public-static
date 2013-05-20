@@ -3,25 +3,22 @@
 
 """public-static - static website builder"""
 
+import codecs
+from datetime import datetime
 import os
 import re
 import sys
 import shutil
-import codecs
 import traceback
-
 from argh import ArghParser, arg
-from datetime import datetime
 import jinja2
-from logging.handlers import RotatingFileHandler
 from multiprocessing import Process
-from lib.pyatom import AtomFeed
-
-import authoring
-import conf
-import constants
-import logger
-import tools
+from .lib.pyatom import AtomFeed
+from . import authoring
+from . import conf
+from . import constants
+from . import logger
+from . import tools
 
 __author__ = authoring.AUTHOR
 __email__ = authoring.EMAIL
