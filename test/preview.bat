@@ -1,2 +1,2 @@
 call env.bat
-python %pub% run -b -v -s %sitedir%
+python -m publicstatic.publicstatic run -b -v -s %sitedir%
