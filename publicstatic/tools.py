@@ -64,14 +64,7 @@ def get_h1(text):
 def md(text, extensions):
     """Converts markdown formatted text to HTML"""
     try:
-        # New Markdown instanse works faster on large amounts of text
-        # than reused one (for some reason)
-        mkdn = markdown.Markdown(extension=extensions)
-    except Exception as ex:
-        raise Exception('markdown initialization error: probably bad extension names') from ex
-
-    try:
-        return mkdn.convert(text.strip())
+        return markdown.markdown(text.strip(), extensions=extensions)
     except Exception as ex:
         raise Exception('markdown processing error') from ex
 
