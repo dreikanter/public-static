@@ -1,6 +1,6 @@
+__pycache__
 *.py[co]
 
-# Packages
 *.egg
 *.egg-info
 dist
@@ -9,8 +9,5 @@ bin
 sdist
 MANIFEST
 
-generic-site/www
 *.log
-bootstrap
-test/test-site
-__pycache__
+tests/test-site
