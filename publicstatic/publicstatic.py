@@ -512,10 +512,15 @@ def post(args):
         _exec(conf.get('editor_cmd'), post_path)
 
 
+def version(args):
+    """show version"""
+    return __version__
+
+
 def main():
     try:
         p = ArghParser()
-        p.add_commands([init, build, run, deploy, clean, page, post])
+        p.add_commands([init, build, run, deploy, clean, page, post, version])
         p.dispatch()
         return 0
 
