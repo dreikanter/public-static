@@ -14,6 +14,7 @@ import traceback
 import markdown
 from . import conf
 from . import constants
+from .lib.trans import trans
 
 
 def str2int(value, default=None):
@@ -194,6 +195,7 @@ def feed_data(page_data):
         'url': post_url(page_data),
         'full_url': post_url(page_data, True),
         'content': page_data.get('content'),
+        'tags': page_data.get('tags'),
     }
 
 
@@ -267,6 +269,11 @@ def parse_param(text):
     when parsing fails."""
     match = constants.PARAM_PATTERN.match(text)
     if match:
-        return (match.group(1).strip(), match.group(2).strip())
+        return (match.group(1).strip().lower(), match.group(2).strip())
     else:
         return None
+
+
+def tag_url(tag, full=False):
+    url = conf.get('root_url') if full else conf.get('rel_root_url')
+    return "{url}tags/{tag}.html".format(url=url, tag=urlify(trans(tag)))

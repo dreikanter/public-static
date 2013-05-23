@@ -249,10 +249,15 @@ def parse(source_file, is_post=False):
 
     deftpl = conf.get('post_tpl' if is_post else 'page_tpl')
     data['template'] = data.get('template', deftpl).strip()
+
     data['author'] = data.get('author', conf.get('author')).strip()
 
     extensions = conf.get('markdown_extensions')
     data['content'] = tools.md(data.get('content', ''), extensions)
+
+    tags = list(map(str.strip, filter(None, data.get('tags', '').split(','))))
+    tags = tags or conf.get('default_tags')
+    data['tags'] = [ { 'name': tag, 'url': tools.tag_url(tag) } for tag in tags ]
 
     def purify_time(param, get_time):
         if param in data:
