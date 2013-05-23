@@ -1,0 +1,7 @@
+{% macro tags_list(tags, inline=False) -%}
+{% if inline %}<span class="tags">{% else %}<div class="tags">{% endif %}
+{% for tag in tags -%}
+<a href="{{ tag.url }}">{{ tag.name }}</a>{% if not loop.last %}, {% endif %}
+{% endfor -%}
+{% if inline %}<span>{% else %}</div>{% endif %}
+{% endmacro -%}
