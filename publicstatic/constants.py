@@ -58,5 +58,6 @@ DEFAULTS = [
     ('menu', [
         { 'title': 'About', 'href': '/about.html' },
         { 'title': 'Archive', 'href': '/archive.html' },
-        ])
+        ]),
+    ('default_tags', [ 'misc' ])
 ]
