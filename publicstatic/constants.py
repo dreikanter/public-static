@@ -46,7 +46,7 @@ DEFAULTS = [
     ('min_less', True),
     ('min_js_cmd', "yuicompressor --type js --nomunge -o {dest} {source}"),
     ('min_css_cmd', "yuicompressor --type css -o {dest} {source}"),
-    ('sync_cmd', ''),
+    ('deploy_cmd', ''),
     ('less_cmd', "lessc -x {source} > {dest}"),
     ('markdown_extensions', ['nl2br', 'grid', 'smartypants']),
     ('editor_cmd', "$EDITOR \"{source}\""),

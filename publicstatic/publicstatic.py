@@ -13,12 +13,12 @@ import traceback
 from argh import ArghParser, arg
 import jinja2
 from multiprocessing import Process
-from .lib.pyatom import AtomFeed
-from . import authoring
-from . import conf
-from . import constants
-from . import logger
-from . import tools
+from publicstatic.lib.pyatom import AtomFeed
+from publicstatic import authoring
+from publicstatic import conf
+from publicstatic import constants
+from publicstatic import logger
+from publicstatic import tools
 
 __author__ = authoring.AUTHOR
 __email__ = authoring.EMAIL
@@ -446,12 +446,11 @@ def deploy(args):
     _init(args)
     tools.check_build(conf.get('build_path'))
 
-    if not conf.get('sync_cmd'):
-        raise Exception('synchronizing command is not '
-                        'defined by configuration')
+    if not conf.get('deploy_cmd'):
+        raise Exception('deploy command is not defined')
 
-    logger.info('synchronizing...')
-    cmd = conf.get('sync_cmd').format(path=conf.get('build_path'))
+    logger.info('deploying website...')
+    cmd = conf.get('deploy_cmd').format(build_path=conf.get('build_path'))
     os.execute(cmd)
     logger.info('done')
 
