@@ -32,10 +32,10 @@ __url__ = authoring.URL
 _tplenv = None
 
 
-def _init(args, use_defaults=False):
+def _init(conf_path, verbose=False, use_defaults=False):
     """Init configuration and logger"""
-    logger.init(args.verbose)
-    conf.init(args.source, use_defaults)
+    logger.init(verbose)
+    conf.init(conf_path, use_defaults)
     logger.open_file_channel(conf.get('log_file'),
                              conf.get('log_max_size'),
                              conf.get("log_backup_cnt"))
@@ -371,12 +371,12 @@ edit_arg = arg('-e', '--edit', default=False,
 
 # Commands
 
-@source_arg
+@arg('name', help='website name')
 @log_arg
 @verbose_arg
 def init(args):
     """create new website"""
-    _init(args, True)
+    _init(args.name, args.verbose, True)
 
     try:
         site_path = os.path.dirname(conf.get_path())
@@ -395,7 +395,7 @@ def init(args):
 @verbose_arg
 def build(args):
     """generate web content from source"""
-    _init(args)
+    _init(args.source, args.verbose)
     tools.drop_build(conf.get('build_path'))
     tools.makedirs(conf.get('build_path'))
     logger.info("building path: '%s'" % conf.get('build_path'))
@@ -415,7 +415,7 @@ def build(args):
 @verbose_arg
 def run(args):
     """run local web server to preview generated website"""
-    _init(args)
+    _init(args.source, args.verbose)
     tools.check_build(conf.get('build_path'))
     original_cwd = os.getcwd()
     port = tools.str2int(args.port, conf.get('port'))
@@ -449,7 +449,7 @@ def run(args):
 @verbose_arg
 def deploy(args):
     """deploy generated website to the remote web server"""
-    _init(args)
+    _init(args.source, args.verbose)
     tools.check_build(conf.get('build_path'))
 
     if not conf.get('deploy_cmd'):
@@ -469,7 +469,7 @@ def deploy(args):
 @verbose_arg
 def clean(args):
     """delete all generated content"""
-    _init(args)
+    _init(args.source, args.verbose)
     logger.info('cleaning output...')
     tools.drop_build(conf.get('build_path'))
     logger.info('done')
@@ -484,7 +484,7 @@ def clean(args):
 @verbose_arg
 def page(args):
     """create new page"""
-    _init(args)
+    _init(args.source, args.verbose)
     if not tools.valid_name(args.name):
         raise Exception('illegal page name')
 
@@ -508,7 +508,7 @@ def page(args):
 @verbose_arg
 def post(args):
     """create new post"""
-    _init(args)
+    _init(args.source, args.verbose)
     if not tools.valid_name(args.name):
         raise Exception('illegal feed or post name')
 
