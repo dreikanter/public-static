@@ -110,17 +110,18 @@ def prototype(name):
         raise Exception("error reading prototype post: '%s'" % str(name)) from ex
 
 
-def copydir(source, dest):
-    """Copy a directory (overwrite existing files silently)"""
-    if not os.path.isdir(dest):
-        os.makedirs(dest)
-
+def copydir(source, dest, indent = 0):
+    """Copy a directory structure overwriting existing files"""
     for root, dirs, files in os.walk(source):
+        if not os.path.isdir(root):
+            os.makedirs(root)
         for each_file in files:
-            shutil.copyfile(os.path.join(root, each_file), os.path.join(dest, each_file))
-
-        for each_dir in dirs:
-            copydir(os.path.join(root, each_dir), os.path.join(dest, each_dir))
+            rel_path = root.replace(source, '').lstrip(os.sep)
+            dest_dir = os.path.join(dest, rel_path)
+            dest_path = os.path.join(dest_dir, each_file)
+            if not os.path.isdir(dest_dir):
+                os.makedirs(dest_dir)
+            shutil.copyfile(os.path.join(root, each_file), dest_path)
 
 
 def urlify(string):
