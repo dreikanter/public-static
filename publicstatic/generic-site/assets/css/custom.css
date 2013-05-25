@@ -39,15 +39,23 @@ p strong {
 	color: #999;
 	padding: 2px 4px;
 	white-space: nowrap;
-	background-color: #f7f7f9;
-	border: 1px solid #e1e1e8;
 	text-decoration: none;
 }
 
+div.tags {
+	margin: 25px 0;
+}
+
 div.tags a {
+	background-color: #f7f7f9;
+	border: 1px solid #e1e1e8;
 	-webkit-border-radius: 3px;
 	-moz-border-radius: 3px;
 	border-radius: 3px;
+}
+
+span.tags a:hover {
+	text-decoration: underline;
 }
 
 ul.archive li {
