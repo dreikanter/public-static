@@ -457,7 +457,10 @@ def deploy(args):
 
     logger.info('deploying website...')
     cmd = conf.get('deploy_cmd').format(build_path=conf.get('build_path'))
-    os.execute(cmd)
+
+    from subprocess import call
+    call(cmd)
+
     logger.info('done')
 
 
