@@ -36,6 +36,9 @@ def _init(args, use_defaults=False):
     """Init configuration and logger"""
     logger.init(args.verbose)
     conf.init(args.source, use_defaults)
+    logger.open_file_channel(conf.get('log_file'),
+                             conf.get('log_max_size'),
+                             conf.get("log_backup_cnt"))
 
 
 def _exec(command, source, dest=''):
@@ -347,10 +350,10 @@ def create_post(name, text, date, force):
 
 # Common command line arguments
 
-source_arg = arg('-s', '--source', default=None, metavar='SRC',
+source_arg = arg('-s','--source',default=None,metavar='SRC',
                  help='website source path (default is the current directory)')
 
-log_arg = arg('-l', '--log', default=None,
+log_arg = arg('-l','--log', default=None,
               help='log file name')
 
 verbose_arg = arg('-v', '--verbose', default=False,
@@ -376,7 +379,10 @@ def init(args):
     _init(args, True)
 
     try:
-        tools.spawn_site(os.path.dirname(conf.get_path()))
+        site_path = os.path.dirname(conf.get_path())
+        if os.path.isdir(site_path):
+            logger.warn("directory already exists: '%s'" % site_path)
+        tools.spawn_site(site_path)
         conf.write_defaults()
         logger.info('website created successfully, have fun!')
     except:
@@ -527,13 +533,6 @@ def main():
         p.add_commands([init, build, run, deploy, clean, page, post, version])
         p.dispatch()
         return 0
-
-    # except KeyboardInterrupt:
-    #     logger.info('killed by user')
-    #     return 0
-
-    # except SystemExit as e:
-    #     logger.info(str(e))
 
     except Exception as e:
         import logging

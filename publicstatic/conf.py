@@ -5,8 +5,8 @@
 import codecs
 import os
 import yaml
-from . import authoring
-from . import constants
+from publicstatic import authoring
+from publicstatic import constants
 
 _params = {}  # Configuration parameters
 _path = ''  # Configuration file absolute path
@@ -75,6 +75,9 @@ def _purify(params):
     params['port'] = int(params['port'])
     params['root_url'] = _trslash(params['root_url'].strip())
     params['rel_root_url'] = _trslash(params['rel_root_url'].strip())
+    params['log_file'] = params['log_file'].strip()
+    params['log_max_size'] = int(params['log_max_size'])
+    params['log_backup_cnt'] = int(params['log_backup_cnt'])
     menu = params['menu']
     for item in menu:
         item['href'] = item['href'].strip() if 'href' in item else ''

@@ -12,9 +12,9 @@ import sys
 import time
 import traceback
 import markdown
-from . import conf
-from . import constants
-from .lib.trans import trans
+from publicstatic import conf
+from publicstatic import constants
+from publicstatic.lib.trans import trans
 
 
 def str2int(value, default=None):
@@ -95,12 +95,9 @@ def update_humans(source_file, dest_file):
 
 def spawn_site(path):
     """Clones generic site to specified directory"""
-    if os.path.isdir(path):
-        raise Exception("directory already exists: '%s'" % path)
-
-    generic = os.path.dirname(os.path.abspath(__file__))
-    generic = os.path.join(generic, constants.GENERIC_PATH)
-    cp(generic, path)
+    gen_path = os.path.dirname(os.path.abspath(__file__))
+    gen_path = os.path.join(gen_path, constants.GENERIC_PATH)
+    copydir(gen_path, path)
 
 
 def prototype(name):
@@ -113,15 +110,17 @@ def prototype(name):
         raise Exception("error reading prototype post: '%s'" % str(name)) from ex
 
 
-def cp(src, dest):
-    """Copies everything to anywhere"""
-    try:
-        shutil.copytree(src, dest)
-    except OSError as e:
-        if e.errno == errno.ENOTDIR:
-            shutil.copy(src, dest)
-        else:
-            raise
+def copydir(source, dest):
+    """Copy a directory (overwrite existing files silently)"""
+    if not os.path.isdir(dest):
+        os.makedirs(dest)
+
+    for root, dirs, files in os.walk(source):
+        for each_file in files:
+            shutil.copyfile(os.path.join(root, each_file), os.path.join(dest, each_file))
+
+        for each_dir in dirs:
+            copydir(os.path.join(root, each_dir), os.path.join(dest, each_dir))
 
 
 def urlify(string):
