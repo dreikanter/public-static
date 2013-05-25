@@ -20,8 +20,12 @@ def init(conf_path, use_defaults=False):
     params = dict(constants.DEFAULTS)
 
     if not use_defaults:  # Reads configuration file and override defaults
-        with codecs.open(_path, mode='r', encoding='utf8') as f:
-            loaded = yaml.load(f.read())
+        try:
+            with codecs.open(_path, mode='r', encoding='utf8') as f:
+                loaded = yaml.load(f.read())
+        except (IOError, OSError) as e:
+            raise Exception('configuration file not found') from e
+
         loaded = dict((item, loaded[item]) for item in loaded)
         params.update(loaded)
 
@@ -64,20 +68,25 @@ def _check(value):
 def _purify(params):
     """Preprocess configuration parameters"""
     gen = params['generator'].strip()
-    params['generator'] = gen.format(version=authoring.VERSION)
+
     params['pages_path'] = _expand(params['pages_path'])
     params['posts_path'] = _expand(params['posts_path'])
     params['assets_path'] = _expand(params['assets_path'])
     params['build_path'] = _expand(params['build_path'])
     params['tpl_path'] = _expand(params['tpl_path'])
     params['prototypes_path'] = _expand(params['prototypes_path'])
-    params['browser_delay'] = float(params['browser_delay'])
-    params['port'] = int(params['port'])
+
     params['root_url'] = _trslash(params['root_url'].strip())
     params['rel_root_url'] = _trslash(params['rel_root_url'].strip())
+
+    params['generator'] = gen.format(version=authoring.VERSION)
+    params['browser_delay'] = float(params['browser_delay'])
+    params['port'] = int(params['port'])
+
     params['log_file'] = params['log_file'].strip()
     params['log_max_size'] = int(params['log_max_size'])
     params['log_backup_cnt'] = int(params['log_backup_cnt'])
+
     menu = params['menu']
     for item in menu:
         item['href'] = item['href'].strip() if 'href' in item else ''
