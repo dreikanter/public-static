@@ -337,7 +337,7 @@ def create_post(name, text, date, force):
 
 # Common command line arguments
 
-source_arg = arg('-s','--source',default=None,metavar='SRC',
+source_arg = arg('-s','--source', default=None, metavar='SRC',
                  help='website source path (default is the current directory)')
 
 log_arg = arg('-l','--log', default=None,
@@ -358,12 +358,12 @@ edit_arg = arg('-e', '--edit', default=False,
 
 # Commands
 
-@arg('name', help='website name')
+@source_arg
 @log_arg
 @verbose_arg
 def init(args):
     """create new website"""
-    _init(args.name, args.verbose, True)
+    _init(args.source, args.verbose, True)
 
     try:
         site_path = os.path.dirname(conf.get_path())
