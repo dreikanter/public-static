@@ -34,11 +34,8 @@ _tplenv = None
 
 def _init(conf_path, verbose=False, use_defaults=False):
     """Init configuration and logger"""
-    logger.init(verbose)
     conf.init(conf_path, use_defaults)
-    logger.open_file_channel(conf.get('log_file'),
-                             conf.get('log_max_size'),
-                             conf.get("log_backup_cnt"))
+    logger.init(verbose=verbose)
 
 
 def _exec(command, source, dest=''):

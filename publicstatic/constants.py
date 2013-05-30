@@ -63,4 +63,5 @@ DEFAULTS = [
     ('log_file', 'pub.log'),
     ('log_max_size', 1024 * 1024),
     ('log_backup_cnt', 3),
+    ('verbose', False),
 ]

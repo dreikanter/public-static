@@ -1,11 +1,11 @@
 # coding: utf-8
 
 import logging
-import logging.handlers
+from logging.handlers import RotatingFileHandler as RFH
 import os
 import os.path
+from publicstatic import conf
 from publicstatic import constants
-
 
 _logger = None
 
@@ -20,32 +20,28 @@ def init(verbose=False):
     _logger = logging.getLogger()
     _logger.setLevel(logging.DEBUG)
 
-    level = logging.DEBUG if verbose else logging.INFO
+    level = logging.DEBUG if verbose or conf.get('verbose') else logging.INFO
     channel = logging.StreamHandler()
     channel.setLevel(level)
     fmt = logging.Formatter(constants.CONSOLE_FMT, constants.CONSOLE_DATE_FMT)
     channel.setFormatter(fmt)
 
     _logger.addHandler(channel)
+    log_file = conf.get('log_file')
 
+    if log_file:
+        path = os.path.dirname(log_file)
+        if path and not os.path.isdir(path):
+            os.makedirs(path)
 
-def open_file_channel(log_file, max_size=0, backup_cnt=0):
-    if not log_file:
-        raise ValueError('log_file')
+        channel = RFH(log_file,
+                      maxBytes=conf.get('log_max_size'),
+                      backupCount=conf.get('log_backup_cnt'))
 
-    global _logger
-    _check_init()
-
-    path = os.path.dirname(log_file)
-    if path and not os.path.isdir(path):
-        os.makedirs(path)
-
-    RFH = logging.handlers.RotatingFileHandler
-    channel = RFH(log_file, maxBytes=max_size, backupCount=backup_cnt)
-    channel.setLevel(logging.DEBUG)
-    fmt = logging.Formatter(constants.FILE_FMT, constants.FILE_DATE_FMT)
-    channel.setFormatter(fmt)
-    _logger.addHandler(channel)
+        channel.setLevel(logging.DEBUG)
+        fmt = logging.Formatter(constants.FILE_FMT, constants.FILE_DATE_FMT)
+        channel.setFormatter(fmt)
+        _logger.addHandler(channel)
 
 
 def debug(message):
