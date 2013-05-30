@@ -12,9 +12,9 @@ import sys
 import time
 import traceback
 import markdown
-from publicstatic import conf
-from publicstatic import constants
-from publicstatic.lib.trans import trans
+from . import conf
+from . import constants
+from .lib.trans import trans
 
 
 def str2int(value, default=None):

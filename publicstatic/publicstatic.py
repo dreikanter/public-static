@@ -1,24 +1,23 @@
-#!/usr/bin/env python
 # coding: utf-8
 
 """public-static - static website builder"""
 
 import codecs
 from datetime import datetime
+from multiprocessing import Process
 import os
 import re
-import sys
 import shutil
+import sys
 import traceback
 from argh import ArghParser, arg
 import jinja2
-from multiprocessing import Process
-from publicstatic.lib.pyatom import AtomFeed
-from publicstatic import conf
-from publicstatic import constants
-from publicstatic import logger
-from publicstatic import tools
-from publicstatic.version import get_version
+from . import conf
+from . import constants
+from . import logger
+from . import tools
+from .lib.pyatom import AtomFeed
+from .version import get_version
 
 _tplenv = None
 
@@ -531,7 +530,3 @@ def main():
         logging.error(str(e))
         logging.debug(traceback.format_exc())
         return 2
-
-
-if __name__ == '__main__':
-    sys.exit(main())

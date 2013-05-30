@@ -5,8 +5,8 @@
 import codecs
 import os
 import yaml
-from publicstatic.version import get_version
-from publicstatic import constants
+from . import constants
+from .version import get_version
 
 _params = {}  # Configuration parameters
 _path = ''  # Configuration file absolute path
