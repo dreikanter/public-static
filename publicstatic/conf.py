@@ -5,7 +5,7 @@
 import codecs
 import os
 import yaml
-from publicstatic import authoring
+from publicstatic.version import get_version
 from publicstatic import constants
 
 _params = {}  # Configuration parameters
@@ -79,7 +79,7 @@ def _purify(params):
     params['root_url'] = _trslash(params['root_url'].strip())
     params['rel_root_url'] = _trslash(params['rel_root_url'].strip())
 
-    params['generator'] = gen.format(version=authoring.VERSION)
+    params['generator'] = gen.format(version=get_version())
     params['browser_delay'] = float(params['browser_delay'])
     params['port'] = int(params['port'])
 

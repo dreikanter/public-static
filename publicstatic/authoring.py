@@ -1,10 +1,8 @@
 # coding: utf-8
 
-AUTHOR = 'Alex Musayev'
-EMAIL = 'alex.musayev@gmail.com'
-COPYRIGHT = "Copyright 2012, %s <http://alex.musayev.com>" % AUTHOR
-LICENSE = 'MIT'
-VERSION_INFO = (0, 5, 0)
-VERSION = '.'.join(map(str, VERSION_INFO))
-STATUS = 'Development'
-URL = 'http://github.com/dreikanter/public-static'
+__author__ = 'Alex Musayev'
+__email__ = 'alex.musayev@gmail.com'
+__copyright__ = "Copyright 2012, %s <http://alex.musayev.com>" % __author__
+__license__ = 'MIT'
+__status__ = 'Development'
+__url__ = 'http://github.com/dreikanter/public-static'

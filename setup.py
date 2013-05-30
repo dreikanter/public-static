@@ -4,6 +4,7 @@
 import os
 from setuptools import setup, find_packages
 import publicstatic.authoring
+from publicstatic.version import get_version
 
 
 def get_data_files(path):
@@ -20,11 +21,11 @@ def get_data_files(path):
 setup(
     name='publicstatic',
     description='Yet another static website builder. A good one.',
-    version=publicstatic.authoring.VERSION,
-    license=publicstatic.authoring.LICENSE,
-    author=publicstatic.authoring.AUTHOR,
-    author_email=publicstatic.authoring.EMAIL,
-    url=publicstatic.authoring.URL,
+    version=get_version(),
+    license=publicstatic.authoring.__license__,
+    author=publicstatic.authoring.__author__,
+    author_email=publicstatic.authoring.__email__,
+    url=publicstatic.authoring.__url__,
     long_description=open('README.md').read(),
     platforms=['any'],
     packages=find_packages(),

@@ -14,20 +14,11 @@ from argh import ArghParser, arg
 import jinja2
 from multiprocessing import Process
 from publicstatic.lib.pyatom import AtomFeed
-from publicstatic import authoring
 from publicstatic import conf
 from publicstatic import constants
 from publicstatic import logger
 from publicstatic import tools
-
-__author__ = authoring.AUTHOR
-__email__ = authoring.EMAIL
-__copyright__ = authoring.COPYRIGHT
-__license__ = authoring.LICENSE
-__version_info__ = authoring.VERSION_INFO
-__version__ = authoring.VERSION
-__status__ = authoring.STATUS
-__url__ = authoring.URL
+from publicstatic.version import get_version
 
 _tplenv = None
 
@@ -524,7 +515,7 @@ def post(args):
 
 def version(args):
     """show version"""
-    return __version__
+    return get_version()
 
 
 def main():
