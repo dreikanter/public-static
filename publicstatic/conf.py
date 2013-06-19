@@ -16,9 +16,8 @@ def init(conf_path, use_defaults=False):
     """Initializes configuration"""
     global _path
     _path = os.path.abspath(os.path.join(conf_path or '.', constants.CONF_NAME))
-
-    params = dict(constants.DEFAULTS)
-
+    params = dict(zip(map(lambda p: p['name'], constants.DEFAULTS),
+                      map(lambda p: p['value'], constants.DEFAULTS)))
     if not use_defaults:  # Reads configuration file and override defaults
         try:
             with codecs.open(_path, mode='r', encoding='utf8') as f:
@@ -48,14 +47,16 @@ def get_path():
     return _path
 
 
+def _dump_option(option):
+    name, value, desc = option['name'], option['value'], option['desc']
+    srl = yaml.dump({name: value}, width=80, indent=4, default_flow_style=False)
+    return ''.join([("# %s\n" % desc) if desc else '', srl])
+
+
 def write_defaults():
     """Write default configuration to specified file"""
     _check(_path)
-    f = lambda x: yaml.dump({x[0]: x[1]},
-                            width=80,
-                            indent=4,
-                            default_flow_style=False)
-    text = ''.join([f(x) for x in constants.DEFAULTS])
+    text = '\n'.join([_dump_option(option) for option in constants.DEFAULTS])
     with codecs.open(_path, mode='w', encoding='utf8') as f:
         f.write(text)
 
@@ -67,8 +68,6 @@ def _check(value):
 
 def _purify(params):
     """Preprocess configuration parameters"""
-    gen = params['generator'].strip()
-
     params['pages_path'] = _expand(params['pages_path'])
     params['posts_path'] = _expand(params['posts_path'])
     params['assets_path'] = _expand(params['assets_path'])
@@ -79,7 +78,6 @@ def _purify(params):
     params['root_url'] = _trslash(params['root_url'].strip())
     params['rel_root_url'] = _trslash(params['rel_root_url'].strip())
 
-    params['generator'] = gen.format(version=get_version())
     params['browser_delay'] = float(params['browser_delay'])
     params['port'] = int(params['port'])
 

@@ -205,7 +205,7 @@ def build_indexes(data):
     index_data = {
         'title': conf.get('archive_page_title'),
         'author': conf.get('author'),
-        'generator': conf.get('generator'),
+        'generator': constants.GENERATOR.format(version=get_version()),
         'template': 'archive',
         'posts_num': len(data),
         'posts': data,
