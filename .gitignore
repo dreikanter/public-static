@@ -1,5 +1,6 @@
 __pycache__
 *.py[co]
+*.bak
 
 *.egg
 *.egg-info
@@ -10,4 +11,4 @@ sdist
 MANIFEST
 
 *.log
-tests/test-site
+tests/test-*

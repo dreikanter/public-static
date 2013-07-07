@@ -1,8 +1,8 @@
 {% import '_macros.html' as macros -%}
 {% include '_header.html' %}
 {{ content }}
-{{ macros.tags_list(tags) }}
-<div class="row-fluid muted">
+<!-- {{ macros.tags_list(tags) }} -->
+<div class="row-fluid muted service">
 {%- set lclass = ' class="span6"' if prev_url and next_url else '' -%}
 {%- set rclass = ' class="span6 right"' if prev_url and next_url else ' class="right"' -%}
 {%- if prev_url %}
