@@ -135,7 +135,7 @@ DEFAULTS = [
     },
     {
         'name': 'less_cmd',
-        'value': "lessc -x {source} > {dest}",
+        'value': "dotless {source} {dest}",
         'desc': '',
     },
     {
