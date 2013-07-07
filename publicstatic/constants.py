@@ -10,7 +10,6 @@ CONSOLE_FMT = "%(asctime)s %(levelname)s: %(message)s"
 CONSOLE_DATE_FMT = "%H:%M:%S"
 FILE_FMT = "%(asctime)s %(levelname)s: %(message)s"
 FILE_DATE_FMT = "%Y/%m/%d %H:%M:%S"
-TIME_FMT = "%Y/%m/%d %H:%M:%S"
 
 GENERIC_PATH = 'generic-site'
 GENERIC_PAGES = 'generic-pages'
@@ -117,7 +116,7 @@ DEFAULTS = [
     {
         'name': 'min_less',
         'value': True,
-        'desc': '',
+        'desc': 'Apply CSS minimization tool to the LESS processor output',
     },
     {
         'name': 'min_js_cmd',
@@ -140,13 +139,13 @@ DEFAULTS = [
         'desc': '',
     },
     {
-        'name': 'markdown_extensions',
-        'value': ['nl2br', 'grid', 'smartypants'],
+        'name': 'editor_cmd',
+        'value': "$EDITOR \"{source}\"",
         'desc': '',
     },
     {
-        'name': 'editor_cmd',
-        'value': "$EDITOR \"{source}\"",
+        'name': 'markdown_extensions',
+        'value': ['nl2br', 'grid', 'smartypants'],
         'desc': '',
     },
     {
@@ -172,7 +171,7 @@ DEFAULTS = [
     {
         'name': 'post_at_root_url',
         'value': True,
-        'desc': '',
+        'desc': 'Put a copy of the latest post to the website root',
     },
     {
         'name': 'default_tags',
@@ -197,7 +196,12 @@ DEFAULTS = [
     {
         'name': 'verbose',
         'value': False,
-        'desc': '',
+        'desc': 'Verbose output',
+    },
+    {
+        'name': 'time_format',
+        'value': [ '%Y/%m/%d %H:%M:%S', '%Y/%m/%d' ],
+        'desc': 'Possible date and time formats for the page header fields',
     },
     {
         'name': 'menu',
@@ -208,48 +212,3 @@ DEFAULTS = [
         'desc': '',
     },
 ]
-
-
-# # See the docs for parameters description
-# DEFAULTS = [
-#     ('title', 'Untitled Blog'),
-#     ('subtitle', ''),
-#     ('author', ''),
-#     ('generator', "public-static {version}"),
-#     ('build_path', 'www'),
-#     ('pages_path', 'pages'),
-#     ('posts_path', 'posts'),
-#     ('assets_path', 'assets'),
-#     ('tpl_path', 'templates'),
-#     ('prototypes_path', 'prototypes'),
-#     ('rel_root_url', '/'),
-#     ('root_url', 'http://example.com/'),
-#     ('post_location', '{year}/{month}/{day}/{name}.html'),
-#     ('port', 8000),
-#     ('browser_delay', 2.0),
-#     ('page_tpl', 'default-page'),
-#     ('post_tpl', 'default-post'),
-#     ('min_js', True),
-#     ('min_css', True),
-#     ('min_less', True),
-#     ('min_js_cmd', "yuicompressor --type js --nomunge -o {dest} {source}"),
-#     ('min_css_cmd', "yuicompressor --type css -o {dest} {source}"),
-#     ('deploy_cmd', ''),
-#     ('less_cmd', "lessc -x {source} > {dest}"),
-#     ('markdown_extensions', ['nl2br', 'grid', 'smartypants']),
-#     ('editor_cmd', "$EDITOR \"{source}\""),
-#     ('index_page', 'index.html'),
-#     ('archive_page', 'archive.html'),
-#     ('archive_page_title', 'Archive'),
-#     ('atom_feed', 'feed.atom'),
-#     ('post_at_root_url', True),
-#     ('menu', [
-#         { 'title': 'About', 'href': '/about.html' },
-#         { 'title': 'Archive', 'href': '/archive.html' },
-#         ]),
-#     ('default_tags', [ 'misc' ]),
-#     ('log_file', 'pub.log'),
-#     ('log_max_size', 1024 * 1024),
-#     ('log_backup_cnt', 3),
-#     ('verbose', False),
-# ]

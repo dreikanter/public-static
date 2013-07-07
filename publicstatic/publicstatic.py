@@ -249,15 +249,15 @@ def parse(source_file, is_post=False):
     tags = tags or conf.get('default_tags')
     data['tags'] = [ { 'name': tag, 'url': tools.tag_url(tag) } for tag in tags ]
 
-    def purify_time(param, get_time):
-        if param in data:
-            value = tools.parse_time(data[param])
-        else:
-            value = get_time(source_file)
-        data[param] = datetime.fromtimestamp(value)
+    def purifytime(field, getter):
+        try:
+            result = tools.parse_time(data[field])
+        except:
+            result = getter(source_file)
+        data[field] = datetime.fromtimestamp(result)
 
-    purify_time('created', os.path.getctime)
-    purify_time('updated', os.path.getmtime)
+    purifytime('created', os.path.getctime)
+    purifytime('updated', os.path.getmtime)
 
     return data
 
@@ -298,7 +298,8 @@ def create_page(name, text, date, force):
             logger.error('page already exists, use -f to overwrite')
             return None
 
-    text = text.format(title=name, created=date.strftime(constants.TIME_FMT))
+    timef = conf.get('time_format')[0]
+    text = text.format(title=name, created=date.strftime(timef))
     tools.makedirs(os.path.split(page_path)[0])
 
     with codecs.open(page_path, mode='w', encoding='utf8') as f:
@@ -326,8 +327,8 @@ def create_post(name, text, date, force):
         result = post_path.format(suffix=str(num) if num > 1 else '')
         if force or not os.path.exists(result):
             logger.debug("creating post '%s'" % result)
-            text = text.format(title=name,
-                               created=date.strftime(constants.TIME_FMT))
+            timef = conf.get('time_format')[0]
+            text = text.format(title=name, created=date.strftime(timef))
             with codecs.open(result, mode='w', encoding='utf8') as f:
                 f.write(text)
             return result

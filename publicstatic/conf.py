@@ -85,6 +85,9 @@ def _purify(params):
     params['log_max_size'] = int(params['log_max_size'])
     params['log_backup_cnt'] = int(params['log_backup_cnt'])
 
+    if isinstance(params['time_format'], str):
+        params['time_format'] = [params['time_format']]
+
     menu = params['menu']
     for item in menu:
         item['href'] = item['href'].strip() if 'href' in item else ''

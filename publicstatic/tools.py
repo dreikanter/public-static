@@ -237,12 +237,12 @@ def posts(path):
     """Returns a list of post relative pathes in chronological order"""
     posts = []
     walk(path, lambda root, rel:
-        posts.append((rel, page_ctime(os.path.join(root, rel)))))
+        posts.append((rel, _page_ctime(os.path.join(root, rel)))))
     posts.sort(key=lambda item: item[1])
     return posts
 
 
-def page_ctime(source_file):
+def _page_ctime(source_file):
     """Gets post/page creation time using header or file system data"""
     result = None
     try:
@@ -254,14 +254,22 @@ def page_ctime(source_file):
                 if match.group(1).lower() == 'created':
                     result = parse_time(match.group(2))
                     break
-    except Exception as ex:
-        raise Exception('error reading page ctime: ' + str(e)) from ex
+    except:
+        pass
     return datetime.fromtimestamp(result or os.path.getctime(source_file))
 
 
+# TODO: Consider file time extraction optimization (use one-time reading)
 def parse_time(value):
-    """Converts string to datetime using TIME_FMT format"""
-    return time.mktime(time.strptime(value.strip(), constants.TIME_FMT))
+    """Converts string to datetime using the first of the preconfigured
+    time_format values that will work"""
+    if value:
+        for timef in conf.get('time_format'):
+            try:
+                return time.mktime(time.strptime(value.strip(), timef))
+            except:
+                pass
+    raise Exception('bad date/time format')
 
 
 def parse_param(text):
