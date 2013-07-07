@@ -158,16 +158,47 @@ def post_url(page_data, full=False):
         post_path(page_data['source'], page_data['created']))
 
 
+_post_path_cache = {}
+_post_names = []
+
+
+# TODO: Drop redundant ctime value after post ctime cached getter implementation
 def post_path(source_file, ctime):
-    result = conf.get('post_location')
-    return result.format(year=ctime.strftime('%Y'),
-                         month=ctime.strftime('%m'),
-                         day=ctime.strftime('%d'),
-                         date=ctime.strftime('%Y%m%d'),
-                         name=page_name(source_file, True))
+    global _post_path_cache
+    global _post_names
+
+    if source_file in _post_path_cache:
+        return _post_path_cache[source_file]
+
+    postloc = conf.get('post_location')
+
+    year=ctime.strftime('%Y')
+    month=ctime.strftime('%m')
+    day=ctime.strftime('%d')
+    date=ctime.strftime('%Y%m%d')
+    name=page_name(source_file, True)
+
+    count = 1
+    suffix = ''
+
+    # Uniquify post file name
+    while True:
+        result = postloc.format(year=year, month=month, day=day,
+                                date=date, name=name, suffix=suffix)
+
+        file_name = os.path.basename(result)
+        if file_name in _post_names:
+            count += 1
+            suffix = "-%d" % count
+        else:
+            _post_names.append(file_name)
+            break
+
+    _post_path_cache[source_file] = result
+    return result
 
 
-def page_name(source_file, trim_time=False):
+def page_name(source_file, trim_time=False, untitled='untitled-post'):
     """Extracts name part from source file name.
 
     Usage:
@@ -177,9 +208,15 @@ def page_name(source_file, trim_time=False):
 
         >>> page_name("20121005-hola.md", True)
         "hola"
+
+        >>> page_name("20121005.md", True)
+        "untitled-post"
+
+        >>> page_name("20121005.md", True, untitled="no-name")
+        "no-name"
     """
     name = os.path.splitext(os.path.basename(source_file))[0]
-    return name.lstrip('0123456789-_') if trim_time else name
+    return (name.lstrip('0123456789-_') or untitled) if trim_time else name
 
 
 def feed_data(page_data):

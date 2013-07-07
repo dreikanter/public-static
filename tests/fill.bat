@@ -16,6 +16,10 @@ set opt=-s %sitedir% -v
 %mkpage% section\section\page4 %opt%
 %mkpage% section\section\section\page5 %opt%
 
+%mkpost% "Same name" %opt%
+%mkpost% "Same name" %opt%
+%mkpost% "Same name" %opt%
+
 %mkpost% "A Brief History of Time" %opt%
 %mkpost% "The Elegant Universe" %opt%
 %mkpost% "The Fabric of the Cosmos (Space, Time, and the Texture of Reality)" %opt%

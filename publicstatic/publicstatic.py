@@ -106,7 +106,8 @@ def process_blog(path):
 
     for i in range(len(posts)):
         source_file, ctime = posts[i]
-        data = next or parse(os.path.join(path, source_file), is_post=True)
+        source_file = os.path.join(path, source_file)
+        data = next or parse(source_file, is_post=True)
         if i + 1 < len(posts):
             next = parse(os.path.join(path, posts[i + 1][0]), is_post=True)
         else:
@@ -176,6 +177,7 @@ def build_page(data, dest_file):
 
 def build_feed(data):
     """Builds atom feed for the blog"""
+    # TODO: Build tag pages
     feed_url = conf.get('root_url') + conf.get('atom_feed')
     feed = AtomFeed(title=conf.get('title'),
                     subtitle=conf.get('subtitle'),
@@ -324,7 +326,7 @@ def create_post(name, text, date, force):
     # Generate new post file name and preserve file with a new unique name
     num = 1
     while True:
-        result = post_path.format(suffix=str(num) if num > 1 else '')
+        result = post_path.format(suffix=("-%d" % num) if num > 1 else '')
         if force or not os.path.exists(result):
             logger.debug("creating post '%s'" % result)
             timef = conf.get('time_format')[0]

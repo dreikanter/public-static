@@ -88,6 +88,13 @@ def _purify(params):
     if isinstance(params['time_format'], str):
         params['time_format'] = [params['time_format']]
 
+    # If there is no {suffix}, include it before extension
+    post_loc = params['post_location']
+    if '{suffix}' not in post_loc:
+        name, ext = os.path.splitext(post_loc)
+        params['post_location'] = ''.join([name, '{suffix}', ext])
+
+
     menu = params['menu']
     for item in menu:
         item['href'] = item['href'].strip() if 'href' in item else ''
