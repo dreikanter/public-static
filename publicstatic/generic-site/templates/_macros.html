@@ -1,17 +1,9 @@
-{% macro tags_list(tags, inline=False) -%}
+{% macro tags_list(tags, inline=False, add_hash=False) -%}
 
-{% if inline -%}
-	<span class="tags">
+{% if inline -%}<span class="tags">{%- else -%}<div class="tags">{%- endif -%}
 	{%- for tag in tags -%}
-		<a href="{{ tag.url }}">#{{ tag.name }}</a>{% if not loop.last %}, {% endif %}
+		<a href="{{ tag.url }}">{% if add_hash %}#{% endif %}{{ tag.name }}</a>{% if not loop.last %}, {% endif %}
 	{%- endfor -%}
-	</span>
-{%- else -%}
-	<div class="tags">
-	{%- for tag in tags -%}
-		<a href="{{ tag.url }}">{{ tag.name }}</a>{% if not loop.last %}, {% endif %}
-	{%- endfor -%}
-	</div>
-{%- endif -%}
+{% if inline -%}</span>{%- else -%}</div>{%- endif -%}
 
 {%- endmacro -%}

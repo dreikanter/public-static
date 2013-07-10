@@ -4,10 +4,7 @@
 <ul class="archive">
 {%- for post in posts %}
 <li><a href='{{post.url}}'>{{ post.title }}</a><br>
-<small class="muted">
-	{{- post.created.year }}.{{ post.created.month }}.{{ post.created.day }}
-	{%- if post.tags -%}; {{ macros.tags_list(post.tags, inline=True) }}{%- endif -%}
-</small></li>
+<small class="muted">Created at {{ post.created.day }}.{{ post.created.month }}.{{ post.created.year }}{%- if post.tags %} • Tags: {{ macros.tags_list(post.tags, inline=True) }}{%- endif -%}</small></li>
 {%- endfor %}
 </ul>
 {% include '_footer.html' -%}
