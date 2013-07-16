@@ -4,7 +4,7 @@ body {
 }
 
 h1 {
-	margin: 40px 0 20px 0;
+	margin: 37px 0 20px 0;
 	line-height: 37px;
 }
 
@@ -38,7 +38,6 @@ p strong {
 
 .tags a {
 	color: #999;
-	padding: 2px 4px;
 	white-space: nowrap;
 	text-decoration: none;
 }
@@ -54,6 +53,7 @@ div.tags {
 }
 
 div.tags a {
+	padding: 2px 4px;
 	background-color: #f7f7f9;
 	border: 1px solid #e1e1e8;
 	-webkit-border-radius: 3px;
@@ -69,6 +69,16 @@ ul.archive li {
 	padding-bottom: 15px;
 }
 
-.nav-pills li.title {
-	margin-left: -12px;
+.title {
+	display: block;
+	float: left;
+	margin: 7px 0;
+}
+
+.site_title, .site_title a {
+	color: #999;
+}
+
+.site_subtitle, .site_subtitle a {
+	color: #ccc;
 }

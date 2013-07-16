@@ -27,9 +27,10 @@
 <body>
 <div class="container container-narrow">
 <div class="row">
-<ul class="nav nav-pills pull-left">
-<li class="muted title"><a href="{{rel_root_url}}">{{site_title}}</a></li>
-</ul>
+<span class="title">
+<span class="site_title"><a href="{{rel_root_url}}">{{site_title}}</a></span>
+<span class="site_subtitle">{{site_subtitle}}</span>
+</span>
 {% if menu -%}
 <ul class="nav nav-pills pull-right">
 {%- for item in menu %}
