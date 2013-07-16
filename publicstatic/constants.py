@@ -2,9 +2,11 @@
 
 import os
 import re
+from .version import get_version
+
 
 CONF_NAME = 'pub.conf'
-GENERATOR = "public-static {version}"
+GENERATOR = "public-static {version}".format(version=get_version())
 
 CONSOLE_FMT = "%(asctime)s %(levelname)s: %(message)s"
 CONSOLE_DATE_FMT = "%H:%M:%S"
@@ -35,8 +37,13 @@ DEFAULTS = [
     },
     {
         'name': 'author',
-        'value': '',
+        'value': 'Anonymous',
         'desc': 'Author name',
+    },
+    {
+        'name': 'footer',
+        'value': 'Copyright © 2007-{year} by {author} | Generated with {generator}',
+        'desc': 'Page footer',
     },
     {
         'name': 'build_path',

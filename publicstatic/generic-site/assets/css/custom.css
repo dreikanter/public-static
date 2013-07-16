@@ -82,3 +82,10 @@ ul.archive li {
 .site_subtitle, .site_subtitle a {
 	color: #ccc;
 }
+
+.footer {
+	font-size: 13px;
+	line-height: 17px;
+	text-align:  center;
+	color: #ccc;
+}

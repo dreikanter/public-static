@@ -149,6 +149,10 @@ def build_page(data, dest_file):
         data -- page data dict.
         dest_file -- full path to the destination file."""
 
+    footer = conf.get('footer').format(author=conf.get('author'),
+                                       generator=constants.GENERATOR,
+                                       year=str(datetime.now().year))
+
     common_data = {
         'root_url': conf.get('root_url'),
         'rel_root_url': conf.get('rel_root_url'),
@@ -156,8 +160,11 @@ def build_page(data, dest_file):
         'site_title': conf.get('title'),
         'site_subtitle': conf.get('subtitle'),
         'menu': conf.get('menu'),
+        'footer': footer,
     }
+
     common_data.update(data)
+
     try:
         tpl = get_tpl(data['template'])
         with codecs.open(dest_file, mode='w', encoding='utf8') as f:
