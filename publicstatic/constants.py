@@ -41,9 +41,9 @@ DEFAULTS = [
         'desc': 'Author name',
     },
     {
-        'name': 'footer',
-        'value': 'Copyright © 2007-{year} by {author} | Generated with {generator}',
-        'desc': 'Page footer',
+        'name': 'author_url',
+        'value': 'http://example.net',
+        'desc': 'Author home page',
     },
     {
         'name': 'build_path',
@@ -84,6 +84,11 @@ DEFAULTS = [
         'name': 'root_url',
         'value': 'http://example.com/',
         'desc': '',
+    },
+    {
+        'name': 'source_url',
+        'value': 'http://github.com/username/example.com',
+        'desc': 'Website source URL',
     },
     {
         'name': 'post_location',

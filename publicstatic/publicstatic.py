@@ -149,10 +149,6 @@ def build_page(data, dest_file):
         data -- page data dict.
         dest_file -- full path to the destination file."""
 
-    footer = conf.get('footer').format(author=conf.get('author'),
-                                       generator=constants.GENERATOR,
-                                       year=str(datetime.now().year))
-
     common_data = {
         'root_url': conf.get('root_url'),
         'rel_root_url': conf.get('rel_root_url'),
@@ -160,7 +156,11 @@ def build_page(data, dest_file):
         'site_title': conf.get('title'),
         'site_subtitle': conf.get('subtitle'),
         'menu': conf.get('menu'),
-        'footer': footer,
+        'copyright_year': str(datetime.now().year),
+        'author': conf.get('author'),
+        'author_url': conf.get('author_url'),
+        'generator': constants.GENERATOR,
+        'source_url': conf.get('source_url'),
     }
 
     common_data.update(data)

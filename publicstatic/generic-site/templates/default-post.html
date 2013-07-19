@@ -2,14 +2,8 @@
 {% include '_header.html' %}
 {{ content }}
 <!-- {{ macros.tags_list(tags) }} -->
-<div class="row-fluid muted service">
-{%- set lclass = ' class="span6"' if prev_url and next_url else '' -%}
-{%- set rclass = ' class="span6 right"' if prev_url and next_url else ' class="right"' -%}
-{%- if prev_url %}
-<div{{ lclass }}>&larr;&nbsp;<a href="{{ prev_url }}">{{ prev_title }}</a></div>
-{% endif -%}
-{%- if next_url %}
-<div{{ rclass }}><a href="{{ next_url }}">{{ next_title }}</a>&nbsp;&rarr;</div>
-{% endif -%}
+<div class="muted flipper">
+{%- if prev_url %}&larr;&nbsp;<a href="{{ prev_url }}" title="{{ prev_title }}">Ctrl+Left</a>{%- if next_url %} / {% endif %}{%- endif -%}
+{%- if next_url %}<a href="{{ next_url }}" title="{{ next_title }}">Ctrl+Right</a>&nbsp;&rarr;{% endif -%}
 </div>
 {% include '_footer.html' -%}
