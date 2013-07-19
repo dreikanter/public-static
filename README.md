@@ -96,6 +96,6 @@ Public-static configuration resides in a yaml-formatted file `pub.conf` in the r
 
 There is a great tool to export Wordpress data to public-static-compatible files: [wp2md](https://github.com/dreikanter/wp2md).
 
-Copyright &copy; 2012 by [Alex Musayev](http://alex.musayev.com).  
-License: MIT (see [LICENSE](https://raw.github.com/dreikanter/public-static/master/LICENSE)).  
+Copyright &copy; 2013 by [Alex Musayev](http://alex.musayev.com).  
+License: [MIT](https://github.com/dreikanter/public-static/blob/master/LICENSE.md).  
 Project home: [https://github.com/dreikanter/public-static](https://github.com/dreikanter/public-static).
