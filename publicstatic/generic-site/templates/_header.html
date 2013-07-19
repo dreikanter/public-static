@@ -23,6 +23,25 @@
 <![endif]-->
 <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
 <link href="{rel_root_url}{atom_feed}" rel="alternate" title="drafts.cc feed" type="application/atom+xml">
+{% if prev_url or next_url -%}
+<script type="text/javascript">
+  document.onkeydown = function (e) {
+    e = e || window.event;
+    if (!e.ctrlKey) return;
+    var keyCode = e.keyCode || e.which;
+    switch (keyCode) {
+      case 37: // left
+        var url = "{% if prev_url %}{{ prev_url }}{% endif %}";
+        if(url) window.location.href = url;
+        break;
+      case 39: // right
+        var url = "{% if next_url %}{{ next_url }}{% endif %}";
+        if(url) window.location.href = url;
+        break;
+    }
+  };
+</script>
+{% endif -%}
 </head>
 
 <body>
