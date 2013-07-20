@@ -16,15 +16,26 @@
 {%- if generator -%}
 <meta name="generator" content="{{generator}}">
 {% endif -%}
-<link href="/css/bootstrap.css" rel="stylesheet">
-<link href="/css/custom.css" rel="stylesheet">
+<link href="{{rel_root_url}}css/bootstrap.css" rel="stylesheet">
+<link href="{{rel_root_url}}css/custom.css" rel="stylesheet">
 <!--[if lt IE 9]>
 <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 <![endif]-->
-<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
-<link href="{rel_root_url}{atom_feed}" rel="alternate" title="drafts.cc feed" type="application/atom+xml">
+<link rel="shortcut icon" type="image/x-icon" href="{{rel_root_url}}favicon.ico">
+<link href="{{rel_root_url}}{{atom_feed}}" rel="alternate" title="drafts.cc feed" type="application/atom+xml">
+<script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+<link href='/css/prettify.css' rel='stylesheet' type='text/css'/>
+<script src='/js/prettify.js' type='text/javascript'></script>
 {% if prev_url or next_url -%}
 <script type="text/javascript">
+  // activate google prettyprint
+  !function ($) {
+    $(function(){
+      $('pre').addClass('prettyprint linenums');
+      window.prettyPrint && prettyPrint()
+    })
+  }(window.jQuery);
+  // enable ctrl-arrows navigation
   document.onkeydown = function (e) {
     e = e || window.event;
     if (!e.ctrlKey) return;
