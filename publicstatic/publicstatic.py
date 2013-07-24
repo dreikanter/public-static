@@ -11,16 +11,13 @@ import shutil
 import sys
 import traceback
 from argh import ArghParser, arg
-import jinja2
 from . import conf
 from . import constants
 from . import logger
 from . import tools
-from . import filters
 from .lib.pyatom import AtomFeed
 from .version import get_version
-
-_tplenv = None
+from .templates import get_template
 
 
 def _init(conf_path, verbose=False, use_defaults=False):
@@ -167,7 +164,7 @@ def build_page(data, dest_file):
     common_data.update(data)
 
     try:
-        tpl = get_tpl(data['template'])
+        tpl = get_template(data['template'])
         with codecs.open(dest_file, mode='w', encoding='utf8') as f:
             f.write(tpl.render(common_data))
     except jinja2.TemplateSyntaxError as e:
@@ -270,23 +267,6 @@ def parse(source_file, is_post=False):
     purifytime('updated', os.path.getmtime)
 
     return data
-
-
-def get_tpl(tpl_name):
-    """Gets template file contents.
-
-    Arguments:
-        tpl_name -- template name (will be complemented
-            to file name using '.mustache')."""
-
-    global _tplenv
-    if _tplenv is None:
-        loader = jinja2.FileSystemLoader(searchpath=conf.get('tpl_path'))
-        _tplenv = jinja2.Environment(loader=loader)
-        filters.register_filters(_tplenv)
-
-    file_name = tpl_name + '.html'
-    return _tplenv.get_template(file_name)
 
 
 def create_page(name, text, date, force):
