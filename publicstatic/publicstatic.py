@@ -16,6 +16,7 @@ from . import conf
 from . import constants
 from . import logger
 from . import tools
+from . import filters
 from .lib.pyatom import AtomFeed
 from .version import get_version
 
@@ -198,7 +199,7 @@ def build_feed(data):
                  content_type='html',
                  author=item['author'],
                  url=item['full_url'],
-                 updated=item['updateddt'])
+                 updated=item['updated'])
 
     try:
         feed_file = tools.dest(conf.get('build_path'), conf.get('atom_feed'))
@@ -262,8 +263,8 @@ def parse(source_file, is_post=False):
         try:
             result = tools.parse_time(data[field])
         except:
-            result = getter(source_file)
-        data[field] = datetime.fromtimestamp(result)
+            result = datetime.fromtimestamp(getter(source_file))
+        data[field] = result
 
     purifytime('created', os.path.getctime)
     purifytime('updated', os.path.getmtime)
@@ -282,6 +283,7 @@ def get_tpl(tpl_name):
     if _tplenv is None:
         loader = jinja2.FileSystemLoader(searchpath=conf.get('tpl_path'))
         _tplenv = jinja2.Environment(loader=loader)
+        filters.register_filters(_tplenv)
 
     file_name = tpl_name + '.html'
     return _tplenv.get_template(file_name)

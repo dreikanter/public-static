@@ -216,6 +216,16 @@ DEFAULTS = [
         'desc': 'Possible date and time formats for the page header fields',
     },
     {
+        'name': 'page_datetime_format',
+        'value': '%Y/%m/%d %H:%M',
+        'desc': 'Page/post full date and time format for generated HTML',
+    },
+    {
+        'name': 'page_date_format',
+        'value': '%Y/%m/%d',
+        'desc': 'Page/post short date format for generated HTML',
+    },
+    {
         'name': 'menu',
         'value': [
             { 'title': 'About', 'href': '/about.html' },

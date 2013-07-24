@@ -224,25 +224,13 @@ def feed_data(page_data):
     return {
         'source': page_data.get('source'),
         'title': page_data.get('title'),
-        'created': expand_time(page_data.get('created')),
-        'updated': expand_time(page_data.get('updated')),
-        'createddt': page_data.get('created'),
-        'updateddt': page_data.get('updated'),
+        'created': page_data.get('created'),
+        'updated': page_data.get('updated'),
         'author': page_data.get('author', conf.get('author')),
         'url': post_url(page_data),
         'full_url': post_url(page_data, True),
         'content': page_data.get('content'),
         'tags': page_data.get('tags'),
-    }
-
-
-def expand_time(value):
-    return value and {
-        'year': value.strftime('%Y'),
-        'month': value.strftime('%m'),
-        'day': value.strftime('%d'),
-        'hour': value.strftime('%H'),
-        'minute': value.strftime('%M'),
     }
 
 
@@ -293,7 +281,7 @@ def _page_ctime(source_file):
                     break
     except:
         pass
-    return datetime.fromtimestamp(result or os.path.getctime(source_file))
+    return result or datetime.fromtimestamp(os.path.getctime(source_file))
 
 
 # TODO: Consider file time extraction optimization (use one-time reading)
@@ -303,7 +291,7 @@ def parse_time(value):
     if value:
         for timef in conf.get('time_format'):
             try:
-                return time.mktime(time.strptime(value.strip(), timef))
+                return datetime.strptime(value.strip(), timef)
             except:
                 pass
     raise Exception('bad date/time format')
