@@ -156,7 +156,7 @@ def build_page(data, dest_file):
         'site_title': conf.get('title'),
         'site_subtitle': conf.get('subtitle'),
         'menu': conf.get('menu'),
-        'copyright_year': str(datetime.now().year),
+        'time': datetime.now(),
         'author': conf.get('author'),
         'author_url': conf.get('author_url'),
         'generator': constants.GENERATOR,
