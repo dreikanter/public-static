@@ -168,14 +168,6 @@ def build_page(data, dest_file):
         tpl = get_template(data['template'])
         with codecs.open(dest_file, mode='w', encoding='utf8') as f:
             f.write(tpl.render(common_data))
-    except jinja2.TemplateSyntaxError as e:
-        message = 'template syntax error: %s (file: %s; line: %d)'
-        logger.error(message % (e.message, e.filename, e.lineno))
-        raise
-    except jinja2.TemplateNotFound as e:
-        message = "template not found: '%s' at '%s'"
-        logger.error(message % (e.name, conf.get('tpl_path')))
-        raise
     except Exception as e:
         logger.error('page building error: ' + str(e))
         logger.debug(traceback.format_exc())
