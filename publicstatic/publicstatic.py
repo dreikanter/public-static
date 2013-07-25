@@ -17,6 +17,7 @@ from . import constants
 from . import logger
 from . import tools
 from .lib.pyatom import AtomFeed
+from .urlify import urlify
 from .version import get_version
 
 _tplenv = None
@@ -296,7 +297,8 @@ def create_page(name, text, date, force):
         date -- creation date and time (struct_time).
         force -- True to overwrite existing file; False to throw exception."""
 
-    name = tools.urlify(name)
+    logger.debug("urlify: %s -> %s" % (name, urlify(name)))
+    name = urlify(name)
     logger.debug("creating page '%s'" % name)
     page_path = os.path.join(conf.get('pages_path'), name) + '.md'
 
@@ -326,7 +328,8 @@ def create_post(name, text, date, force):
         date -- creation date and time (struct_time).
         force -- True to overwrite existing file; False to throw exception."""
 
-    post_name = '%s-%s{suffix}.md' % (date.strftime('%Y%m%d'), tools.urlify(name))
+    logger.debug("urlify: %s -> %s" % (name, urlify(name)))
+    post_name = '%s-%s{suffix}.md' % (date.strftime('%Y%m%d'), urlify(name))
     post_path = os.path.join(conf.get('posts_path'), post_name)
     tools.makedirs(os.path.dirname(post_path))
 
