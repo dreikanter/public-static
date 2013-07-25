@@ -14,7 +14,7 @@ import traceback
 import markdown
 from . import conf
 from . import constants
-from .lib.trans import trans
+from .urlify import urlify
 
 
 def str2int(value, default=None):
@@ -122,29 +122,6 @@ def copydir(source, dest, indent = 0):
             if not os.path.isdir(dest_dir):
                 os.makedirs(dest_dir)
             shutil.copyfile(os.path.join(root, each_file), dest_path)
-
-
-def urlify(string):
-    """Make a string URL-safe by excluding unwanted characters
-    and replacing spaces with dashes. Used to generate URIs from
-    post titles.
-
-    Usage:
-
-        >>> urlify("Hello World")
-        "hello-world"
-
-        >>> urlify("Drugs, Sex and Rock'n'Roll!")
-        "drugs-sex-and-rocknroll"
-
-        >>> urlify("long/way home")
-        "long/way-home"
-    """
-    result = constants.URI_EXCLUDE_PATTERN.sub('', string)
-    if os.altsep:
-        result = result.replace(os.altsep, os.sep)
-    result = constants.URI_SEP_PATTERN.sub('-', result)
-    return result.strip('-').lower()
 
 
 def valid_name(value):
@@ -309,4 +286,4 @@ def parse_param(text):
 
 def tag_url(tag, full=False):
     url = conf.get('root_url') if full else conf.get('rel_root_url')
-    return "{url}tags/{tag}.html".format(url=url, tag=urlify(trans(tag)))
+    return "{url}tags/{tag}.html".format(url=url, tag=urlify(tag))
