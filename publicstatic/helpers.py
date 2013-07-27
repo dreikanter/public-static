@@ -12,9 +12,10 @@ import sys
 import time
 import traceback
 import markdown
-from . import conf
-from . import constants
-from .urlify import urlify
+from publicstatic import conf
+from publicstatic import constants
+from publicstatic import logger
+from publicstatic.urlify import urlify
 
 
 def str2int(value, default=None):
@@ -286,3 +287,15 @@ def parse_param(text):
 def tag_url(tag, full=False):
     url = conf.get('root_url') if full else conf.get('rel_root_url')
     return "{url}tags/{tag}.html".format(url=url, tag=urlify(tag))
+
+
+def execute(command, source, dest=''):
+    """Safely executes one of the preconfigured commands
+    with {source} and {dest} parameter replacements"""
+    cmd = os.path.expandvars(command.format(source=source, dest=dest))
+    logger.debug("executing '%s'" % cmd)
+    try:
+        os.system(cmd)
+    except:
+        logger.error('error executing system command')
+        logger.debug(traceback.format_exc())

@@ -2,7 +2,7 @@
 
 import os
 import re
-from .version import get_version
+from publicstatic.version import get_version
 
 
 CONF_NAME = 'pub.conf'

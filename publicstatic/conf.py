@@ -3,10 +3,11 @@
 """Configuration-related fuctionality and defaults"""
 
 import codecs
+from datetime import datetime
 import os
 import yaml
-from . import constants
-from .version import get_version
+from publicstatic import constants
+from publicstatic.version import get_version
 
 _params = {}  # Configuration parameters
 _path = ''  # Configuration file absolute path
@@ -18,6 +19,7 @@ def init(conf_path, use_defaults=False):
     _path = os.path.abspath(os.path.join(conf_path or '.', constants.CONF_NAME))
     params = dict(zip(map(lambda p: p['name'], constants.DEFAULTS),
                       map(lambda p: p['value'], constants.DEFAULTS)))
+
     if not use_defaults:  # Reads configuration file and override defaults
         try:
             with codecs.open(_path, mode='r', encoding='utf8') as f:

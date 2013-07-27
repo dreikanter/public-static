@@ -4,8 +4,8 @@ import logging
 from logging.handlers import RotatingFileHandler as RFH
 import os
 import os.path
-from . import conf
-from . import constants
+from publicstatic import conf
+from publicstatic import constants
 
 _logger = None
 
