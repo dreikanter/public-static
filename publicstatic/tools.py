@@ -220,8 +220,7 @@ def dest(build_path, rel_source):
         '.less': '.css',
     }
 
-    rel_dest = base + (new_ext[ext] if ext in new_ext else ext)
-    return os.path.join(build_path, rel_dest)
+    return os.path.join(build_path, base + new_ext.get(ext, ext))
 
 
 def walk(path, operation):
