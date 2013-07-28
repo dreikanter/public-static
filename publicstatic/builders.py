@@ -213,7 +213,7 @@ def parse(source_file, is_post=False):
     tags = tags or conf.get('default_tags')
     data['tags'] = [ { 'name': tag, 'url': helpers.tag_url(tag) } for tag in tags ]
 
-    url = "{source_url}/blob/master/{page_type}/{source_file}"
+    url = "{source_url}blob/master/{page_type}/{source_file}"
     data['source_url'] = url.format(source_url=conf.get('source_url'),
                                     page_type=('posts' if is_post else 'pages'),
                                     source_file=os.path.basename(source_file))
@@ -306,4 +306,5 @@ def get_commons():
         'author_url': conf.get('author_url'),
         'generator': constants.GENERATOR,
         'source_url': conf.get('source_url'),
+        'enable_search_form': conf.get('enable_search_form'),
     }

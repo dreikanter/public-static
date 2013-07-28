@@ -1,6 +1,15 @@
-<div class="footer"><hr>Copyright © {{ time.year }} by <a href="{{ author_url }}">{{ author }}</a> • Generated with {{ generator }}{% if source_url %} • <a href="{{ source_url }}">Source</a>{% endif %}</div>
+<div class="footer"><hr><p>Copyright © {{ time.year }} by <a href="{{ author_url }}">{{ author }}</a> • Generated with {{ generator }}
+{%- if source_url %} • <a href="{{ source_url }}">Source</a>{% endif %}</p>
+{%- if enable_search_form -%}
+<form action="http://google.com/search" method="get" class="search-form">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:{{ root_url|trimurl }}">
+    <input type="text" name="q" results="0" placeholder="Search" class="search">
+  </fieldset>
+</form>
+{%- endif -%}
 </div>
 </div>
-<script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.0.4/bootstrap.min.js"></script>
+</div>
 </body>
 </html>

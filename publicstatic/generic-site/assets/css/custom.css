@@ -77,3 +77,21 @@ header p.muted {
 	font-size: 13px;
 	line-height: 17px;
 }
+
+.search-form {
+    text-align: center;
+}
+
+.search-form .search {
+	font-size: 13px;
+	height: 17px;
+	width: 200px;
+    padding-right: 3px;
+    padding-right: 4px \9;
+    padding-left: 3px;
+    padding-left: 4px \9;
+    margin-bottom: 0;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}

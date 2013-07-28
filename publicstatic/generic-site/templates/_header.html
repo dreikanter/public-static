@@ -28,9 +28,9 @@
 <script src='{{rel_root_url}}js/prettify.js' type='text/javascript'></script>
 {% if prev_url or next_url -%}
 <script type="text/javascript">
-  // activate google prettyprint
   !function ($) {
-    $(function(){
+    $(function() {
+      // activate google prettyprint
       $('pre').addClass('prettyprint linenums');
       window.prettyPrint && prettyPrint()
     })

@@ -233,4 +233,9 @@ DEFAULTS = [
         ],
         'desc': '',
     },
+    {
+        'name': 'enable_search_form',
+        'value': True,
+        'desc': 'Enable Google search form',
+    },
 ]
