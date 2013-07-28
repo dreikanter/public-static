@@ -79,6 +79,7 @@ def _purify(params):
 
     params['root_url'] = _trslash(params['root_url'].strip())
     params['rel_root_url'] = _trslash(params['rel_root_url'].strip())
+    params['source_url'] = _trslash(params['source_url'].strip())
 
     params['browser_delay'] = float(params['browser_delay'])
     params['port'] = int(params['port'])
@@ -95,7 +96,6 @@ def _purify(params):
     if '{suffix}' not in post_loc:
         name, ext = os.path.splitext(post_loc)
         params['post_location'] = ''.join([name, '{suffix}', ext])
-
 
     menu = params['menu']
     for item in menu:

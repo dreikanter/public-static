@@ -98,6 +98,7 @@ def process_blog(path):
         data['prev_title'] = prev and prev['title']
         data['next_url'] = helpers.post_url(next)
         data['next_title'] = next and next['title']
+        data['permalink'] = helpers.post_url(data, full=True)
 
         index.append(helpers.feed_data(data))
         build_page(data, dest_file)
@@ -211,6 +212,12 @@ def parse(source_file, is_post=False):
     tags = list(map(str.strip, filter(None, data.get('tags', '').split(','))))
     tags = tags or conf.get('default_tags')
     data['tags'] = [ { 'name': tag, 'url': helpers.tag_url(tag) } for tag in tags ]
+
+    url = "{source_url}/blob/master/{page_type}/{source_file}"
+    data['source_url'] = url.format(source_url=conf.get('source_url'),
+                                    page_type=('posts' if is_post else 'pages'),
+                                    source_file=os.path.basename(source_file))
+
 
     def purifytime(field, getter):
         try:

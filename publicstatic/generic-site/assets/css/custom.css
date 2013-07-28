@@ -32,14 +32,8 @@ p strong {
 	color: #999;
 }
 
-.tags {
-	margin: 0 0 10px 0;
-}
-
 .tags a {
-	color: #999;
 	white-space: nowrap;
-	text-decoration: none;
 }
 
 div.flipper {
@@ -49,22 +43,6 @@ div.flipper {
 	margin: 37px 0 15px 0;
 }
 
-div.tags {
-	margin: 25px 0;
-}
-
-div.tags a {
-	padding: 2px 4px;
-	background-color: #f7f7f9;
-	border: 1px solid #e1e1e8;
-	-webkit-border-radius: 3px;
-	-moz-border-radius: 3px;
-	border-radius: 3px;
-}
-
-span.tags a:hover {
-	text-decoration: underline;
-}
 
 ul.archive li {
 	padding-bottom: 15px;
@@ -92,4 +70,10 @@ ul.archive li {
 }
 .footer hr {
 	margin: 15px 0;
+}
+
+header p.muted {
+	margin: -15px 0 26px 3px;
+	font-size: 13px;
+	line-height: 17px;
 }

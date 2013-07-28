@@ -1,8 +1,14 @@
 {% import '_macros.html' as macros -%}
 {% include '_header.html' %}
+
+<article class="post">
+<header>
 <h1>{{title}}</h1>
+<p class="muted"><time pubdate datetime="{{ created|isodatetime }}"><a href="{{ permalink }}">{{ created|date }}</a></time> • Tags: {{ macros.tags_list(tags, inline=True) }}{%- if source_url %} • <a href="{{ source_url }}">Source</a>{% endif -%}</p>
+</header>
 {{ content }}
-<!-- {{ macros.tags_list(tags) }} -->
+</article>
+
 <div class="muted flipper">
 {%- if prev_url %}&larr;&nbsp;<a href="{{ prev_url }}" title="{{ prev_title }}">Ctrl+Left</a>{%- if next_url %} / {% endif %}{%- endif -%}
 {%- if next_url %}<a href="{{ next_url }}" title="{{ next_title }}">Ctrl+Right</a>&nbsp;&rarr;{% endif -%}
