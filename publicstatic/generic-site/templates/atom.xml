@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>{{ SITENAME }}</title>
+    <link rel="alternate" type="text/html" href="{{ FEED_DOMAIN }}" />
+    <link rel="self" type="application/atom+xml" href="{{ FEED_DOMAIN }}/feeds/atom.xml" />
+    <id>{{ FEED_DOMAIN }}/</id>
+{% if articles %}
+{% for article in articles %}
+{% if loop.first %}
+    <updated>{{ article.date_utc.strftime('%Y-%m-%dT%H:%I:%SZ') }}</updated>
+{% endif %}
+<entry>
+    <title>{{ article.title|striptags|e }}</title>
+    {% if article.link %}
+    <link rel="via" type="text/html" href="{{ article.link|e }}" />
+    {% else %}
+    <link rel="alternate" type="text/html" href="{{ FEED_DOMAIN }}/{{ article.url }}" />
+    {% endif %}
+    <id>tag:{{ SITEHOST }},{{ article.date_utc.strftime('%Y-%m-%d') }}:{{ article.url }}</id>
+    <updated>{{ article.date_utc.strftime('%Y-%m-%dT%H:%I:%SZ') }}</updated>
+    <summary type="html">
+      {{ article.summary|e }}
+    	{% if article.link %}
+    	&lt;p&gt;&lt;a href="{{ FEED_DOMAIN }}/{{ article.url }}"&gt;Permalink&lt;/p&gt;
+    	{% endif %}
+    </summary>
+    <author>
+        <name>{{ article.author }}</name>
+    </author>
+    {% if article.category %}
+    <category term="{{ article.category }}" />
+    {% endif %}
+    {% for tag in article.tags %}
+    <category term="{{ tag }}" />
+    {% endfor %}
+    <content type="html">
+    	{{ article.content|e }}
+    	{% if article.link %}
+    	&lt;p&gt;&lt;a href="{{ FEED_DOMAIN }}/{{ article.url }}"&gt;Permalink&lt;/p&gt;
+    	{% endif %}
+    </content>
+</entry>
+{% if loop.index >= 20 %}
+	{% break %}
+{% endif %}
+{% endfor %}
+{% endif %}
+</feed>
