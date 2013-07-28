@@ -169,7 +169,7 @@ def page(args):
         raise Exception('illegal page name')
 
     text = helpers.prototype(args.type or 'default-page')
-    page_path = create_page(args.name, text, datetime.now(), args.force)
+    page_path = builders.create_page(args.name, text, datetime.now(), args.force)
 
     if not page_path:
         return
@@ -194,7 +194,7 @@ def post(args):
 
     text = helpers.prototype(args.type or 'default-post')
     try:
-        post_path = create_post(args.name, text, datetime.now(), args.force)
+        post_path = builders.create_post(args.name, text, datetime.now(), args.force)
     except:
         logger.error('error creating new post')
         raise
