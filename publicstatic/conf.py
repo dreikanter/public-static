@@ -10,28 +10,70 @@ from publicstatic import constants
 from publicstatic.version import get_version
 
 _params = {}  # Configuration parameters
-_path = ''  # Configuration file absolute path
+_conf_file = ''  # Configuration file absolute path
 
 
-def init(conf_path, use_defaults=False):
+def defaults():
+    p_names = map(lambda p: p['name'], constants.DEFAULTS)
+    p_values = map(lambda p: p['value'], constants.DEFAULTS)
+    return dict(zip(p_names, p_values))
+
+
+def load(conf_path):
     """Initializes configuration"""
-    global _path
-    _path = os.path.abspath(os.path.join(conf_path or '.', constants.CONF_NAME))
-    params = dict(zip(map(lambda p: p['name'], constants.DEFAULTS),
-                      map(lambda p: p['value'], constants.DEFAULTS)))
 
-    if not use_defaults:  # Reads configuration file and override defaults
-        try:
-            with codecs.open(_path, mode='r', encoding='utf8') as f:
-                loaded = yaml.load(f.read())
-        except (IOError, OSError) as e:
-            raise Exception('configuration file not found') from e
+    global _conf_file
+    _conf_file = find_conf(conf_path or '.')
 
-        loaded = dict((item, loaded[item]) for item in loaded)
-        params.update(loaded)
+    if not _conf_file:
+        raise Exception('configuration file not found')
+
+    try:
+        with codecs.open(_conf_file, mode='r', encoding='utf8') as f:
+            loaded = yaml.load(f.read())
+    except (IOError, OSError) as e:
+        raise Exception('error reading configuration file') from e
 
     global _params
-    _params = _purify(params)
+    _params = defaults()
+    _params.update(dict((item, loaded[item]) for item in loaded))
+    _params = _purify(_params)
+
+
+def generate(conf_path):  # force=False
+    """Generates new configuration file using defaults"""
+
+    global _conf_file
+    _conf_file = os.path.join(os.path.abspath(conf_path), constants.CONF_NAME)
+
+    if os.path.isdir(site_dir()):  # and not force
+        raise Exception("directory already exists: '%s'" % site_dir())
+    else:
+        os.makedirs(site_dir())
+
+    text = '\n'.join([_dump_option(option) for option in constants.DEFAULTS])
+    with codecs.open(_conf_file, mode='w', encoding='utf8') as f:
+        f.write(text)
+
+    global _params
+    _params = _purify(defaults())
+
+
+def find_conf(conf_path):
+    """Walks from the specified directory path up to the root until
+    configuration file will be found. Returns full configuration file path
+    or None if there are no one."""
+
+    path = os.path.abspath(conf_path).rstrip(os.path.sep + os.path.altsep)
+    last = True
+
+    while last:
+        result = os.path.join(path, constants.CONF_NAME)
+        if os.path.exists(result):
+            return result
+        path, last = os.path.split(path)
+
+    return None
 
 
 def get(param):
@@ -44,9 +86,14 @@ def get(param):
         raise Exception('Configuration was not initialized')
 
 
-def get_path():
-    _check(_path)
-    return _path
+def conf_file():
+    _check(_conf_file)
+    return _conf_file
+
+
+def site_dir():
+    _check(_conf_file)
+    return os.path.dirname(_conf_file)
 
 
 def _dump_option(option):
@@ -55,17 +102,9 @@ def _dump_option(option):
     return ''.join([("# %s\n" % desc) if desc else '', srl])
 
 
-def write_defaults():
-    """Write default configuration to specified file"""
-    _check(_path)
-    text = '\n'.join([_dump_option(option) for option in constants.DEFAULTS])
-    with codecs.open(_path, mode='w', encoding='utf8') as f:
-        f.write(text)
-
-
 def _check(value):
     if not value:
-        raise Exception('Configuration was not initialized')
+        raise Exception('configuration was not initialized')
 
 
 def _purify(params):
@@ -108,7 +147,7 @@ def _expand(rel_path):
     """Expands relative path using configuration file location as base
     directory. Absolute pathes will be returned as is."""
     if not os.path.isabs(rel_path):
-        base = os.path.dirname(os.path.abspath(_path))
+        base = os.path.dirname(os.path.abspath(_conf_file))
         rel_path = os.path.join(base, rel_path)
     return rel_path
 

@@ -241,7 +241,6 @@ def create_page(name, text, date, force):
         date -- creation date and time (struct_time).
         force -- True to overwrite existing file; False to throw exception."""
 
-    logger.debug("urlify: %s -> %s" % (name, urlify(name)))
     name = urlify(name)
     logger.debug("creating page '%s'" % name)
     page_path = os.path.join(conf.get('pages_path'), name) + '.md'

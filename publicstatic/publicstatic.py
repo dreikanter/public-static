@@ -22,12 +22,6 @@ from publicstatic.version import get_version
 from publicstatic.templates import get_template
 
 
-def _init(conf_path, verbose=False, use_defaults=False):
-    """init configuration and logger"""
-    conf.init(conf_path, use_defaults)
-    logger.init(verbose=verbose)
-
-
 # Common command line arguments
 
 source_arg = arg('-s', '--source', default=None, metavar='SRC',
@@ -40,7 +34,7 @@ verbose_arg = arg('-v', '--verbose', default=False,
                   help='verbose output')
 
 force_arg = arg('-f', '--force', default=False,
-                help='overwrite existing files')
+                help='overwrite existing file')  # or initialize in existing dir
 
 type_arg = arg('-t', '--type', default=None,
                help='generic page to clone')
@@ -52,22 +46,21 @@ edit_arg = arg('-e', '--edit', default=False,
 # Commands
 
 @source_arg
+# @force_arg
 @log_arg
 @verbose_arg
 def init(args):
     """create new website"""
-    _init(args.source, args.verbose, use_defaults=True)
+
+    conf.generate(args.source)  # force=args.force
+    logger.init(args.verbose)
 
     try:
-        site_path = os.path.dirname(conf.get_path())
-        if os.path.isdir(site_path):
-            logger.warn("directory already exists: '%s'" % site_path)
-        helpers.spawn_site(site_path)
-        conf.write_defaults()
+        helpers.spawn_site(conf.site_dir())
         logger.info('website created successfully, have fun!')
-    except:
-        logger.error('initialization failed')
-        raise
+    except Exception as e:
+        logger.error('initialization failed: ' + str(e))
+        print(str(e))
 
 
 @source_arg
@@ -75,14 +68,20 @@ def init(args):
 @verbose_arg
 def build(args):
     """generate web content from source"""
-    _init(args.source, args.verbose)
+
+    conf.load(args.source)
+    logger.init(args.verbose)
+
     helpers.drop_build(conf.get('build_path'))
     helpers.makedirs(conf.get('build_path'))
+
     logger.info("building path: '%s'" % conf.get('build_path'))
     logger.info('processing assets...')
     builders.process_dir(conf.get('assets_path'))
+
     logger.info('processing blog posts...')
     builders.process_blog(conf.get('posts_path'))
+
     logger.info('processing pages...')
     builders.process_dir(conf.get('pages_path'))
     logger.info('done')
@@ -95,7 +94,10 @@ def build(args):
 @verbose_arg
 def run(args):
     """run local web server to preview generated website"""
-    _init(args.source, args.verbose)
+
+    conf.load(args.source)
+    logger.init(args.verbose)
+
     helpers.check_build(conf.get('build_path'))
     original_cwd = os.getcwd()
     port = helpers.str2int(args.port, conf.get('port'))
@@ -129,7 +131,10 @@ def run(args):
 @verbose_arg
 def deploy(args):
     """deploy generated website to the remote web server"""
-    _init(args.source, args.verbose)
+
+    conf.load(args.source)
+    logger.init(args.verbose)
+
     helpers.check_build(conf.get('build_path'))
 
     if not conf.get('deploy_cmd'):
@@ -149,7 +154,10 @@ def deploy(args):
 @verbose_arg
 def clean(args):
     """delete all generated content"""
-    _init(args.source, args.verbose)
+
+    conf.load(args.source)
+    logger.init(args.verbose)
+
     logger.info('cleaning output...')
     helpers.drop_build(conf.get('build_path'))
     logger.info('done')
@@ -164,7 +172,10 @@ def clean(args):
 @verbose_arg
 def page(args):
     """create new page"""
-    _init(args.source, args.verbose)
+
+    conf.load(args.source)
+    logger.init(args.verbose)
+
     if not helpers.valid_name(args.name):
         raise Exception('illegal page name')
 
@@ -188,7 +199,10 @@ def page(args):
 @verbose_arg
 def post(args):
     """create new post"""
-    _init(args.source, args.verbose)
+
+    conf.load(args.source)
+    logger.init(args.verbose)
+
     if not helpers.valid_name(args.name):
         raise Exception('illegal feed or post name')
 
@@ -217,4 +231,4 @@ def main():
         p.dispatch()
     except Exception as e:
         print('Error: ' + str(e))
-        print(traceback.format_exc())
+        # print(traceback.format_exc())
