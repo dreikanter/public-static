@@ -16,7 +16,7 @@ class SourceFile:
         dir_path = helpers.source_dir(self._type)
         self._path = os.path.join(dir_path, file_name)
         self._relpath = os.path.relpath(self._path, dir_path)
-        self._ext = os.path.splitext(file_name)[1]
+        self._ext = os.path.splitext(file_name)[1].lower()
         self._ctime = datetime.fromtimestamp(os.path.getctime(self._path))
         self._utime = datetime.fromtimestamp(os.path.getmtime(self._path))
 

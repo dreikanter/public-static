@@ -317,9 +317,9 @@ def css(cache):
     """Minify assets/*.css to {dest} (e.g. assets/styles/base.css will go to www/styles/base.css)."""
     for source in cache.assets(ext='.css'):
         helpers.makedirs(source.dest_dir())
-        if conf.get('min_css') and conf.get('min_css_cmd'):
+        command = conf.get('min_css_cmd')
+        if conf.get('min_css') and command:
             logger.info('minifying CSS: ' + source.rel_path())
-            command = conf.get('min_css_cmd')
             helpers.execute(command, source.path(), source.dest())
         else:
             logger.info('copying: ' + source.rel_path())
@@ -328,8 +328,15 @@ def css(cache):
 
 def js(cache):
     """Minify assets/*.js to {dest}."""
-
-    pass
+    for source in cache.assets(ext='.js'):
+        helpers.makedirs(source.dest_dir())
+        command = conf.get('min_js_cmd')
+        if conf.get('min_js') and command:
+            logger.info('minifying JavaScript: ' + source.rel_path())
+            helpers.execute(command, source.path(), source.dest())
+        else:
+            logger.info('copying: ' + source.rel_path())
+            shutil.copyfile(source.path(), source.dest())
 
 
 def less(cache):
