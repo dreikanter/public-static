@@ -5,7 +5,7 @@ from logging.handlers import RotatingFileHandler as RFH
 import os
 import os.path
 from publicstatic import conf
-from publicstatic import constants
+from publicstatic import const
 
 _logger = None
 
@@ -23,8 +23,8 @@ def init(verbose=False):
     level = logging.DEBUG if verbose or conf.get('verbose') else logging.INFO
     channel = logging.StreamHandler()
     channel.setLevel(level)
-    fmt = logging.Formatter(constants.CONSOLE_FMT, constants.CONSOLE_DATE_FMT)
-    channel.setFormatter(fmt)
+    formatter = logging.Formatter(const.LOG_FORMAT, const.LOG_DATE_FORMAT)
+    channel.setFormatter(formatter)
 
     _logger.addHandler(channel)
     log_file = conf.get('log_file')
@@ -39,8 +39,7 @@ def init(verbose=False):
                       backupCount=conf.get('log_backup_cnt'))
 
         channel.setLevel(logging.DEBUG)
-        fmt = logging.Formatter(constants.FILE_FMT, constants.FILE_DATE_FMT)
-        channel.setFormatter(fmt)
+        channel.setFormatter(formatter)
         _logger.addHandler(channel)
 
 

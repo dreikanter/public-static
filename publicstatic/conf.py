@@ -6,7 +6,7 @@ import codecs
 from datetime import datetime
 import os
 import yaml
-from publicstatic import constants
+from publicstatic import const
 from publicstatic.version import get_version
 
 _params = {}  # Configuration parameters
@@ -14,8 +14,8 @@ _conf_file = ''  # Configuration file absolute path
 
 
 def defaults():
-    p_names = map(lambda p: p['name'], constants.DEFAULTS)
-    p_values = map(lambda p: p['value'], constants.DEFAULTS)
+    p_names = map(lambda p: p['name'], const.DEFAULTS)
+    p_values = map(lambda p: p['value'], const.DEFAULTS)
     return dict(zip(p_names, p_values))
 
 
@@ -44,14 +44,14 @@ def generate(conf_path):  # force=False
     """Generates new configuration file using defaults"""
 
     global _conf_file
-    _conf_file = os.path.join(os.path.abspath(conf_path), constants.CONF_NAME)
+    _conf_file = os.path.join(os.path.abspath(conf_path), const.CONF_NAME)
 
     if os.path.isdir(site_dir()):  # and not force
         raise Exception("directory already exists: '%s'" % site_dir())
     else:
         os.makedirs(site_dir())
 
-    text = '\n'.join([_dump_option(option) for option in constants.DEFAULTS])
+    text = '\n'.join([_dump_option(option) for option in const.DEFAULTS])
     with codecs.open(_conf_file, mode='w', encoding='utf8') as f:
         f.write(text)
 
@@ -68,7 +68,7 @@ def find_conf(conf_path):
     last = True
 
     while last:
-        result = os.path.join(path, constants.CONF_NAME)
+        result = os.path.join(path, const.CONF_NAME)
         if os.path.exists(result):
             return result
         path, last = os.path.split(path)

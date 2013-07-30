@@ -8,7 +8,7 @@ import os
 import shutil
 import traceback
 from publicstatic import conf
-from publicstatic import constants
+from publicstatic import const
 from publicstatic import logger
 from publicstatic import helpers
 from publicstatic.lib.pyatom import AtomFeed
@@ -169,7 +169,7 @@ def build_indexes(data):
     index_data = {
         'title': conf.get('archive_page_title'),
         'author': conf.get('author'),
-        'generator': constants.GENERATOR.format(version=get_version()),
+        'generator': const.GENERATOR,
         'template': 'archive',
         'posts_num': len(data),
         'posts': data,
@@ -303,7 +303,7 @@ def get_commons():
         'time': datetime.now(),
         'author': conf.get('author'),
         'author_url': conf.get('author_url'),
-        'generator': constants.GENERATOR,
+        'generator': const.GENERATOR,
         'source_url': conf.get('source_url'),
         'enable_search_form': conf.get('enable_search_form'),
     }

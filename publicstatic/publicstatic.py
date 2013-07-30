@@ -12,7 +12,6 @@ import sys
 import traceback
 from argh import ArghParser, arg
 from publicstatic import conf
-from publicstatic import constants
 from publicstatic import builders
 from publicstatic import logger
 from publicstatic import helpers
