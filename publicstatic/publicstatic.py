@@ -22,14 +22,11 @@ from publicstatic.templates import get_template
 
 # Common command line arguments
 
-source_arg = arg('-s', '--source', default=None, metavar='SRC',
+source_arg = arg('-s', '--source', default=None, metavar='DIR',
                  help='website source path (default is the current directory)')
 
 force_arg = arg('-f', '--force', default=False,
                 help='overwrite existing file')
-
-type_arg = arg('-t', '--type', default=None,
-               help='generic page to clone')
 
 edit_arg = arg('-e', '--edit', default=False,
                help='open with preconfigured editor')
@@ -138,7 +135,6 @@ def clean(args):
 @source_arg
 @force_arg
 @edit_arg
-@type_arg
 def page(args):
     """create new page"""
 
@@ -146,7 +142,7 @@ def page(args):
     if not helpers.valid_name(args.name):
         raise Exception('illegal page name')
 
-    text = helpers.prototype(args.type or 'default-page')
+    text = helpers.prototype('default-page')
     page_path = builders.create_page(args.name, text, datetime.now(), args.force)
 
     if not page_path:
@@ -161,7 +157,6 @@ def page(args):
 @source_arg
 @force_arg
 @edit_arg
-@type_arg
 def post(args):
     """create new post"""
 
@@ -169,7 +164,7 @@ def post(args):
     if not helpers.valid_name(args.name):
         raise Exception('illegal feed or post name')
 
-    text = helpers.prototype(args.type or 'default-post')
+    text = helpers.prototype('default-post')
     try:
         post_path = builders.create_post(args.name, text, datetime.now(), args.force)
     except:
@@ -189,7 +184,7 @@ def version(args):
 
 def main():
     try:
-        p = ArghParser()
+        p = ArghParser(prog='pub')
         p.add_commands([init, build, run, deploy, clean, page, post, version])
         p.dispatch()
     except Exception:
