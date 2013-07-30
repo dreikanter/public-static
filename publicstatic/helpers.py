@@ -320,3 +320,18 @@ def execute(command, source, dest=''):
     """Executes a command with {source} and {dest} parameter replacements."""
 
     os.system(os.path.expandvars(command.format(source=source, dest=dest)))
+
+
+def source_dir(source_type):
+    """Map source file type to the relevant fully qualified directory path."""
+
+    dirs = {
+        const.ASSET_TYPE: conf.get('assets_path'),
+        const.POST_TYPE: conf.get('posts_path'),
+        const.PAGE_TYPE: conf.get('pages_path'),
+    }
+
+    try:
+        return dirs[source_type]
+    except:
+        raise Exception('invalid source type')

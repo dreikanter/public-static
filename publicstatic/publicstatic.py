@@ -55,40 +55,28 @@ def build(args):
     # read files list from the generated site directory
     cache = Cache()
 
-    builders = [
-            # minify assets/*.css to {dest} (e.g. assets/styles/base.css will go to www/styles/base.css)
+    steps = [
             builders.css,
-            # minify assets/*.js to {dest}
             builders.js,
-            # compile and minify assets/*.less to {dest}/*.css
             builders.less,
-            # copy other assets as is to the {dest}
             builders.static,
-            # build robots.txt
             builders.robots,
-            # build humans.txt
             builders.humans,
-            # build pages/*.md to {dest} (independant, keep rel path)
             builders.pages,
-            # build posts/*.md to {dest}/{blog_path}; copy latest post to the root web page
             builders.posts,
-            # build blog archive page (full post list)
             builders.archive,
-            # build blog tag pages
             builders.tags,
-            # build rss feed
             builders.rss,
-            # build atom feed
             builders.atom,
-            # build sitemap.xml
             builders.sitemap,
         ]
 
-    for builder in generators:
+    for builder in steps:
         try:
             builder(cache)
         except Exception as ex:
-            log.error(str(ex))
+            # logger.error(str(ex))
+            raise
 
     # Builder(cache, generators=generators, clean=False).build()
 
@@ -250,4 +238,5 @@ def main():
         p.add_commands([init, build, run, deploy, clean, page, post, update, version])
         p.dispatch()
     except Exception:
-        logger.crash()
+        # logger.crash()
+        raise

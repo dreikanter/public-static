@@ -315,8 +315,15 @@ def get_commons():
 
 def css(cache):
     """Minify assets/*.css to {dest} (e.g. assets/styles/base.css will go to www/styles/base.css)."""
-
-    pass
+    for source in cache.assets(ext='.css'):
+        helpers.makedirs(source.dest_dir())
+        if conf.get('min_css') and conf.get('min_css_cmd'):
+            logger.info('minifying CSS: ' + source.rel_path())
+            command = conf.get('min_css_cmd')
+            helpers.execute(command, source.path(), source.dest())
+        else:
+            logger.info('copying: ' + source.rel_path())
+            shutil.copyfile(source.path(), source.dest())
 
 
 def js(cache):
