@@ -23,6 +23,10 @@ GENERIC_PAGES = 'generic-pages'
 
 DUMP_FILE = 'crash.log'
 
+TEMPLATES_DIR = 'templates'
+
+PROTO_DIR = 'prototypes'
+
 DEFAULTS = [
     {
         'name': 'title',
@@ -66,12 +70,12 @@ DEFAULTS = [
     },
     {
         'name': 'tpl_path',
-        'value': 'templates',
+        'value': TEMPLATES_DIR,
         'desc': '',
     },
     {
         'name': 'prototypes_path',
-        'value': 'prototypes',
+        'value': PROTO_DIR,
         'desc': '',
     },
     {

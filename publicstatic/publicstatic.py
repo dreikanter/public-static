@@ -1,6 +1,6 @@
 # coding: utf-8
 
-"""public-static - static website builder"""
+"""public-static - static website builder."""
 
 from datetime import datetime
 from multiprocessing import Process
@@ -8,16 +8,13 @@ import os
 import re
 import shutil
 import sys
-import traceback
 from argh import ArghParser, arg
 from publicstatic import conf
+from publicstatic import const
 from publicstatic import builders
 from publicstatic import logger
 from publicstatic import helpers
-from publicstatic.lib.pyatom import AtomFeed
-from publicstatic.urlify import urlify
 from publicstatic.version import get_version
-from publicstatic.templates import get_template
 
 
 # Common command line arguments
@@ -31,7 +28,6 @@ force_arg = arg('-f', '--force', default=False,
 edit_arg = arg('-e', '--edit', default=False,
                help='open with preconfigured editor')
 
-
 # Commands
 
 @source_arg
@@ -42,9 +38,9 @@ def init(args):
     try:
         helpers.spawn_site(conf.site_dir())
         logger.info('website created successfully, have fun!')
-    except Exception as e:
-        logger.error('initialization failed: ' + str(e))
-        print(str(e))
+    except Exception as ex:
+        logger.error('initialization failed: ' + str(ex))
+        print(str(ex))
 
 
 @source_arg
@@ -177,6 +173,28 @@ def post(args):
         helpers.execute(conf.get('editor_cmd'), post_path)
 
 
+@source_arg
+def update(args):
+    """update templates and prototypes to the latest version"""
+
+    conf.load(args.source)
+    site_dir = conf.site_dir()
+
+    def replace(subject, dir_name):
+        tmp = dir_name + '_'
+        if os.path.isdir(dir_name):
+            os.rename(dir_name, tmp)
+        helpers.copydir(helpers.gen_dir(subject), os.path.join(site_dir, subject))
+        if os.path.exists(tmp):
+            shutil.rmtree(tmp)
+
+    logger.info('updating templates')
+    replace(const.TEMPLATES_DIR, conf.get('tpl_path'))
+    logger.info('updating prototypes')
+    replace(const.PROTO_DIR, conf.get('prototypes_path'))
+    logger.info('done')
+
+
 def version(args):
     """show version"""
     return get_version()
@@ -185,7 +203,7 @@ def version(args):
 def main():
     try:
         p = ArghParser(prog='pub')
-        p.add_commands([init, build, run, deploy, clean, page, post, version])
+        p.add_commands([init, build, run, deploy, clean, page, post, update, version])
         p.dispatch()
     except Exception:
         logger.crash()

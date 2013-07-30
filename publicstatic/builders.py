@@ -1,6 +1,6 @@
 # coding: utf-8
 
-"""Website building routines"""
+"""Website building routines."""
 
 import codecs
 from datetime import datetime
@@ -70,7 +70,8 @@ def process_file(root_dir, rel_source):
 
 
 def process_blog(path):
-    """Generate blog post pages"""
+    """Generate blog post pages."""
+
     posts = helpers.posts(path)
     prev = None
     next = None
@@ -133,13 +134,14 @@ def build_page(data, dest_file):
         tpl = get_template(data['template'])
         with codecs.open(dest_file, mode='w', encoding='utf8') as f:
             f.write(tpl.render(pagedata))
-    except Exception as e:
-        logger.error('page building error: ' + str(e))
+    except Exception as ex:
+        logger.error('page building error: ' + str(ex))
         logger.debug(traceback.format_exc())
 
 
 def build_feed(data):
-    """Builds atom feed for the blog"""
+    """Builds atom feed for the blog."""
+
     feed_url = conf.get('root_url') + conf.get('atom_feed')
     feed = AtomFeed(title=conf.get('title'),
                     subtitle=conf.get('subtitle'),
@@ -165,7 +167,8 @@ def build_feed(data):
 
 
 def build_indexes(data):
-    """Build post list pages"""
+    """Build post list pages."""
+
     index_data = {
         'title': conf.get('archive_page_title'),
         'author': conf.get('author'),
@@ -292,7 +295,8 @@ def create_post(name, text, date, force):
 
 
 def get_commons():
-    """Returns comman data fields for page building"""
+    """Returns comman data fields for page building."""
+
     return {
         'root_url': conf.get('root_url'),
         'rel_root_url': conf.get('rel_root_url'),

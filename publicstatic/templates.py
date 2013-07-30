@@ -1,6 +1,6 @@
 # coding: utf-8
 
-"""Jinja2 helpers"""
+"""Jinja2 helpers."""
 
 import jinja2
 from urllib.parse import urlparse, urljoin
@@ -23,7 +23,8 @@ def filter_isodatetime(value):
 
 
 def filter_trimurl(value):
-    """trims addressing scheme (protocol) from the specified url"""
+    """Trims addressing scheme (protocol) from the specified url."""
+
     url = urlparse(value)
     return url.netloc + url.path.rstrip('/')
 
