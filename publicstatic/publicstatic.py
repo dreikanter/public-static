@@ -14,6 +14,7 @@ from publicstatic import const
 from publicstatic import builders
 from publicstatic import logger
 from publicstatic import helpers
+from publicstatic.cache import Cache
 from publicstatic.version import get_version
 
 
@@ -48,19 +49,62 @@ def build(args):
     """generate web content from source"""
 
     conf.load(args.source)
-    helpers.drop_build(conf.get('build_path'))
-    helpers.makedirs(conf.get('build_path'))
 
-    logger.info("building path: '%s'" % conf.get('build_path'))
-    logger.info('processing assets...')
-    builders.process_dir(conf.get('assets_path'))
+    # read files list from [assets|pages|posts] excluding _* file names to cache; keep type [asset, post, page], full path, rel path, extension, ctime, utime, optionally some stats (file size, words count, etc)
+    # read and parse [posts|pages]/*.md contents to cache
+    # read files list from the generated site directory
+    cache = Cache()
 
-    logger.info('processing blog posts...')
-    builders.process_blog(conf.get('posts_path'))
+    builders = [
+            # minify assets/*.css to {dest} (e.g. assets/styles/base.css will go to www/styles/base.css)
+            builders.css,
+            # minify assets/*.js to {dest}
+            builders.js,
+            # compile and minify assets/*.less to {dest}/*.css
+            builders.less,
+            # copy other assets as is to the {dest}
+            builders.static,
+            # build robots.txt
+            builders.robots,
+            # build humans.txt
+            builders.humans,
+            # build pages/*.md to {dest} (independant, keep rel path)
+            builders.pages,
+            # build posts/*.md to {dest}/{blog_path}; copy latest post to the root web page
+            builders.posts,
+            # build blog archive page (full post list)
+            builders.archive,
+            # build blog tag pages
+            builders.tags,
+            # build rss feed
+            builders.rss,
+            # build atom feed
+            builders.atom,
+            # build sitemap.xml
+            builders.sitemap,
+        ]
 
-    logger.info('processing pages...')
-    builders.process_dir(conf.get('pages_path'))
-    logger.info('done')
+    for builder in generators:
+        try:
+            builder(cache)
+        except Exception as ex:
+            log.error(str(ex))
+
+    # Builder(cache, generators=generators, clean=False).build()
+
+    # helpers.drop_build(conf.get('build_path'))
+    # helpers.makedirs(conf.get('build_path'))
+
+    # logger.info("building path: '%s'" % conf.get('build_path'))
+    # logger.info('processing assets...')
+    # builders.process_dir(conf.get('assets_path'))
+
+    # logger.info('processing blog posts...')
+    # builders.process_blog(conf.get('posts_path'))
+
+    # logger.info('processing pages...')
+    # builders.process_dir(conf.get('pages_path'))
+    # logger.info('done')
 
 
 @source_arg

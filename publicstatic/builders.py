@@ -311,3 +311,83 @@ def get_commons():
         'source_url': conf.get('source_url'),
         'enable_search_form': conf.get('enable_search_form'),
     }
+
+
+def css(cache):
+    """Minify assets/*.css to {dest} (e.g. assets/styles/base.css will go to www/styles/base.css)."""
+
+    pass
+
+
+def js(cache):
+    """Minify assets/*.js to {dest}."""
+
+    pass
+
+
+def less(cache):
+    """Compile and minify assets/*.less to {dest}/*.css."""
+
+    pass
+
+
+def static(cache):
+    """Copy other assets as is to the {dest}."""
+
+    pass
+
+
+def robots(cache):
+    """Build robots.txt."""
+
+    pass
+
+
+def humans(cache):
+    """Build humans.txt."""
+
+    pass
+
+
+def pages(cache):
+    """Build pages/*.md to {dest} (independant, keep rel path)."""
+
+    pass
+
+
+def posts(cache):
+    """Build posts/*.md to {dest}/{blog_path}; copy latest post to the root web page."""
+
+    pass
+
+
+def archive(cache):
+    """Build blog archive page (full post list)."""
+
+    pass
+
+
+def tags(cache):
+    """Build blog tag pages."""
+
+    pass
+
+
+def rss(cache):
+    """Build rss feed."""
+
+    pass
+
+
+def atom(cache):
+    """Build atom feed."""
+
+    pass
+
+
+def sitemap(cache):
+    """Build sitemap.xml."""
+
+    pass
+
+

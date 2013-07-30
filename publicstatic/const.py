@@ -27,6 +27,10 @@ TEMPLATES_DIR = 'templates'
 
 PROTO_DIR = 'prototypes'
 
+ASSET_TYPE = 'asset'
+POST_TYPE = 'post'
+PAGE_TYPE = 'page'
+
 DEFAULTS = [
     {
         'name': 'title',
