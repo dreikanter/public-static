@@ -236,6 +236,7 @@ def feed_data(page_data):
 
 def dest(build_path, rel_source):
     """Gets destination file path."""
+    # TODO: Drop after #6
 
     base, ext = os.path.splitext(rel_source)
     new_ext = {

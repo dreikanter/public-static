@@ -42,9 +42,15 @@ class SourceFile:
     def ext(self):
         return self._ext
 
+    def basename(self):
+        return os.path.basename(self._path)
+
     def dest(self):
         """Returns fully qualified destination file."""
-        return os.path.join(conf.get('build_path'), self._relpath)
+        base, ext = os.path.splitext(self._relpath)
+        ext = { '.md': '.html', '.less': '.css' }.get(self._ext, self._ext)
+        return os.path.join(conf.get('build_path'), base + ext)
+
 
     def dest_dir(self):
         """Returns fully qualified destination directory path."""

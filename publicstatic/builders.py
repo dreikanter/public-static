@@ -341,8 +341,16 @@ def js(cache):
 
 def less(cache):
     """Compile and minify assets/*.less to {dest}/*.css."""
-
-    pass
+    for source in cache.assets(ext='.less'):
+        helpers.makedirs(source.dest_dir())
+        logger.info('compiling LESS: ' + source.rel_path())
+        if conf.get('min_less') and conf.get('min_css_cmd'):
+            tmp_file = os.path.join(source.dest_dir(), '_' + source.basename())
+            helpers.execute(conf.get('less_cmd'), source.path(), tmp_file)
+            helpers.execute(conf.get('min_css_cmd'), tmp_file, source.dest())
+            os.remove(tmp_file)
+        else:
+            helpers.execute(conf.get('less_cmd'), source.path(), source.dest())
 
 
 def static(cache):
