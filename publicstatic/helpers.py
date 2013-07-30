@@ -14,7 +14,6 @@ import traceback
 import markdown
 from publicstatic import conf
 from publicstatic import const
-from publicstatic import logger
 from publicstatic.urlify import urlify
 
 
@@ -36,7 +35,7 @@ def str2int(value, default=None):
 
 def makedirs(dir_path):
     """Creates directory if it not exists"""
-    if dir_path and not os.path.exists(dir_path):
+    if dir_path and not os.path.isdir(dir_path):
         os.makedirs(dir_path)
         return True
     return False
@@ -296,12 +295,5 @@ def tag_url(tag, full=False):
 
 
 def execute(command, source, dest=''):
-    """Safely executes one of the preconfigured commands
-    with {source} and {dest} parameter replacements"""
-    cmd = os.path.expandvars(command.format(source=source, dest=dest))
-    logger.debug("executing '%s'" % cmd)
-    try:
-        os.system(cmd)
-    except:
-        logger.error('error executing system command')
-        logger.debug(traceback.format_exc())
+    """Executes a command with {source} and {dest} parameter replacements"""
+    os.system(os.path.expandvars(command.format(source=source, dest=dest)))

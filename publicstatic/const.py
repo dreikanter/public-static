@@ -8,14 +8,20 @@ from publicstatic.version import get_version
 # Site configuration file name
 CONF_NAME = 'pub.conf'
 
+# Program name and version info
 GENERATOR = "public-static {version}".format(version=get_version())
 
 # Logger message format
 LOG_FORMAT = "%(asctime)s %(levelname)s: %(message)s"
+
+# Logger message timestamp format
 LOG_DATE_FORMAT = "%Y/%m/%d %H:%M:%S"
 
 GENERIC_PATH = 'generic-site'
+
 GENERIC_PAGES = 'generic-pages'
+
+DUMP_FILE = 'crash.log'
 
 DEFAULTS = [
     {

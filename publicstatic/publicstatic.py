@@ -2,7 +2,6 @@
 
 """public-static - static website builder"""
 
-import codecs
 from datetime import datetime
 from multiprocessing import Process
 import os
@@ -26,14 +25,8 @@ from publicstatic.templates import get_template
 source_arg = arg('-s', '--source', default=None, metavar='SRC',
                  help='website source path (default is the current directory)')
 
-log_arg = arg('-l', '--log', default=None,
-              help='log file name')
-
-verbose_arg = arg('-v', '--verbose', default=False,
-                  help='verbose output')
-
 force_arg = arg('-f', '--force', default=False,
-                help='overwrite existing file')  # or initialize in existing dir
+                help='overwrite existing file')
 
 type_arg = arg('-t', '--type', default=None,
                help='generic page to clone')
@@ -45,15 +38,10 @@ edit_arg = arg('-e', '--edit', default=False,
 # Commands
 
 @source_arg
-# @force_arg
-@log_arg
-@verbose_arg
 def init(args):
     """create new website"""
 
-    conf.generate(args.source)  # force=args.force
-    logger.init(args.verbose)
-
+    conf.generate(args.source)
     try:
         helpers.spawn_site(conf.site_dir())
         logger.info('website created successfully, have fun!')
@@ -63,14 +51,10 @@ def init(args):
 
 
 @source_arg
-@log_arg
-@verbose_arg
 def build(args):
     """generate web content from source"""
 
     conf.load(args.source)
-    logger.init(args.verbose)
-
     helpers.drop_build(conf.get('build_path'))
     helpers.makedirs(conf.get('build_path'))
 
@@ -89,14 +73,10 @@ def build(args):
 @source_arg
 @arg('-p', '--port', default=None, help='port for local HTTP server')
 @arg('-b', '--browse', default=False, help='open in default browser')
-@log_arg
-@verbose_arg
 def run(args):
     """run local web server to preview generated website"""
 
     conf.load(args.source)
-    logger.init(args.verbose)
-
     helpers.check_build(conf.get('build_path'))
     original_cwd = os.getcwd()
     port = helpers.str2int(args.port, conf.get('port'))
@@ -126,14 +106,10 @@ def run(args):
 
 
 @source_arg
-@log_arg
-@verbose_arg
 def deploy(args):
     """deploy generated website to the remote web server"""
 
     conf.load(args.source)
-    logger.init(args.verbose)
-
     helpers.check_build(conf.get('build_path'))
 
     if not conf.get('deploy_cmd'):
@@ -149,14 +125,10 @@ def deploy(args):
 
 
 @source_arg
-@log_arg
-@verbose_arg
 def clean(args):
     """delete all generated content"""
 
     conf.load(args.source)
-    logger.init(args.verbose)
-
     logger.info('cleaning output...')
     helpers.drop_build(conf.get('build_path'))
     logger.info('done')
@@ -167,14 +139,10 @@ def clean(args):
 @force_arg
 @edit_arg
 @type_arg
-@log_arg
-@verbose_arg
 def page(args):
     """create new page"""
 
     conf.load(args.source)
-    logger.init(args.verbose)
-
     if not helpers.valid_name(args.name):
         raise Exception('illegal page name')
 
@@ -194,14 +162,10 @@ def page(args):
 @force_arg
 @edit_arg
 @type_arg
-@log_arg
-@verbose_arg
 def post(args):
     """create new post"""
 
     conf.load(args.source)
-    logger.init(args.verbose)
-
     if not helpers.valid_name(args.name):
         raise Exception('illegal feed or post name')
 
@@ -228,6 +192,5 @@ def main():
         p = ArghParser()
         p.add_commands([init, build, run, deploy, clean, page, post, version])
         p.dispatch()
-    except Exception as e:
-        print('Error: ' + str(e))
-        # print(traceback.format_exc())
+    except Exception:
+        logger.crash()
