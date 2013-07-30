@@ -2,7 +2,7 @@ call env.bat
 
 set mkpage=python -m publicstatic page
 set mkpost=python -m publicstatic post
-set opt=-s %sitedir% -v
+set opt=-s %sitedir%
 
 %mkpage% "Understanding Creative Thinking" %opt%
 %mkpage% "Designing a Better Contact Page" %opt%

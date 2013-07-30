@@ -1,2 +1,2 @@
 call env.bat
-python -m publicstatic build -s %sitedir% -v
+python -m publicstatic build -s %sitedir%
