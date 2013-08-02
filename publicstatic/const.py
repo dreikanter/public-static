@@ -55,42 +55,44 @@ DEFAULTS = [
     {
         'name': 'build_path',
         'value': 'www',
-        'desc': '',
+        'desc': 'Build path for web content generator output',
     },
     {
         'name': 'pages_path',
         'value': 'pages',
-        'desc': '',
+        'desc': 'Page files path inside website source dir',
     },
     {
         'name': 'posts_path',
         'value': 'posts',
-        'desc': '',
+        'desc': 'Post files path inside website source dir',
     },
     {
         'name': 'assets_path',
         'value': 'assets',
-        'desc': '',
+        'desc': 'Web assets path inside website source dir (*.js, *.css, etc)',
     },
     {
         'name': 'tpl_path',
         'value': TEMPLATES_DIR,
-        'desc': '',
+        'desc': 'Relative path to the templates directory inside ' \
+                'website source dir',
     },
     {
         'name': 'prototypes_path',
         'value': PROTO_DIR,
-        'desc': '',
-    },
-    {
-        'name': 'rel_root_url',
-        'value': '/',
-        'desc': '',
+        'desc': 'Relative path to the prototypes directory inside ' \
+                'website source dir',
     },
     {
         'name': 'root_url',
         'value': 'http://example.com/',
-        'desc': '',
+        'desc': 'Root website URL',
+    },
+    {
+        'name': 'rel_root_url',
+        'value': '/',
+        'desc': 'Relative root website URL',
     },
     {
         'name': 'source_url',
@@ -100,12 +102,12 @@ DEFAULTS = [
     {
         'name': 'post_location',
         'value': '{year}/{month}/{day}/{name}.html',
-        'desc': '',
+        'desc': 'Post file name pattern',
     },
     {
         'name': 'port',
         'value': 8000,
-        'desc': '',
+        'desc': 'Port number for the local web server',
     },
     {
         'name': 'browser_delay',
@@ -115,22 +117,22 @@ DEFAULTS = [
     {
         'name': 'page_tpl',
         'value': 'default-page',
-        'desc': '',
+        'desc': 'Template name for pages',
     },
     {
         'name': 'post_tpl',
         'value': 'default-post',
-        'desc': '',
+        'desc': 'Template name for blog posts',
     },
     {
         'name': 'min_js',
         'value': True,
-        'desc': '',
+        'desc': 'Enable JavaScript minification',
     },
     {
         'name': 'min_css',
         'value': True,
-        'desc': '',
+        'desc': 'Enable CSS minification',
     },
     {
         'name': 'min_less',
@@ -140,42 +142,43 @@ DEFAULTS = [
     {
         'name': 'min_js_cmd',
         'value': "yuicompressor --type js --nomunge -o {dest} {source}",
-        'desc': '',
+        'desc': 'Shell command for JavaScript minification',
     },
     {
         'name': 'min_css_cmd',
         'value': "yuicompressor --type css -o {dest} {source}",
-        'desc': '',
-    },
-    {
-        'name': 'deploy_cmd',
-        'value': '',
-        'desc': '',
+        'desc': 'Shell command for CSS minification',
     },
     {
         'name': 'less_cmd',
         'value': "dotless {source} {dest}",
-        'desc': '',
+        'desc': 'Shell command for LESS compillation',
+    },
+    {
+        'name': 'deploy_cmd',
+        'value': '',
+        'desc': 'Shell command for web content deployment',
     },
     {
         'name': 'editor_cmd',
         'value': "$EDITOR \"{source}\"",
-        'desc': '',
+        'desc': 'Shell command to open files in text editor. {source} will ' \
+                'be replaced with a file path to open.',
     },
     {
         'name': 'markdown_extensions',
         'value': ['nl2br', 'grid', 'smartypants'],
-        'desc': '',
+        'desc': 'A list of markdown processor extensions',
     },
     {
         'name': 'index_page',
         'value': 'index.html',
-        'desc': '',
+        'desc': 'File name for an index page',
     },
     {
         'name': 'archive_page',
         'value': 'archive.html',
-        'desc': '',
+        'desc': 'File name for an archive page',
     },
     {
         'name': 'archive_page_title',
@@ -185,7 +188,7 @@ DEFAULTS = [
     {
         'name': 'atom_feed',
         'value': 'feed.atom',
-        'desc': '',
+        'desc': 'Atom feed file name.',
     },
     {
         'name': 'post_at_root_url',
@@ -195,32 +198,33 @@ DEFAULTS = [
     {
         'name': 'default_tags',
         'value': [ 'misc' ],
-        'desc': '',
+        'desc': 'A list of default tags to be added to a new post',
     },
     {
         'name': 'log_file',
         'value': 'pub.log',
-        'desc': '',
+        'desc': 'Log file name',
     },
     {
         'name': 'log_max_size',
         'value': 1024 * 1024,
-        'desc': '',
+        'desc': 'Maximum file size for log rotation (in bytes)',
     },
     {
         'name': 'log_backup_cnt',
         'value': 3,
-        'desc': '',
+        'desc': 'Amount of log files to keep',
     },
     {
         'name': 'verbose',
         'value': False,
-        'desc': 'Verbose output',
+        'desc': 'Enable verbose logging',
     },
     {
         'name': 'time_format',
         'value': [ '%Y/%m/%d %H:%M:%S', '%Y/%m/%d' ],
-        'desc': 'Possible date and time formats for the page header fields',
+        'desc': 'A list of possible date/time formats for the ' \
+                ' post and page header fields',
     },
     {
         'name': 'page_datetime_format',
@@ -238,7 +242,7 @@ DEFAULTS = [
             { 'title': 'About', 'href': '/about.html' },
             { 'title': 'Archive', 'href': '/archive.html' },
         ],
-        'desc': '',
+        'desc': 'Navigation menu items',
     },
     {
         'name': 'enable_search_form',
