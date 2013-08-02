@@ -313,8 +313,29 @@ def get_commons():
     }
 
 
+# def _process(cache, ext, cmd, enabled, message):
+#     for source in cache.assets(ext=ext):
+#         helpers.makedirs(source.dest_dir())
+#         command = conf.get(cmd)
+#         if conf.get(enabled) and command:
+#             logger.info("%s: %s" % (message, source.rel_path()))
+#             helpers.execute(command, source.path(), source.dest())
+#         else:
+#             logger.info("%s: %s" % ('copying', source.rel_path()))
+#             shutil.copyfile(source.path(), source.dest())
+
+
+# def css(cache):
+#     _process(cache, '.css', 'min_css_cmd', 'min_css', 'minifying CSS')
+
+
+# def js(cache):
+#     _process(cache, '.js', 'min_js_cmd', 'min_js', 'minifying JavaScript')
+
+
 def css(cache):
-    """Minify assets/*.css to {dest} (e.g. assets/styles/base.css will go to www/styles/base.css)."""
+    """Minify assets/*.css to {dest} (e.g. assets/styles/base.css
+    will go to www/styles/base.css)."""
     for source in cache.assets(ext='.css'):
         helpers.makedirs(source.dest_dir())
         command = conf.get('min_css_cmd')
@@ -324,6 +345,7 @@ def css(cache):
         else:
             logger.info('copying: ' + source.rel_path())
             shutil.copyfile(source.path(), source.dest())
+        source.processed(True)
 
 
 def js(cache):
@@ -337,6 +359,7 @@ def js(cache):
         else:
             logger.info('copying: ' + source.rel_path())
             shutil.copyfile(source.path(), source.dest())
+        source.processed(True)
 
 
 def less(cache):
@@ -351,12 +374,13 @@ def less(cache):
             os.remove(tmp_file)
         else:
             helpers.execute(conf.get('less_cmd'), source.path(), source.dest())
+        source.processed(True)
 
 
 def static(cache):
     """Copy other assets as is to the {dest}."""
-
-    pass
+    for source in cache.assets(processed=False):
+        logger.info('copying static file: ' + source.path() + ' ' + str(source.processed()))
 
 
 def robots(cache):

@@ -33,18 +33,20 @@ class Cache():
         return self._cache;
 
 
-    def funnel(self, source_type=None, ext=None):
+    def funnel(self, source_type=None, ext=None, processed=None):
         """Creates source file filter function."""
 
         def _funnel(source):
             return (source_type == None or source_type == source.type()) and \
-                   (ext == None or ext == source.ext())
+                   (ext == None or ext == source.ext() and \
+                   (processed == None or processed == source.processed()))
 
         return _funnel
 
 
-    def assets(self, ext=None):
-        return filter(self.funnel(const.ASSET_TYPE, ext), self._cache)
+    def assets(self, ext=None, processed=None):
+        funnel = self.funnel(const.ASSET_TYPE, ext=ext, processed=processed)
+        return filter(funnel, self._cache)
 
 
     def posts(self):

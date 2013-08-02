@@ -19,6 +19,7 @@ class SourceFile:
         self._ext = os.path.splitext(file_name)[1].lower()
         self._ctime = datetime.fromtimestamp(os.path.getctime(self._path))
         self._utime = datetime.fromtimestamp(os.path.getmtime(self._path))
+        self._processed = False
 
     def __str__(self):
         """Human-readable string representation."""
@@ -51,7 +52,11 @@ class SourceFile:
         ext = { '.md': '.html', '.less': '.css' }.get(self._ext, self._ext)
         return os.path.join(conf.get('build_path'), base + ext)
 
-
     def dest_dir(self):
         """Returns fully qualified destination directory path."""
         return os.path.dirname(self.dest())
+
+    def processed(self, value=None):
+        if type(value) == bool:
+            self._processed = value
+        return self._processed
