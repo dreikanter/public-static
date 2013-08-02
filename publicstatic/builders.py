@@ -170,7 +170,6 @@ def build_indexes(data):
     """Build post list pages."""
 
     index_data = {
-        'title': conf.get('archive_page_title'),
         'author': conf.get('author'),
         'generator': const.GENERATOR,
         'template': 'archive',

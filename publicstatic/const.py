@@ -206,12 +206,6 @@ DEFAULTS = [
         'export': False,
     },
     {
-        'name': 'archive_page_title',
-        'value': 'Archive',
-        'desc': '',
-        'export': True,
-    },
-    {
         'name': 'atom_feed',
         'value': 'feed.atom',
         'desc': 'Atom feed file name.',
