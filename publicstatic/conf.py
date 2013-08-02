@@ -49,12 +49,14 @@ def generate(conf_path):  # force=False
     global _conf_file
     _conf_file = os.path.join(os.path.abspath(conf_path), const.CONF_NAME)
 
-    if os.path.isdir(site_dir()):  # and not force
+    if os.path.isdir(site_dir()):
         raise Exception("directory already exists: '%s'" % site_dir())
     else:
         os.makedirs(site_dir())
 
-    text = '\n'.join([_dump_option(option) for option in const.DEFAULTS])
+    text = '\n'.join([_dump_option(option) for option
+                                           in const.DEFAULTS
+                                           if option.get('export', False)])
     with codecs.open(_conf_file, mode='w', encoding='utf8') as f:
         f.write(text)
 
