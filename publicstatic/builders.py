@@ -44,7 +44,7 @@ def process_file(root_dir, rel_source):
 
     elif ext == '.less':
         logger.info('compiling LESS: ' + rel_source)
-        if conf.get('min_less'):
+        if conf.get('min_css'):
             tmp_file = dest_file + '.tmp'
             helpers.execute(conf.get('less_cmd'), source_file, tmp_file)
             helpers.execute(conf.get('min_css_cmd'), tmp_file, dest_file)
@@ -366,7 +366,7 @@ def less(cache):
     for source in cache.assets(ext='.less'):
         helpers.makedirs(source.dest_dir())
         logger.info('compiling LESS: ' + source.rel_path())
-        if conf.get('min_less') and conf.get('min_css_cmd'):
+        if conf.get('min_css') and conf.get('min_css_cmd'):
             tmp_file = os.path.join(source.dest_dir(), '_' + source.basename())
             helpers.execute(conf.get('less_cmd'), source.path(), tmp_file)
             helpers.execute(conf.get('min_css_cmd'), tmp_file, source.dest())

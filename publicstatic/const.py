@@ -151,12 +151,6 @@ DEFAULTS = [
         'export': True,
     },
     {
-        'name': 'min_less',
-        'value': True,
-        'desc': 'Apply CSS minimization tool to the LESS processor output',
-        'export': True,
-    },
-    {
         'name': 'min_js_cmd',
         'value': "yuicompressor --type js --nomunge -o {dest} {source}",
         'desc': 'Shell command for JavaScript minification',
