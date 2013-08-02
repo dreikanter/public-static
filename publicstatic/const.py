@@ -237,7 +237,7 @@ DEFAULTS = [
     },
     {
         'name': 'verbose',
-        'value': False,
+        'value': True,
         'desc': 'Enable verbose logging',
         'export': True,
     },

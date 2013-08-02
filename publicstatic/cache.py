@@ -29,6 +29,7 @@ class Cache():
 
             helpers.walk(path, save)
 
+
     def items(self):
         return self._cache;
 
@@ -37,9 +38,23 @@ class Cache():
         """Creates source file filter function."""
 
         def _funnel(source):
+            # cond = []
+
+            # if source_type != None:
+            #     cond.append(source_type == source.type())
+
+            # if ext != None:
+            #     cond.append(ext == source.ext())
+
+            # if processed != None:
+            #     cond.append(processed == source.processed())
+
+            # return any(cond)
+
             return (source_type == None or source_type == source.type()) and \
-                   (ext == None or ext == source.ext() and \
-                   (processed == None or processed == source.processed()))
+                   (ext == None or ext == source.ext()) and \
+                   (processed == None or processed == source.processed())
+
 
         return _funnel
 

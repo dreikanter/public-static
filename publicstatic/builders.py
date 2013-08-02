@@ -379,7 +379,9 @@ def less(cache):
 def static(cache):
     """Copy other assets as is to the {dest}."""
     for source in cache.assets(processed=False):
-        logger.info('copying static file: ' + source.path() + ' ' + str(source.processed()))
+        logger.info('copying: ' + source.rel_path())
+        shutil.copyfile(source.path(), source.dest())
+        source.processed(True)
 
 
 def robots(cache):
