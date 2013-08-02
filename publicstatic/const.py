@@ -31,6 +31,8 @@ ASSET_TYPE = 'asset'
 POST_TYPE = 'post'
 PAGE_TYPE = 'page'
 
+BROWSER_DELAY = 2.0
+
 DEFAULTS = [
     {
         'name': 'title',
@@ -122,12 +124,6 @@ DEFAULTS = [
         'name': 'port',
         'value': 8000,
         'desc': 'Port number for the local web server',
-        'export': True,
-    },
-    {
-        'name': 'browser_delay',
-        'value': 2.0,
-        'desc': '',
         'export': True,
     },
     {

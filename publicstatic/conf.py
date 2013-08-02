@@ -134,14 +134,10 @@ def _purify(params):
     params['build_path'] = _expand(params['build_path'])
     params['tpl_path'] = _expand(params['tpl_path'])
     params['prototypes_path'] = _expand(params['prototypes_path'])
-
     params['root_url'] = _trslash(params['root_url'].strip())
     params['rel_root_url'] = _trslash(params['rel_root_url'].strip())
     params['source_url'] = _trslash(params['source_url'].strip())
-
-    params['browser_delay'] = float(params['browser_delay'])
     params['port'] = int(params['port'])
-
     params['log_file'] = params['log_file'].strip()
     params['log_max_size'] = int(params['log_max_size'])
     params['log_backup_cnt'] = int(params['log_backup_cnt'])

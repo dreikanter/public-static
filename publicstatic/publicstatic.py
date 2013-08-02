@@ -115,9 +115,8 @@ def run(args):
     try:
         if args.browse:
             url = "http://localhost:%s/" % port
-            delay = conf.get('browser_delay')
-            logger.info("opening browser in %g seconds" % delay)
-            p = Process(target=helpers.browse, args=(url, delay))
+            logger.info("opening browser in %g seconds" % const.BROWSER_DELAY)
+            p = Process(target=helpers.browse, args=(url, const.BROWSER_DELAY))
             p.start()
 
         logger.info('use Ctrl-Break to stop webserver')
