@@ -5,6 +5,7 @@
 import codecs
 from datetime import datetime
 import os
+import re
 import yaml
 from publicstatic import const
 from publicstatic.version import get_version
@@ -109,8 +110,12 @@ def gen_dir():
 
 def _dump_option(option):
     name, value, desc = option['name'], option['value'], option['desc']
-    srl = yaml.dump({name: value}, width=80, indent=4, default_flow_style=False)
-    return ''.join([("# %s\n" % desc) if desc else '', srl])
+    desc = ("# %s\n" % desc) if desc else ''
+    dump = yaml.dump({name: value},
+                     width=79,
+                     indent=2,
+                     default_flow_style=False)
+    return desc + dump
 
 
 def _check(value):
