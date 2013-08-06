@@ -34,39 +34,50 @@ class Cache():
         return self._cache;
 
 
-    def funnel(self, source_type=None, ext=None, processed=None):
+    def condition(self,
+               source_type=None,
+               ext=None,
+               processed=None,
+               basename=None):
         """Creates source file filter function."""
 
-        def _funnel(source):
-            # cond = []
+        conditions = []
 
-            # if source_type != None:
-            #     cond.append(source_type == source.type())
+        if source_type != None:
+            conditions.append(lambda source: source_type == source.type())
 
-            # if ext != None:
-            #     cond.append(ext == source.ext())
+        if ext != None:
+            conditions.append(lambda source: ext == source.ext())
 
-            # if processed != None:
-            #     cond.append(processed == source.processed())
+        if processed != None:
+            conditions.append(lambda source: processed == source.processed())
 
-            # return any(cond)
+        if basename != None:
+            conditions.append(lambda source: basename == source.basename())
 
-            return (source_type == None or source_type == source.type()) and \
-                   (ext == None or ext == source.ext()) and \
-                   (processed == None or processed == source.processed())
+        def _condition(source):
+            return all([cond(source) for cond in conditions])
 
-
-        return _funnel
+        return _condition
 
 
-    def assets(self, ext=None, processed=None):
-        funnel = self.funnel(const.ASSET_TYPE, ext=ext, processed=processed)
-        return filter(funnel, self._cache)
+    def assets(self,
+               ext=None,
+               processed=None,
+               basename=None):
+        """Get assets."""
+        condition = self.condition(const.ASSET_TYPE,
+                             ext=ext,
+                             processed=processed,
+                             basename=basename)
+        return filter(condition, self._cache)
 
 
     def posts(self):
-        return filter(self.funnel(const.POSTS_TYPE, ext), self._cache)
+        """Get posts."""
+        return filter(self.condition(const.POSTS_TYPE, ext), self._cache)
 
 
     def pages(self):
-        return filter(self.funnel(const.PAGES_TYPE, ext), self._cache)
+        """Get pages."""
+        return filter(self.condition(const.PAGES_TYPE, ext), self._cache)

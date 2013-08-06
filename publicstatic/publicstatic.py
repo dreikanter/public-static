@@ -20,13 +20,17 @@ from publicstatic.version import get_version
 
 # Common command line arguments
 
-source_arg = arg('-s', '--source', default=None, metavar='DIR',
+source_arg = arg('-s', '--source',
+                 default=None,
+                 metavar='DIR',
                  help='website source path (default is the current directory)')
 
-force_arg = arg('-f', '--force', default=False,
+force_arg = arg('-f', '--force',
+                default=False,
                 help='overwrite existing file')
 
-edit_arg = arg('-e', '--edit', default=False,
+edit_arg = arg('-e', '--edit',
+               default=False,
                help='open with preconfigured editor')
 
 # Commands
@@ -59,9 +63,9 @@ def build(args):
             builders.css,
             builders.js,
             builders.less,
-            builders.static,
             # builders.robots,
-            # builders.humans,
+            builders.humans,
+            # builders.static,
             # builders.pages,
             # builders.posts,
             # builders.archive,

@@ -86,9 +86,9 @@ def get(param):
     try:
         return _params[param]
     except KeyError:
-        raise Exception('Unknown configuration parameter')
+        raise Exception('unknown configuration parameter: "%s"' % param)
     except TypeError:
-        raise Exception('Configuration was not initialized')
+        raise Exception('configuration was not initialized')
 
 
 def conf_file():

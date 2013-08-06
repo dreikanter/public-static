@@ -1,13 +1,13 @@
 /* TEAM */
 
-Creator: Hal 9000
-Site: http://thehal9000.com/
-Twitter: @hal
-Location: Discovery One spacecraft
+Creator: {{ author }}
+Site: {{ author_url }}
+Twitter: {{ author_twitter }}
+Location: {{ author_location }}
 
 /* SITE */
 
-Last update:
-Language: English
-Doctype: HTML5
-IDE: Sublime Text
+Last update: {{ last_updated|datetime }}
+Language: {{ language }}
+Doctype: {{ doctype }}
+IDE: {{ ide }}

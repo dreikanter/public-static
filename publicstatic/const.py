@@ -33,6 +33,7 @@ PAGE_TYPE = 'page'
 
 BROWSER_DELAY = 2.0
 
+
 DEFAULTS = [
     {
         'name': 'title',
@@ -274,5 +275,35 @@ DEFAULTS = [
         'value': True,
         'desc': 'Enable Google search form',
         'export': True,
+    },
+    {
+        'name': 'humans_language',
+        'value': 'English',
+        'desc': 'Site Language for humans.txt',
+        'export': False,
+    },
+    {
+        'name': 'humans_doctype',
+        'value': 'HTML5',
+        'desc': 'Site Doctype for humans.txt',
+        'export': False,
+    },
+    {
+        'name': 'humans_ide',
+        'value': 'Netscape Composer 7',
+        'desc': 'IDE value for humans.txt',
+        'export': False,
+    },
+    {
+        'name': 'humans_author_twitter',
+        'value': '',
+        'desc': 'Site author twitter account for humans.txt',
+        'export': False,
+    },
+    {
+        'name': 'humans_author_location',
+        'value': '',
+        'desc': 'Site author location for humans.txt',
+        'export': False,
     },
 ]

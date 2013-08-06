@@ -11,10 +11,10 @@ from publicstatic import conf
 from publicstatic import const
 from publicstatic import logger
 from publicstatic import helpers
+from publicstatic import templates
 from publicstatic.lib.pyatom import AtomFeed
 from publicstatic.urlify import urlify
 from publicstatic.version import get_version
-from publicstatic.templates import get_template
 
 
 def process_dir(path):
@@ -131,9 +131,7 @@ def build_page(data, dest_file):
     pagedata.update(data)
 
     try:
-        tpl = get_template(data['template'])
-        with codecs.open(dest_file, mode='w', encoding='utf8') as f:
-            f.write(tpl.render(pagedata))
+        templates.render(data, dest=dest_file)
     except Exception as ex:
         logger.error('page building error: ' + str(ex))
         logger.debug(traceback.format_exc())
@@ -369,11 +367,43 @@ def less(cache):
         if conf.get('min_css') and conf.get('min_css_cmd'):
             tmp_file = os.path.join(source.dest_dir(), '_' + source.basename())
             helpers.execute(conf.get('less_cmd'), source.path(), tmp_file)
+            logger.info('minifying CSS: ' + source.rel_path())
             helpers.execute(conf.get('min_css_cmd'), tmp_file, source.dest())
             os.remove(tmp_file)
         else:
             helpers.execute(conf.get('less_cmd'), source.path(), source.dest())
         source.processed(True)
+
+
+# def robots(cache):
+#     """Build robots.txt."""
+#     for source in cache.assets(basename='robots.txt'):
+#         logger.info('processing ' + source.rel_path())
+#         helpers.makedirs(source.dest_dir())
+#         shutil.copyfile(source.path(), source.dest())
+#         source.processed(True)
+
+
+def humans(cache):
+    """Build humans.txt."""
+    for source in cache.assets(basename='humans.txt'):
+        logger.info('processing ' + source.rel_path())
+        try:
+            templates.render(path=source.path(), dest=source.dest(), data={
+                'author': conf.get('author'),
+                'author_url': conf.get('author_url'),
+                'author_twitter': conf.get('humans_author_twitter'),
+                'author_location': conf.get('humans_author_location'),
+                'last_updated': datetime.now(),
+                'language': conf.get('humans_language'),
+                'doctype': conf.get('humans_doctype'),
+                'ide': conf.get('humans_ide'),
+            })
+        except Exception as ex:
+            logger.error('humans.txt processing failed: ' + str(ex))
+            logger.debug(traceback.format_exc())
+        finally:
+            source.processed(True)
 
 
 def static(cache):
@@ -382,18 +412,6 @@ def static(cache):
         logger.info('copying: ' + source.rel_path())
         shutil.copyfile(source.path(), source.dest())
         source.processed(True)
-
-
-def robots(cache):
-    """Build robots.txt."""
-
-    pass
-
-
-def humans(cache):
-    """Build humans.txt."""
-
-    pass
 
 
 def pages(cache):
