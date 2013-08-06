@@ -11,7 +11,7 @@ from publicstatic import const
 from publicstatic.version import get_version
 
 _params = {}  # Configuration parameters
-_conf_file = ''  # Configuration file absolute path
+_path = ''  # Configuration file absolute path
 
 
 def defaults():
@@ -21,15 +21,14 @@ def defaults():
 
 def load(conf_path):
     """Initializes configuration."""
+    global _path
+    _path = find_conf(conf_path or '.')
 
-    global _conf_file
-    _conf_file = find_conf(conf_path or '.')
-
-    if not _conf_file:
+    if not _path:
         raise Exception('configuration file not found')
 
     try:
-        with codecs.open(_conf_file, mode='r', encoding='utf8') as f:
+        with codecs.open(_path, mode='r', encoding='utf8') as f:
             loaded = yaml.load(f.read())
     except (IOError, OSError) as ex:
         raise Exception('error reading configuration file') from ex
@@ -42,9 +41,8 @@ def load(conf_path):
 
 def generate(conf_path):  # force=False
     """Generates new configuration file using defaults."""
-
-    global _conf_file
-    _conf_file = os.path.join(os.path.abspath(conf_path), const.CONF_NAME)
+    global _path
+    _path = os.path.join(os.path.abspath(conf_path), const.CONF_NAME)
 
     if os.path.isdir(site_dir()):
         raise Exception("directory already exists: '%s'" % site_dir())
@@ -53,7 +51,7 @@ def generate(conf_path):  # force=False
 
     exports = [opt for opt in const.DEFAULTS.keys() if opt in const.EXPORTS]
     text = '\n'.join([_dumpopt(opt) for opt in exports])
-    with codecs.open(_conf_file, mode='w', encoding='utf8') as f:
+    with codecs.open(_path, mode='w', encoding='utf8') as f:
         f.write(text)
 
     global _params
@@ -64,7 +62,6 @@ def find_conf(conf_path):
     """Walks from the specified directory path up to the root until
     configuration file will be found. Returns full configuration file path
     or None if there are no one."""
-
     path = os.path.abspath(conf_path).rstrip(os.path.sep + os.path.altsep)
     last = True
 
@@ -88,20 +85,18 @@ def get(param):
 
 
 def conf_file():
-    _check(_conf_file)
-    return _conf_file
+    _check(_path)
+    return _path
 
 
 def site_dir():
     """Returns site source directory."""
-
-    _check(_conf_file)
-    return os.path.dirname(_conf_file)
+    _check(_path)
+    return os.path.dirname(_path)
 
 
 def gen_dir():
     """Returns generic site directory within the package."""
-
     path = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(path, const.GENERIC_PATH)
 
@@ -122,7 +117,6 @@ def _check(value):
 
 def _purify(params):
     """Preprocess configuration parameters."""
-
     params['pages_path'] = _expand(params['pages_path'])
     params['posts_path'] = _expand(params['posts_path'])
     params['assets_path'] = _expand(params['assets_path'])
@@ -156,15 +150,13 @@ def _purify(params):
 def _expand(rel_path):
     """Expands relative path using configuration file location as base
     directory. Absolute pathes will be returned as is."""
-
     path = rel_path
     if not os.path.isabs(path):
-        base = os.path.dirname(os.path.abspath(_conf_file))
+        base = os.path.dirname(os.path.abspath(_path))
         path = os.path.join(base, path)
     return path.rstrip(os.sep + os.altsep)
 
 
 def  _trslash(url):
     """Guarantees the URL have a single trailing slash."""
-
     return url.rstrip('/') + '/'

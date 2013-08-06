@@ -17,7 +17,6 @@ from publicstatic import helpers
 from publicstatic.cache import Cache
 from publicstatic.version import get_version
 
-
 # Common command line arguments
 
 source_arg = arg('-s', '--source',
@@ -38,7 +37,6 @@ edit_arg = arg('-e', '--edit',
 @source_arg
 def init(args):
     """create new website"""
-
     conf.generate(args.source)
     try:
         helpers.spawn_site(conf.site_dir())
@@ -51,21 +49,15 @@ def init(args):
 @source_arg
 def build(args):
     """generate web content from source"""
-
     conf.load(args.source)
-
-    # read files list from [assets|pages|posts] excluding _* file names to cache; keep type [asset, post, page], full path, rel path, extension, ctime, utime, optionally some stats (file size, words count, etc)
-    # read and parse [posts|pages]/*.md contents to cache
-    # read files list from the generated site directory
     cache = Cache()
-
     steps = [
             builders.css,
             builders.js,
             builders.less,
             # builders.robots,
             builders.humans,
-            # builders.static,
+            builders.static,
             # builders.pages,
             # builders.posts,
             # builders.archive,
@@ -81,8 +73,6 @@ def build(args):
         except Exception as ex:
             # logger.error(str(ex))
             raise
-
-    # Builder(cache, generators=generators, clean=False).build()
 
     # helpers.drop_build(conf.get('build_path'))
     # helpers.makedirs(conf.get('build_path'))
@@ -104,7 +94,6 @@ def build(args):
 @arg('-b', '--browse', default=False, help='open in default browser')
 def run(args):
     """run local web server to preview generated website"""
-
     conf.load(args.source)
     helpers.check_build(conf.get('build_path'))
     original_cwd = os.getcwd()
@@ -136,7 +125,6 @@ def run(args):
 @source_arg
 def deploy(args):
     """deploy generated website to the remote web server"""
-
     conf.load(args.source)
     helpers.check_build(conf.get('build_path'))
 
@@ -155,7 +143,6 @@ def deploy(args):
 @source_arg
 def clean(args):
     """delete all generated content"""
-
     conf.load(args.source)
     logger.info('cleaning output...')
     helpers.drop_build(conf.get('build_path'))
@@ -168,7 +155,6 @@ def clean(args):
 @edit_arg
 def page(args):
     """create new page"""
-
     conf.load(args.source)
     if not helpers.valid_name(args.name):
         raise Exception('illegal page name')
@@ -190,7 +176,6 @@ def page(args):
 @edit_arg
 def post(args):
     """create new post"""
-
     conf.load(args.source)
     if not helpers.valid_name(args.name):
         raise Exception('illegal feed or post name')
@@ -211,7 +196,6 @@ def post(args):
 @source_arg
 def update(args):
     """update templates and prototypes to the latest version"""
-
     conf.load(args.source)
     site_dir = conf.site_dir()
 

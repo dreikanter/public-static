@@ -67,7 +67,6 @@ def fatal(message):
 
 def crash():
     """Crash report."""
-
     import traceback
     import sys
     from datetime import datetime

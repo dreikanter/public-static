@@ -27,6 +27,7 @@ TEMPLATES_DIR = 'templates'
 
 PROTO_DIR = 'prototypes'
 
+# source file types
 ASSET_TYPE = 'asset'
 POST_TYPE = 'post'
 PAGE_TYPE = 'page'
