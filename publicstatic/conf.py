@@ -16,10 +16,7 @@ _conf_file = ''  # Configuration file absolute path
 
 def defaults():
     """Returns default configuration."""
-
-    p_names = map(lambda p: p['name'], const.DEFAULTS)
-    p_values = map(lambda p: p['value'], const.DEFAULTS)
-    return dict(zip(p_names, p_values))
+    return {key: value['value'] for key, value in const.DEFAULTS.items()}
 
 
 def load(conf_path):
@@ -54,9 +51,8 @@ def generate(conf_path):  # force=False
     else:
         os.makedirs(site_dir())
 
-    text = '\n'.join([_dump_option(option) for option
-                                           in const.DEFAULTS
-                                           if option.get('export', False)])
+    exports = [opt for opt in const.DEFAULTS.keys() if opt in const.EXPORTS]
+    text = '\n'.join([_dumpopt(opt) for opt in exports])
     with codecs.open(_conf_file, mode='w', encoding='utf8') as f:
         f.write(text)
 
@@ -110,14 +106,13 @@ def gen_dir():
     return os.path.join(path, const.GENERIC_PATH)
 
 
-def _dump_option(option):
-    name, value, desc = option['name'], option['value'], option['desc']
+def _dumpopt(opt_name):
+    """Serializes configuration option with default value."""
+    desc = const.DEFAULTS[option]['desc']
     desc = ("# %s\n" % desc) if desc else ''
-    dump = yaml.dump({name: value},
-                     width=79,
-                     indent=2,
-                     default_flow_style=False)
-    return desc + dump
+    return desc + yaml.dump({
+            opt_name: const.DEFAULTS[option]['value']
+        }, width=79, indent=2, default_flow_style=False)
 
 
 def _check(value):

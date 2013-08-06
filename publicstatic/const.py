@@ -33,277 +33,212 @@ PAGE_TYPE = 'page'
 
 BROWSER_DELAY = 2.0
 
+# parameters sequence for the configuration file
+EXPORTS = [
+        'title',
+        'subtitle',
+        'author',
+        'author_url',
+        'root_url',
+        'source_url',
+        'post_location',
+        'port',
+        'min_js',
+        'min_css',
+        'min_js_cmd',
+        'min_css_cmd',
+        'less_cmd',
+        'deploy_cmd',
+        'editor_cmd',
+        'default_tags',
+        'verbose',
+        'menu',
+        'enable_search_form',
+    ]
 
-DEFAULTS = [
-    {
-        'name': 'title',
+# configuration parameters
+DEFAULTS = {
+    'title': {
         'value': 'Untitled Blog',
         'desc': 'Site title',
-        'export': True,
     },
-    {
-        'name': 'subtitle',
+    'subtitle': {
         'value': '',
         'desc': 'Site sublitle',
-        'export': True,
     },
-    {
-        'name': 'author',
+    'author': {
         'value': 'Anonymous',
         'desc': 'Author name',
-        'export': True,
     },
-    {
-        'name': 'author_url',
+    'author_url': {
         'value': 'http://example.net',
         'desc': 'Author home page',
-        'export': True,
     },
-    {
-        'name': 'root_url',
+    'root_url': {
         'value': 'http://example.com/',
         'desc': 'Root website URL',
-        'export': True,
     },
-    {
-        'name': 'rel_root_url',
+    'rel_root_url': {
         'value': '/',
         'desc': 'Relative root website URL',
-        'export': False,
     },
-    {
-        'name': 'source_url',
+    'source_url': {
         'value': 'http://github.com/username/example.com',
         'desc': 'Website source URL',
-        'export': True,
     },
-    {
-        'name': 'build_path',
+    'build_path': {
         'value': 'www',
         'desc': 'Build path for web content generator output',
-        'export': False,
     },
-    {
-        'name': 'pages_path',
+    'pages_path': {
         'value': 'pages',
         'desc': 'Page files path inside website source dir',
-        'export': False,
     },
-    {
-        'name': 'posts_path',
+    'posts_path': {
         'value': 'posts',
         'desc': 'Post files path inside website source dir',
-        'export': False,
     },
-    {
-        'name': 'assets_path',
+    'assets_path': {
         'value': 'assets',
         'desc': 'Web assets path inside website source dir (*.js, *.css, etc)',
-        'export': False,
     },
-    {
-        'name': 'tpl_path',
+    'tpl_path': {
         'value': TEMPLATES_DIR,
         'desc': 'Relative path to the templates directory inside ' \
                 'website source dir',
-        'export': False,
     },
-    {
-        'name': 'prototypes_path',
+    'prototypes_path': {
         'value': PROTO_DIR,
         'desc': 'Relative path to the prototypes directory inside ' \
                 'website source dir',
-        'export': False,
     },
-    {
-        'name': 'post_location',
+    'post_location': {
         'value': '{year}/{month}/{day}/{name}.html',
         'desc': 'Post file name pattern',
-        'export': True,
     },
-    {
-        'name': 'port',
+    'port': {
         'value': 8000,
         'desc': 'Port number for the local web server',
-        'export': True,
     },
-    {
-        'name': 'page_tpl',
+    'page_tpl': {
         'value': 'default-page',
         'desc': 'Template name for pages',
-        'export': False,
     },
-    {
-        'name': 'post_tpl',
+    'post_tpl': {
         'value': 'default-post',
         'desc': 'Template name for blog posts',
-        'export': False,
     },
-    {
-        'name': 'min_js',
+    'min_js': {
         'value': True,
         'desc': 'Enable JavaScript minification',
-        'export': True,
     },
-    {
-        'name': 'min_css',
+    'min_css': {
         'value': True,
         'desc': 'Enable CSS minification',
-        'export': True,
     },
-    {
-        'name': 'min_js_cmd',
+    'min_js_cmd': {
         'value': "yuicompressor --type js --nomunge -o {dest} {source}",
         'desc': 'Shell command for JavaScript minification',
-        'export': True,
     },
-    {
-        'name': 'min_css_cmd',
+    'min_css_cmd': {
         'value': "yuicompressor --type css -o {dest} {source}",
         'desc': 'Shell command for CSS minification',
-        'export': True,
     },
-    {
-        'name': 'less_cmd',
+    'less_cmd': {
         'value': "dotless {source} {dest}",
         'desc': 'Shell command for LESS compillation',
-        'export': True,
     },
-    {
-        'name': 'deploy_cmd',
+    'deploy_cmd': {
         'value': '',
         'desc': 'Shell command for web content deployment',
-        'export': True,
     },
-    {
-        'name': 'editor_cmd',
+    'editor_cmd': {
         'value': "$EDITOR \"\"{source}\"\"",
         'desc': 'Shell command to open files in text editor. {source} will ' \
                 'be replaced with a file path to open.',
-        'export': True,
     },
-    {
-        'name': 'markdown_extensions',
+    'markdown_extensions': {
         'value': ['nl2br', 'grid', 'smartypants'],
         'desc': 'A list of markdown processor extensions',
-        'export': False,
     },
-    {
-        'name': 'index_page',
+    'index_page': {
         'value': 'index.html',
         'desc': 'File name for an index page',
-        'export': False,
     },
-    {
-        'name': 'archive_page',
+    'archive_page': {
         'value': 'archive.html',
         'desc': 'File name for an archive page',
-        'export': False,
     },
-    {
-        'name': 'atom_feed',
+    'atom_feed': {
         'value': 'feed.atom',
         'desc': 'Atom feed file name.',
-        'export': False,
     },
-    {
-        'name': 'post_at_root_url',
+    'post_at_root_url': {
         'value': True,
         'desc': 'Put a copy of the latest post to the website root',
-        'export': False,
     },
-    {
-        'name': 'default_tags',
+    'default_tags': {
         'value': [ 'misc' ],
         'desc': 'A list of default tags to be added to a new post',
-        'export': True,
     },
-    {
-        'name': 'log_file',
+    'log_file': {
         'value': 'pub.log',
         'desc': 'Log file name',
-        'export': False,
     },
-    {
-        'name': 'log_max_size',
+    'log_max_size': {
         'value': 1024 * 1024,
         'desc': 'Maximum file size for log rotation (in bytes)',
-        'export': False,
     },
-    {
-        'name': 'log_backup_cnt',
+    'log_backup_cnt': {
         'value': 3,
         'desc': 'Amount of log files to keep',
-        'export': False,
     },
-    {
-        'name': 'verbose',
+    'verbose': {
         'value': True,
         'desc': 'Enable verbose logging',
-        'export': True,
     },
-    {
-        'name': 'time_format',
+    'time_format': {
         'value': [ '%Y/%m/%d %H:%M:%S', '%Y/%m/%d' ],
         'desc': 'A list of possible date/time formats for the ' \
                 ' post and page header fields',
-        'export': False,
     },
-    {
-        'name': 'page_datetime_format',
+    'page_datetime_format': {
         'value': '%Y/%m/%d %H:%M',
         'desc': 'Page/post full date and time format for generated HTML',
-        'export': False,
     },
-    {
-        'name': 'page_date_format',
+    'page_date_format': {
         'value': '%Y/%m/%d',
         'desc': 'Page/post short date format for generated HTML',
-        'export': False,
     },
-    {
-        'name': 'menu',
+    'menu': {
         'value': [
             { 'title': 'About', 'href': '/about.html' },
             { 'title': 'Archive', 'href': '/archive.html' },
         ],
         'desc': 'Navigation menu items',
-        'export': True,
     },
-    {
-        'name': 'enable_search_form',
+    'enable_search_form': {
         'value': True,
         'desc': 'Enable Google search form',
-        'export': True,
     },
-    {
-        'name': 'humans_language',
+    'humans_language': {
         'value': 'English',
         'desc': 'Site Language for humans.txt',
-        'export': False,
     },
-    {
-        'name': 'humans_doctype',
+    'humans_doctype': {
         'value': 'HTML5',
         'desc': 'Site Doctype for humans.txt',
-        'export': False,
     },
-    {
-        'name': 'humans_ide',
+    'humans_ide': {
         'value': 'Netscape Composer 7',
         'desc': 'IDE value for humans.txt',
-        'export': False,
     },
-    {
-        'name': 'humans_author_twitter',
+    'humans_author_twitter': {
         'value': '',
         'desc': 'Site author twitter account for humans.txt',
-        'export': False,
     },
-    {
-        'name': 'humans_author_location',
+    'humans_author_location': {
         'value': '',
         'desc': 'Site author location for humans.txt',
-        'export': False,
     },
-]
+}
