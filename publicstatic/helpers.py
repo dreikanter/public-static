@@ -285,16 +285,16 @@ def parse_time(value):
 def parse_param(text):
     """Parse '<key>: <value>' string to (str, str) tuple. Returns None
     when parsing fails."""
-    match = PARAM_PATTERN.match(text)
-    if match:
+    try:
+        match = PARAM_PATTERN.match(text)
         return (match.group(1).strip().lower(), match.group(2).strip())
-    else:
-        return None
+    except:
+        raise Exception('parsing error')
 
 
-def tag_url(tag, full=False):
-    url = conf.get('root_url') if full else conf.get('rel_root_url')
-    return "{url}tags/{tag}.html".format(url=url, tag=urlify(tag))
+def tag_url(tag):
+    return conf.get('tag_location').format(root=conf.get('rel_root_url'),
+                                           tag=tag)
 
 
 def execute(command, source, dest=''):
@@ -314,3 +314,23 @@ def source_dir(source_type):
         return dirs[source_type]
     except:
         raise Exception('invalid source type')
+
+
+def mergedicts(*args):
+    """Merge a set of dictionaries."""
+    result = {}
+    for d in args:
+        result.update(d)
+    return result
+
+
+def xsplit(sep, text, strip=False, drop_empty=False):
+    """Split a string."""
+    result = text.split(sep)
+    if strip:
+        result = [tag.strip() for tag in result]
+    if drop_empty:
+        result = filter(None, result)
+    return result
+
+
