@@ -103,10 +103,10 @@ def gen_dir():
 
 def _dumpopt(opt_name):
     """Serializes configuration option with default value."""
-    desc = const.DEFAULTS[option]['desc']
+    desc = const.DEFAULTS[opt_name]['desc']
     desc = ("# %s\n" % desc) if desc else ''
     return desc + yaml.dump({
-            opt_name: const.DEFAULTS[option]['value']
+            opt_name: const.DEFAULTS[opt_name]['value']
         }, width=79, indent=2, default_flow_style=False)
 
 

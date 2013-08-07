@@ -130,11 +130,11 @@ DEFAULTS = {
         'desc': 'Template name for blog posts',
     },
     'min_js': {
-        'value': True,
+        'value': False,
         'desc': 'Enable JavaScript minification',
     },
     'min_css': {
-        'value': True,
+        'value': False,
         'desc': 'Enable CSS minification',
     },
     'min_js_cmd': {
@@ -242,4 +242,8 @@ DEFAULTS = {
         'value': '',
         'desc': 'Site author location for humans.txt',
     },
+    'tag_location': {
+        'value': '{root}tags/{tag}.html',
+        'desc': 'Tag file name pattern for tag page and URL generation',
+    }
 }
