@@ -344,7 +344,8 @@ _exclude = re.compile('|'.join([r"\b%s\b" % word for word in EXCLUSIONS]))
 _space = re.compile(r"[\s_\-]+")
 
 
-def urlify(text, exclude=EXCLUSIONS):
+def urlify(text, exclude=EXCLUSIONS, ext_map={}):
+    UBERMAP.update(ext_map)
     mapchar = lambda c: c if _base.match(c) else UBERMAP.get(ord(c), '')
     result = ''.join(map(mapchar, text)).lower()
     return _space.sub('-', _exclude.sub('', result).strip())
