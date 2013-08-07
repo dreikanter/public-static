@@ -211,7 +211,7 @@ def parse(source_file, is_post=False):
 
     tags = list(map(str.strip, filter(None, data.get('tags', '').split(','))))
     tags = tags or conf.get('default_tags')
-    data['tags'] = [ { 'name': tag, 'url': helpers.tag_url(tag) } for tag in tags ]
+    data['tags'] = [{'name': tag, 'url': helpers.tag_url(tag)} for tag in tags]
 
     url = "{source_url}blob/master/{page_type}/{source_file}"
     data['source_url'] = url.format(source_url=conf.get('source_url'),
@@ -241,7 +241,7 @@ def create_page(name, text, date, force):
         date -- creation date and time (struct_time).
         force -- True to overwrite existing file; False to throw exception."""
 
-    name = urlify(name)
+    name = urlify(name, ext_map={ord(u'\\'): u'/'})
     logger.debug("creating page '%s'" % name)
     page_path = os.path.join(conf.get('pages_path'), name) + '.md'
 
@@ -271,7 +271,6 @@ def create_post(name, text, date, force):
         date -- creation date and time (struct_time).
         force -- True to overwrite existing file; False to throw exception."""
 
-    logger.debug("urlify: %s -> %s" % (name, urlify(name)))
     post_name = '%s-%s{suffix}.md' % (date.strftime('%Y%m%d'), urlify(name))
     post_path = os.path.join(conf.get('posts_path'), post_name)
     helpers.makedirs(os.path.dirname(post_path))
@@ -375,19 +374,31 @@ def less(cache):
         source.processed(True)
 
 
-# def robots(cache):
-#     """Build robots.txt."""
-#     for source in cache.assets(basename='robots.txt'):
-#         logger.info('processing ' + source.rel_path())
-#         helpers.makedirs(source.dest_dir())
-#         shutil.copyfile(source.path(), source.dest())
-#         source.processed(True)
+def _tag_location(root, tag):
+    return
+
+
+def robots(cache):
+    """Build robots.txt."""
+    for source in cache.assets(basename='robots.txt'):
+        logger.info('processing ' + source.rel_path())
+        helpers.makedirs(source.dest_dir())
+        try:
+            templates.render(path=source.path(), dest=source.dest(), data={
+                'tags_path': os.path.dirname(helpers.tag_url('')),
+            })
+        except Exception as ex:
+            logger.error('robots.txt processing failed: ' + str(ex))
+            logger.debug(traceback.format_exc())
+        finally:
+            source.processed(True)
 
 
 def humans(cache):
     """Build humans.txt."""
     for source in cache.assets(basename='humans.txt'):
         logger.info('processing ' + source.rel_path())
+        helpers.makedirs(source.dest_dir())
         try:
             templates.render(path=source.path(), dest=source.dest(), data={
                 'author': conf.get('author'),
@@ -416,8 +427,14 @@ def static(cache):
 
 def pages(cache):
     """Build pages/*.md to {dest} (independant, keep rel path)."""
-
-    pass
+    for source in cache.pages():
+        helpers.makedirs(source.dest_dir())
+        logger.info("page: %s -> %s" % (source.rel_path(), source.rel_dest()))
+        try:
+            templates.render(source.data(), dest=source.dest())
+        except Exception as ex:
+            logger.error('page building error: ' + str(ex))
+            logger.debug(traceback.format_exc())
 
 
 def posts(cache):
@@ -454,5 +471,3 @@ def sitemap(cache):
     """Build sitemap.xml."""
 
     pass
-
-

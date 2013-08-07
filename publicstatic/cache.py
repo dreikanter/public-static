@@ -75,9 +75,9 @@ class Cache():
 
     def posts(self):
         """Get posts."""
-        return filter(self.condition(const.POSTS_TYPE, ext), self._cache)
+        return filter(self.condition(const.POST_TYPE), self._cache)
 
 
     def pages(self):
         """Get pages."""
-        return filter(self.condition(const.PAGES_TYPE, ext), self._cache)
+        return filter(self.condition(const.PAGE_TYPE), self._cache)
