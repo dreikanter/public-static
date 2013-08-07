@@ -13,6 +13,7 @@ class Cache():
     """Website contents cache."""
 
     def __init__(self):
+        # full list of source files
         self._cache = []
 
         source_types = {
@@ -29,18 +30,12 @@ class Cache():
 
             helpers.walk(path, save)
 
-
-    def items(self):
-        return self._cache;
-
-
     def condition(self,
                source_type=None,
                ext=None,
                processed=None,
                basename=None):
         """Creates source file filter function."""
-
         conditions = []
 
         if source_type != None:
@@ -60,24 +55,40 @@ class Cache():
 
         return _condition
 
-
     def assets(self,
                ext=None,
                processed=None,
                basename=None):
         """Get assets."""
         condition = self.condition(const.ASSET_TYPE,
-                             ext=ext,
-                             processed=processed,
-                             basename=basename)
+                                   ext=ext,
+                                   processed=processed,
+                                   basename=basename)
         return filter(condition, self._cache)
-
-
-    def posts(self):
-        """Get posts."""
-        return filter(self.condition(const.POST_TYPE), self._cache)
-
 
     def pages(self):
         """Get pages."""
         return filter(self.condition(const.PAGE_TYPE), self._cache)
+
+    def posts(self):
+        """Get ordered posts."""
+        if not hasattr(self, '_posts'):
+            self._process_posts()
+        return self._posts
+
+    def _process_posts(self):
+        posts = list(filter(self.condition(const.POST_TYPE), self._cache))
+        posts.sort(key=lambda item: item.created())
+
+        prev = None
+        next = None
+
+        for num, post in enumerate(posts, start=1):
+            next = posts[num] if num < len(posts) else None
+            post.data('prev_url', prev and prev.url())
+            post.data('prev_title', prev and prev.data('title'))
+            post.data('next_url', next and next.url())
+            post.data('next_title', next and next.data('title'))
+            prev = post
+
+        self._posts = posts

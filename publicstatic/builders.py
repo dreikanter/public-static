@@ -438,9 +438,30 @@ def pages(cache):
 
 
 def posts(cache):
-    """Build posts/*.md to {dest}/{blog_path}; copy latest post to the root web page."""
+    """Build blog posts and copy the latest post to the site root."""
 
-    pass
+    # for debug
+    for source in cache.posts():
+        print(source)
+        print()
+    return
+
+    for source in cache.posts():
+        helpers.makedirs(source.dest_dir())
+        logger.info("post: %s -> %s" % (source.rel_path(), source.rel_dest()))
+        try:
+            templates.render(source.data(), dest=source.dest())
+        except Exception as ex:
+            logger.error('post building error: ' + str(ex))
+            logger.debug(traceback.format_exc())
+
+    # put the latest post at site root url
+    if conf.get('post_at_root_url'):
+        last_post = cache.posts()[-1]
+        path = os.path.join(conf.get('build_path'), conf.get('index_page'))
+        if os.path.exists(path):
+            logger.warn('index page will be overwritten by latest post')
+        shutil.copyfile(last_post.dest(), path)
 
 
 def archive(cache):

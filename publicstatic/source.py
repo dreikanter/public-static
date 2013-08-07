@@ -25,8 +25,8 @@ class SourceFile:
         self._ctime = datetime.fromtimestamp(os.path.getctime(self._path))
         self._utime = datetime.fromtimestamp(os.path.getmtime(self._path))
         self._processed = False
-        self._data = None
-        self._text = None
+        if self.parseable():
+            self._parse()
 
     def __str__(self):
         """Human-readable string representation."""
@@ -34,8 +34,8 @@ class SourceFile:
                 ('fullname', self._path),
                 ('ext', self._ext),
                 ('type', self._type),
-                ('ctime', self._ctime.isoformat()),
-                ('utime', self._utime.isoformat()),
+                ('created', self.created().isoformat()),
+                ('updated', self.updated().isoformat()),
             ]])
 
     def type(self):
@@ -63,9 +63,34 @@ class SourceFile:
         ext = {'.md': '.html', '.less': '.css'}.get(self._ext, self._ext)
         return base + ext
 
+    def url(self, full=False):
+        """Returns an URL corresponding to the source file."""
+        root = conf.get('root_url') if full else conf.get('rel_root_url')
+        if self._type == const.POST_TYPE:
+            # return conf.get('post_location').format()
+            pass
+        elif self._type == const.PAGE_TYPE:
+            pass
+        elif self._type == conf.ASSET_TYPE:
+            pass
+        else:
+            raise Exception('unsupported source file type')
+        # post_path(page_data['source'], page_data['created'])
+        return root + ''
+
     def dest_dir(self):
         """Returns fully qualified destination directory path."""
         return os.path.dirname(self.dest())
+
+    def parseable(self):
+        """Returns true is specified source tyepe could be parsed."""
+        return self._type in [const.PAGE_TYPE, const.POST_TYPE]
+
+    def created(self):
+        return self.data('created') if self.parseable() else self._ctime
+
+    def updated(self):
+        return self.data('updated') if self.parseable() else self._utime
 
     def processed(self, value=None):
         if type(value) == bool:
@@ -74,22 +99,27 @@ class SourceFile:
 
     def text(self):
         """Source file contents."""
-        if self._text == None:
+        self._check_parseable()
+        if not hasattr(self, '_text'):
             with codecs.open(self._path, 'r') as f:
                 self._text = f.read()
         return self._text
 
-    def data(self):
-        """Reads a post/page file to dictionary."""
-        if self._data == None:
-            self._data = self._parse()
-        return self._data
+    def data(self, key=None, default=None):
+        """Returns page data as a dictionary, or a single data field
+        if key argument specified."""
+        self._check_parseable()
+        return self._data.get(key, default) if key else self._data
+
+    def _check_parseable(self):
+        if not self.parseable():
+            raise Exception('illegal source type')
 
     def _parse(self):
+        """Extract page header data and content from a list of lines
+        and return the result as key-value couples."""
+        self._check_parseable()
         data = SourceFile._commons()
-
-        # extract page header data and content from a list of lines
-        # and return the result as key-value couples
         lines = self.text().splitlines()
         for num, line in enumerate(lines):
             match = RE_PARAM.match(line)
@@ -101,46 +131,27 @@ class SourceFile:
 
         is_post = self._type == const.POST_TYPE
         default_tpl = conf.get('post_tpl' if is_post else 'page_tpl')
-        source_url = "{root}blob/master/{type}/{name}"
-
-        def get_time(field, getter):
-            try:
-                return helpers.parse_time(data[field])
-            except:
-                return datetime.fromtimestamp(getter(self.path()))
+        source_url_pattern = "{root}blob/master/{type}/{name}"
+        source_url = source_url_pattern.format(root=conf.get('source_url'),
+            type='posts' if is_post else 'pages', name=self.basename())
+        content = helpers.md(data.get('content', ''),
+                             conf.get('markdown_extensions'))
 
         data.update({
-                'source':
-                    self._path,
-
-                'title':
-                    data.get('title', helpers.get_h1(data['content'])),
-
-                'template':
-                    data.get('template', default_tpl).strip(),
-
-                'author':
-                    data.get('author', conf.get('author')).strip(),
-
-                'content':
-                    helpers.md(data.get('content', ''),
-                               conf.get('markdown_extensions')),
-                'tags':
-                    SourceFile._tags(data.get('tags', '')),
-
-                'source_url':
-                    source_url.format(root=conf.get('source_url'),
-                                      type='posts' if is_post else 'pages',
-                                      name=self.basename()),
-
+                'source': self._path,
+                'title': data.get('title', helpers.get_h1(data['content'])),
+                'template': data.get('template', default_tpl),
+                'author': data.get('author', conf.get('author')),
+                'content': content,
+                'tags': SourceFile._tags(data.get('tags', '')),
+                'source_url': source_url,
                 'created':
-                    get_time('created', os.path.getctime),
-
+                    helpers.parse_time(data.get('created'), self._ctime),
                 'updated':
-                    get_time('updated', os.path.getmtime),
+                    helpers.parse_time(data.get('updated'), self._utime),
             })
 
-        return data
+        self._data = data
 
     def _commons():
         """Common data fields for page building."""
