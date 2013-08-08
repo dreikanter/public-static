@@ -34,6 +34,8 @@ PAGE_TYPE = 'page'
 
 BROWSER_DELAY = 2.0
 
+UNTITLED_POST = 'untitled-post'
+
 # parameters sequence for the configuration file
 EXPORTS = [
         'title',

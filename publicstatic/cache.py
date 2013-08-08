@@ -5,7 +5,7 @@ from publicstatic import conf
 from publicstatic import const
 from publicstatic import helpers
 from publicstatic import logger
-from publicstatic.source import SourceFile
+from publicstatic.source import SourceFile, AssetFile, PostFile, PageFile
 
 from pprint import pprint
 
@@ -17,29 +17,29 @@ class Cache():
         self._cache = []
 
         source_types = {
-                'asset': conf.get('assets_path'),
-                'post': conf.get('posts_path'),
-                'page': conf.get('pages_path'),
+                AssetFile: conf.get('assets_path'),
+                PostFile: conf.get('posts_path'),
+                PageFile: conf.get('pages_path'),
             }
 
         for source_type, path in source_types.items():
             def save(root, rel):
-                source_file = SourceFile(source_type=source_type,
-                                         file_name=os.path.join(root, rel))
-                self._cache.append(source_file)
+                source = source_type(source_type=source_type,
+                                     file_name=os.path.join(root, rel))
+                self._cache.append(source)
 
             helpers.walk(path, save)
 
     def condition(self,
-               source_type=None,
-               ext=None,
-               processed=None,
-               basename=None):
+                  source_type=None,
+                  ext=None,
+                  processed=None,
+                  basename=None):
         """Creates source file filter function."""
         conditions = []
 
         if source_type != None:
-            conditions.append(lambda source: source_type == source.type())
+            conditions.append(lambda source: source_type == type(source))
 
         if ext != None:
             conditions.append(lambda source: ext == source.ext())
@@ -60,7 +60,7 @@ class Cache():
                processed=None,
                basename=None):
         """Get assets."""
-        condition = self.condition(const.ASSET_TYPE,
+        condition = self.condition(AssetFile,
                                    ext=ext,
                                    processed=processed,
                                    basename=basename)
@@ -68,7 +68,7 @@ class Cache():
 
     def pages(self):
         """Get pages."""
-        return filter(self.condition(const.PAGE_TYPE), self._cache)
+        return filter(self.condition(PageFile, self._cache)
 
     def posts(self):
         """Get ordered posts."""
@@ -77,7 +77,7 @@ class Cache():
         return self._posts
 
     def _process_posts(self):
-        posts = list(filter(self.condition(const.POST_TYPE), self._cache))
+        posts = list(filter(PostFile, self._cache))
         posts.sort(key=lambda item: item.created())
 
         prev = None
@@ -92,3 +92,36 @@ class Cache():
             prev = post
 
         self._posts = posts
+
+# postloc = conf.get('post_location')
+# count = 0
+# name = os.path.splitext(self.basename())[0]
+
+# def post_location(suffix):
+#     return postloc.format(
+#             year=self.created().strftime('%Y'),
+#             month=self.created().strftime('%m'),
+#             day=self.created().strftime('%d'),
+#             name=name.lstrip('0123456789-_') or const.UNTITLED_POST,
+#             suffix=("-%d" % count + 1) if suffix > 0 else '',
+#         )
+
+# while True:
+#     result = post_location(suffix)
+#     if result in self._post_files:
+#         count += 1
+#     else:
+#         self._post_names
+
+# while True:
+#     result = post_location(suffix)
+#     file_name = os.path.basename(result)
+#     if file_name in _post_names:
+#         count += 1
+#         suffix = "-%d" % count
+#     else:
+#         _post_names.append(file_name)
+#         break
+
+# _post_path_cache[source_file] = result
+# return result

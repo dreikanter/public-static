@@ -436,16 +436,8 @@ def pages(cache):
             logger.error('page building error: ' + str(ex))
             logger.debug(traceback.format_exc())
 
-
 def posts(cache):
     """Build blog posts and copy the latest post to the site root."""
-
-    # for debug
-    for source in cache.posts():
-        print(source)
-        print()
-    return
-
     for source in cache.posts():
         helpers.makedirs(source.dest_dir())
         logger.info("post: %s -> %s" % (source.rel_path(), source.rel_dest()))
