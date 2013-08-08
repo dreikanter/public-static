@@ -54,7 +54,7 @@ def template(name=None, path=None, format='html'):
     if name:
         return env().get_template("%s.%s" % (name, format))
     elif path:
-        with codecs.open(path, mode='r', encoding='utf8') as f:
+        with codecs.open(path, mode='r', encoding='utf-8') as f:
             return env().from_string(f.read())
     else:
         raise Exception('either template name or path should be specified')
@@ -68,7 +68,7 @@ def render(data=None, name=None, path=None, format='html', dest=None):
     result = tpl.render(data)
 
     if dest:
-        with codecs.open(dest, mode='w', encoding='utf8') as f:
+        with codecs.open(dest, mode='w', encoding='utf-8') as f:
             f.write(result)
     else:
         return result

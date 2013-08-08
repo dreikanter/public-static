@@ -28,7 +28,7 @@ def load(conf_path):
         raise Exception('configuration file not found')
 
     try:
-        with codecs.open(_path, mode='r', encoding='utf8') as f:
+        with codecs.open(_path, mode='r', encoding='utf-8') as f:
             loaded = yaml.load(f.read())
     except (IOError, OSError) as ex:
         raise Exception('error reading configuration file') from ex
@@ -51,7 +51,7 @@ def generate(conf_path):  # force=False
 
     exports = [opt for opt in const.DEFAULTS.keys() if opt in const.EXPORTS]
     text = '\n'.join([_dumpopt(opt) for opt in exports])
-    with codecs.open(_path, mode='w', encoding='utf8') as f:
+    with codecs.open(_path, mode='w', encoding='utf-8') as f:
         f.write(text)
 
     global _params

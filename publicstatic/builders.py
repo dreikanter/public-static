@@ -157,7 +157,7 @@ def build_feed(data):
 
     try:
         feed_file = helpers.dest(conf.get('build_path'), conf.get('atom_feed'))
-        with codecs.open(feed_file, mode='w', encoding='utf8') as f:
+        with codecs.open(feed_file, mode='w', encoding='utf-8') as f:
             f.write(feed.to_string())
     except:
         logger.error("error writing atom feed to '%s'" % feed_file)
@@ -187,7 +187,7 @@ def parse(source_file, is_post=False):
         header -- returns {file_name, created, and title} only."""
 
     data = {}
-    with codecs.open(source_file, mode='r', encoding='utf8') as f:
+    with codecs.open(source_file, mode='r', encoding='utf-8') as f:
         # Extract page metadata if header lines presents
         lines = f.readlines()
         for num, line in enumerate(lines):
@@ -256,7 +256,7 @@ def create_page(name, text, date, force):
     text = text.format(title=name, created=date.strftime(timef))
     helpers.makedirs(os.path.split(page_path)[0])
 
-    with codecs.open(page_path, mode='w', encoding='utf8') as f:
+    with codecs.open(page_path, mode='w', encoding='utf-8') as f:
         f.write(text)
     return page_path
 
@@ -283,7 +283,7 @@ def create_post(name, text, date, force):
             logger.debug("creating post '%s'" % result)
             timef = conf.get('time_format')[0]
             text = text.format(title=name, created=date.strftime(timef))
-            with codecs.open(result, mode='w', encoding='utf8') as f:
+            with codecs.open(result, mode='w', encoding='utf-8') as f:
                 f.write(text)
             return result
         else:

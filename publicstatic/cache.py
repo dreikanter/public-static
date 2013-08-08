@@ -24,8 +24,7 @@ class Cache():
 
         for source_type, path in source_types.items():
             def save(root, rel):
-                source = source_type(source_type=source_type,
-                                     file_name=os.path.join(root, rel))
+                source = source_type(file_name=os.path.join(root, rel))
                 self._cache.append(source)
 
             helpers.walk(path, save)
@@ -68,7 +67,7 @@ class Cache():
 
     def pages(self):
         """Get pages."""
-        return filter(self.condition(PageFile, self._cache)
+        return filter(self.condition(PageFile), self._cache)
 
     def posts(self):
         """Get ordered posts."""

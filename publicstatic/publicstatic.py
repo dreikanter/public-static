@@ -59,7 +59,7 @@ def build(args):
             builders.humans,
             builders.static,
             builders.pages,
-            builders.posts,
+            # builders.posts,
             # builders.archive,
             # builders.tags,
             # builders.rss,

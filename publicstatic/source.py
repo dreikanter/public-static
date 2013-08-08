@@ -113,7 +113,7 @@ class SourceFile:
             yield {'name': tag, 'url': helpers.tag_url(tag)}
 
 
-class ParseableFile(SurceFile):
+class ParseableFile(SourceFile):
     """Basic abstraction for parseable source files."""
 
     # parse '<key>: <value>' string to (str, str) tuple
@@ -130,12 +130,13 @@ class ParseableFile(SurceFile):
     def data(self, key=None, default=None):
         """Returns page data as a dictionary, or a single data field
         if key argument specified."""
-        return self._data.get(key, default) if key else self._data
+        data = helpers.mergedicts(self._data, commons_data())
+        return data.get(key, default) if key else data
 
     def text(self):
         """Source file contents."""
         if not hasattr(self, '_text'):
-            with codecs.open(self._path, 'r') as f:
+            with codecs.open(self._path, 'r', encoding='utf-8') as f:
                 self._text = f.read()
         return self._text
 
@@ -179,7 +180,7 @@ class ParseableFile(SurceFile):
                 'author': result.get('author', conf.get('author')),
                 'content': content,
                 'tags': SourceFile._tags(result.get('tags', '')),
-                'source_url': source_url(),
+                'source_url': self.source_url(),
                 'created':
                     helpers.parse_time(result.get('created'), self._ctime),
                 'updated':

@@ -85,12 +85,12 @@ def update_humans(source_file, dest_file):
         dest_file -- location to save updated humans.txt. File name should
             be included."""
     try:
-        with codecs.open(source_file, mode='r', encoding='utf8') as f:
+        with codecs.open(source_file, mode='r', encoding='utf-8') as f:
             text = f.read()
         repl = r"\1 " + time.strftime("%Y/%m/%d", time.gmtime())
         text = re.sub(r"^(\s*Last\s+update\s*\:).*", repl, text,
                       flags=RE_IMU, count=1)
-        with codecs.open(dest_file, mode='w', encoding='utf8') as f:
+        with codecs.open(dest_file, mode='w', encoding='utf-8') as f:
             f.write(text)
     except Exception as ex:
         message = "humans.txt processing failed ('%s' to '%s')"
@@ -112,7 +112,7 @@ def prototype(name):
     """Returns full path to specified prototype page."""
     try:
         file_name = os.path.join(conf.get('prototypes_path'), str(name) + '.md')
-        with codecs.open(file_name, mode='r', encoding='utf8') as f:
+        with codecs.open(file_name, mode='r', encoding='utf-8') as f:
             return f.read()
     except Exception as ex:
         raise Exception("error reading prototype post: '%s'" % str(name)) from ex
@@ -256,7 +256,7 @@ def _page_ctime(source_file):
     """Gets post/page creation time using header or file system data."""
     result = None
     try:
-        with codecs.open(source_file, mode='r', encoding='utf8') as f:
+        with codecs.open(source_file, mode='r', encoding='utf-8') as f:
             for line in f.readlines():
                 match = PARAM_PATTERN.match(line)
                 if not match:
