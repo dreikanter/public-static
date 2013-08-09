@@ -18,7 +18,6 @@ from publicstatic.urlify import urlify
 
 RE_IMU = re.I | re.M | re.U
 H1_PATTERN = re.compile(r"^\s*#\s*(.*)\s*", RE_IMU)
-POST_PATTERN = re.compile(r"[\w\\/]+")
 PARAM_PATTERN = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", RE_IMU)
 
 
@@ -130,10 +129,6 @@ def copydir(source, dest, indent = 0):
             if not os.path.isdir(dest_dir):
                 os.makedirs(dest_dir)
             shutil.copyfile(os.path.join(root, each_file), dest_path)
-
-
-def valid_name(value):
-    return POST_PATTERN.match(value)
 
 
 def post_url(page_data, full=False):
@@ -336,3 +331,17 @@ def xsplit(sep, text, strip=False, drop_empty=False):
     return result
 
 
+def suffix(file_name, number):
+    """Insert a numeric suffix before the [file_name] extension,
+    if the [number] is greater than 0. Effective suffix value will
+    be [number] + 1."""
+    base, ext = os.path.splitext(file_name)
+    suffix = "-%d" % (number + 1) if number > 0 else ''
+    return ''.join([base, suffix, ext])
+
+
+def newfile(file_name, text=''):
+    """Create new or overwrite existing file, and write text."""
+    makedirs(os.path.dirname(file_name))
+    with codecs.open(file_name, mode='w', encoding='utf-8') as f:
+        f.write(text)

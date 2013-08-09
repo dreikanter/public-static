@@ -117,7 +117,11 @@ DEFAULTS = {
     },
     'post_location': {
         'value': '{year}/{month}/{day}/{name}.html',
-        'desc': 'Post file name pattern',
+        'desc': 'Post destination path pattern',
+    },
+    'post_source_name': {
+        'value': '{year}{month}{day}-{name}.md',
+        'desc': 'Post source file name pattern',
     },
     'port': {
         'value': 8000,

@@ -232,64 +232,6 @@ def parse(source_file, is_post=False):
     return data
 
 
-def create_page(name, text, date, force):
-    """Creates page file
-
-    Arguments:
-        name -- page name (will be used for file name and URL).
-        text -- page text.
-        date -- creation date and time (struct_time).
-        force -- True to overwrite existing file; False to throw exception."""
-
-    name = urlify(name, ext_map={ord(u'\\'): u'/'})
-    logger.debug("creating page '%s'" % name)
-    page_path = os.path.join(conf.get('pages_path'), name) + '.md'
-
-    if os.path.exists(page_path):
-        if force:
-            logger.debug('existing page will be overwritten')
-        else:
-            logger.error('page already exists, use -f to overwrite')
-            return None
-
-    timef = conf.get('time_format')[0]
-    text = text.format(title=name, created=date.strftime(timef))
-    helpers.makedirs(os.path.split(page_path)[0])
-
-    with codecs.open(page_path, mode='w', encoding='utf8') as f:
-        f.write(text)
-    return page_path
-
-
-def create_post(name, text, date, force):
-    """Generates post file placeholder with an unique name
-    and returns its name
-
-    Arguments:
-        name -- post name (will be used for file name and URL).
-        text -- post text.
-        date -- creation date and time (struct_time).
-        force -- True to overwrite existing file; False to throw exception."""
-
-    post_name = '%s-%s{suffix}.md' % (date.strftime('%Y%m%d'), urlify(name))
-    post_path = os.path.join(conf.get('posts_path'), post_name)
-    helpers.makedirs(os.path.dirname(post_path))
-
-    # Generate new post file name and preserve file with a new unique name
-    num = 1
-    while True:
-        result = post_path.format(suffix=("-%d" % num) if num > 1 else '')
-        if force or not os.path.exists(result):
-            logger.debug("creating post '%s'" % result)
-            timef = conf.get('time_format')[0]
-            text = text.format(title=name, created=date.strftime(timef))
-            with codecs.open(result, mode='w', encoding='utf8') as f:
-                f.write(text)
-            return result
-        else:
-            num += 1
-
-
 def get_commons():
     """Returns comman data fields for page building."""
 
