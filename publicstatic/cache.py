@@ -68,7 +68,7 @@ class Cache():
 
     def pages(self):
         """Get pages."""
-        return filter(self.condition(PageFile, self._cache)
+        return filter(self.condition(PageFile, self._cache))
 
     def posts(self):
         """Get ordered posts."""

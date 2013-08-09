@@ -113,7 +113,7 @@ class SourceFile:
             yield {'name': tag, 'url': helpers.tag_url(tag)}
 
 
-class ParseableFile(SurceFile):
+class ParseableFile(SourceFile):
     """Basic abstraction for parseable source files."""
 
     # parse '<key>: <value>' string to (str, str) tuple
