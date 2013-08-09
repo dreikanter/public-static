@@ -11,6 +11,7 @@ import sys
 from argh import ArghParser, arg
 from publicstatic import conf
 from publicstatic import const
+from publicstatic import creators
 from publicstatic import builders
 from publicstatic import logger
 from publicstatic import helpers
@@ -156,18 +157,16 @@ def clean(args):
 def page(args):
     """create new page"""
     conf.load(args.source)
-    if not helpers.valid_name(args.name):
-        raise Exception('illegal page name')
-
     text = helpers.prototype('default-page')
-    page_path = builders.create_page(args.name, text, datetime.now(), args.force)
-
-    if not page_path:
+    try:
+        path = creators.newpage(args.name, text, args.force)
+    except creators.PageExists:
+        logger.error('page already exists, use -f to overwrite')
         return
 
-    logger.info('page cerated')
+    logger.info('page created: ' + path)
     if args.edit:
-        helpers.execute(conf.get('editor_cmd'), page_path)
+        helpers.execute(conf.get('editor_cmd'), path)
 
 
 @arg('name', help='post name and optional feed name')
@@ -177,20 +176,11 @@ def page(args):
 def post(args):
     """create new post"""
     conf.load(args.source)
-    if not helpers.valid_name(args.name):
-        raise Exception('illegal feed or post name')
-
     text = helpers.prototype('default-post')
-    try:
-        post_path = builders.create_post(args.name, text, datetime.now(), args.force)
-    except:
-        logger.error('error creating new post')
-        raise
-
-    logger.info('post cerated')
-
+    path = creators.newpost(args.name, text, args.force)
+    logger.info('post created: ' + path)
     if args.edit:
-        helpers.execute(conf.get('editor_cmd'), post_path)
+        helpers.execute(conf.get('editor_cmd'), path)
 
 
 @source_arg
