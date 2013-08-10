@@ -1,0 +1,2 @@
+title: Archive
+template: archive

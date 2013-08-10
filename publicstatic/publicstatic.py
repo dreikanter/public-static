@@ -2,20 +2,17 @@
 
 """public-static - static website builder."""
 
-from datetime import datetime
 from multiprocessing import Process
 import os
-import re
 import shutil
-import sys
 from argh import ArghParser, arg
 from publicstatic import conf
 from publicstatic import const
-from publicstatic import creators
 from publicstatic import builders
 from publicstatic import logger
 from publicstatic import helpers
 from publicstatic.cache import Cache
+from publicstatic.source import PageFile, PostFile, PageExistsException
 from publicstatic.version import get_version
 
 # Common command line arguments
@@ -40,7 +37,7 @@ def init(args):
     """create new website"""
     conf.generate(args.source)
     try:
-        helpers.spawn_site(conf.site_dir())
+        helpers.copydir(const.GENERIC_PATH, conf.site_dir())
         logger.info('website created successfully, have fun!')
     except Exception as ex:
         logger.error('initialization failed: ' + str(ex))
@@ -75,32 +72,17 @@ def build(args):
             # logger.error(str(ex))
             raise
 
-    # helpers.drop_build(conf.get('build_path'))
-    # helpers.makedirs(conf.get('build_path'))
-
-    # logger.info("building path: '%s'" % conf.get('build_path'))
-    # logger.info('processing assets...')
-    # builders.process_dir(conf.get('assets_path'))
-
-    # logger.info('processing blog posts...')
-    # builders.process_blog(conf.get('posts_path'))
-
-    # logger.info('processing pages...')
-    # builders.process_dir(conf.get('pages_path'))
-    # logger.info('done')
-
 
 @source_arg
-@arg('-p', '--port', default=None, help='port for local HTTP server')
+@arg('-p', '--port', default=None, type=int, help='port for local HTTP server')
 @arg('-b', '--browse', default=False, help='open in default browser')
 def run(args):
     """run local web server to preview generated website"""
     conf.load(args.source)
     helpers.check_build(conf.get('build_path'))
     original_cwd = os.getcwd()
-    port = helpers.str2int(args.port, conf.get('port'))
+    port = args.port or conf.get('port')
     logger.info("running HTTP server on port %d..." % port)
-
     from http.server import SimpleHTTPRequestHandler
     from socketserver import TCPServer
     handler = SimpleHTTPRequestHandler
@@ -108,7 +90,7 @@ def run(args):
 
     try:
         if args.browse:
-            url = "http://localhost:%s/" % port
+            url = "http://localhost:%d/" % port
             logger.info("opening browser in %g seconds" % const.BROWSER_DELAY)
             p = Process(target=helpers.browse, args=(url, const.BROWSER_DELAY))
             p.start()
@@ -157,13 +139,11 @@ def clean(args):
 def page(args):
     """create new page"""
     conf.load(args.source)
-    text = helpers.prototype('default-page')
     try:
-        path = creators.newpage(args.name, text, args.force)
-    except creators.PageExistsException:
+        path = PageFile.create(args.name, args.force)
+    except PageExistsException:
         logger.error('page already exists, use -f to overwrite')
         return
-
     logger.info('page created: ' + path)
     if args.edit:
         helpers.execute(conf.get('editor_cmd'), path)
@@ -176,8 +156,7 @@ def page(args):
 def post(args):
     """create new post"""
     conf.load(args.source)
-    text = helpers.prototype('default-post')
-    path = creators.newpost(args.name, text, args.force)
+    path = PostFile.create(args.name, args.force)
     logger.info('post created: ' + path)
     if args.edit:
         helpers.execute(conf.get('editor_cmd'), path)
@@ -193,7 +172,8 @@ def update(args):
         tmp = dir_name + '_'
         if os.path.isdir(dir_name):
             os.rename(dir_name, tmp)
-        helpers.copydir(helpers.gen_dir(subject), os.path.join(site_dir, subject))
+        path = lambda dirname: os.path.join(dirname, subject)
+        helpers.copydir(path(const.GENERIC_PATH), path(site_dir))
         if os.path.exists(tmp):
             shutil.rmtree(tmp)
 

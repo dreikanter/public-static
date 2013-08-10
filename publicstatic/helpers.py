@@ -4,31 +4,17 @@
 
 import codecs
 from datetime import datetime
-import errno
+import markdown
 import os
 import re
 import shutil
 import sys
 import time
-import traceback
-import markdown
 from publicstatic import conf
 from publicstatic import const
 from publicstatic.urlify import urlify
 
-RE_IMU = re.I | re.M | re.U
-H1_PATTERN = re.compile(r"^\s*#\s*(.*)\s*", RE_IMU)
-PARAM_PATTERN = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", RE_IMU)
-
-
-def str2int(value, default=None):
-    """Safely converts string value to integer. Returns
-    default value if the first argument is not numeric.
-    Whitespaces are ok."""
-    if type(value) is not int:
-        value = str(value).strip()
-        value = int(value) if value.isdigit() else default
-    return value
+RE_H1 = re.compile(r"^\s*#\s*(.*)\s*", re.I|re.M|re.U)
 
 
 def makedirs(dir_path):
@@ -44,6 +30,20 @@ def browse(url, delay):
     time.sleep(delay)
     from webbrowser import open_new_tab
     open_new_tab(url)
+
+
+def parse_time(value, default=None):
+    """Converts string to datetime using the first of the preconfigured
+    time_format values that will work."""
+    if not value and default:
+        return default
+    for time_format in conf.get('time_format'):
+        try:
+            return datetime.strptime(value.strip(), time_format)
+        except ValueError:
+            pass
+    else:
+        raise Exception('bad date/time format')
 
 
 def check_build(path):
@@ -62,7 +62,7 @@ def drop_build(path, create=False):
 
 def get_h1(text):
     """Extracts the first h1-header from markdown text"""
-    matches = H1_PATTERN.search(text)
+    matches = RE_H1.search(text)
     return matches.group(1) if matches else ''
 
 
@@ -72,39 +72,6 @@ def md(text, extensions):
         return markdown.markdown(text.strip(), extensions=extensions)
     except Exception as ex:
         raise Exception('markdown processing error') from ex
-
-
-def update_humans(source_file, dest_file):
-    """Updates 'Last update' field in humans.txt file and saves the result
-    to specified location.
-
-    Arguments:
-        source_file -- original humans.txt file. See http://humanstxt.org
-            for the format details.
-        dest_file -- location to save updated humans.txt. File name should
-            be included."""
-    try:
-        with codecs.open(source_file, mode='r', encoding='utf-8') as f:
-            text = f.read()
-        repl = r"\1 " + time.strftime("%Y/%m/%d", time.gmtime())
-        text = re.sub(r"^(\s*Last\s+update\s*\:).*", repl, text,
-                      flags=RE_IMU, count=1)
-        with codecs.open(dest_file, mode='w', encoding='utf-8') as f:
-            f.write(text)
-    except Exception as ex:
-        message = "humans.txt processing failed ('%s' to '%s')"
-        raise Exception(message % (source_file, dest_file)) from ex
-
-
-def gen_dir(path=None):
-    """Returns generic side directory."""
-    gen_path = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(gen_path, const.GENERIC_PATH, path or '')
-
-
-def spawn_site(path):
-    """Clones generic site to specified directory."""
-    copydir(gen_dir(), path)
 
 
 def prototype(name):
@@ -131,102 +98,6 @@ def copydir(source, dest, indent = 0):
             shutil.copyfile(os.path.join(root, each_file), dest_path)
 
 
-def post_url(page_data, full=False):
-    """Generates post URL from page data."""
-    url = conf.get('root_url') if full else conf.get('rel_root_url')
-    return page_data and (url +
-        post_path(page_data['source'], page_data['created']))
-
-
-_post_path_cache = {}
-_post_names = []
-
-
-# TODO: Drop redundant ctime value after post ctime cached getter implementation
-def post_path(source_file, ctime):
-    global _post_path_cache
-    global _post_names
-
-    if source_file in _post_path_cache:
-        return _post_path_cache[source_file]
-
-    postloc = conf.get('post_location')
-
-    year=ctime.strftime('%Y')
-    month=ctime.strftime('%m')
-    day=ctime.strftime('%d')
-    date=ctime.strftime('%Y%m%d')
-    name=page_name(source_file, True)
-
-    count = 1
-    suffix = ''
-
-    # Uniquify post file name
-    while True:
-        result = postloc.format(year=year, month=month, day=day,
-                                date=date, name=name, suffix=suffix)
-
-        file_name = os.path.basename(result)
-        if file_name in _post_names:
-            count += 1
-            suffix = "-%d" % count
-        else:
-            _post_names.append(file_name)
-            break
-
-    _post_path_cache[source_file] = result
-    return result
-
-
-def page_name(source_file, trim_time=False, untitled='untitled-post'):
-    """Extracts name part from source file name.
-
-    Usage:
-
-        >>> page_name("hello.md")
-        "hello"
-
-        >>> page_name("20121005-hola.md", True)
-        "hola"
-
-        >>> page_name("20121005.md", True)
-        "untitled-post"
-
-        >>> page_name("20121005.md", True, untitled="no-name")
-        "no-name"
-    """
-    name = os.path.splitext(os.path.basename(source_file))[0]
-    return (name.lstrip('0123456789-_') or untitled) if trim_time else name
-
-
-def feed_data(page_data):
-    """Returns part of the page data dict, relevant to feed generation."""
-    return {
-        'source': page_data.get('source'),
-        'title': page_data.get('title'),
-        'created': page_data.get('created'),
-        'updated': page_data.get('updated'),
-        'author': page_data.get('author', conf.get('author')),
-        'url': post_url(page_data),
-        'full_url': post_url(page_data, True),
-        'content': page_data.get('content'),
-        'tags': page_data.get('tags'),
-    }
-
-
-def dest(build_path, rel_source):
-    """Gets destination file path."""
-    # TODO: Drop after #6
-
-    base, ext = os.path.splitext(rel_source)
-    new_ext = {
-        '.md': '.html',
-        '.less': '.css',
-    }
-
-    return os.path.join(build_path, base + new_ext.get(ext, ext))
-
-
 def walk(path, operation):
     """Performs operation for each file in the specified path.
     Operation should take two arguments: the original path and
@@ -238,57 +109,6 @@ def walk(path, operation):
             operation(path, relpath)
 
 
-def posts(path):
-    """Returns a list of post relative pathes in chronological order."""
-    posts = []
-    walk(path, lambda root, rel:
-        posts.append((rel, _page_ctime(os.path.join(root, rel)))))
-    posts.sort(key=lambda item: item[1])
-    return posts
-
-
-def _page_ctime(source_file):
-    """Gets post/page creation time using header or file system data."""
-    result = None
-    try:
-        with codecs.open(source_file, mode='r', encoding='utf-8') as f:
-            for line in f.readlines():
-                match = PARAM_PATTERN.match(line)
-                if not match:
-                    break
-                if match.group(1).lower() == 'created':
-                    result = parse_time(match.group(2))
-                    break
-    except:
-        pass
-    return result or datetime.fromtimestamp(os.path.getctime(source_file))
-
-
-# TODO: Consider file time extraction optimization (use one-time reading)
-def parse_time(value, default=None):
-    """Converts string to datetime using the first of the preconfigured
-    time_format values that will work."""
-    if value:
-        for timef in conf.get('time_format'):
-            try:
-                return datetime.strptime(value.strip(), timef)
-            except:
-                pass
-    if default:
-        return default
-    raise Exception('bad date/time format')
-
-
-def parse_param(text):
-    """Parse '<key>: <value>' string to (str, str) tuple. Returns None
-    when parsing fails."""
-    try:
-        match = PARAM_PATTERN.match(text)
-        return (match.group(1).strip().lower(), match.group(2).strip())
-    except:
-        raise Exception('parsing error')
-
-
 def tag_url(tag):
     return conf.get('tag_location').format(root=conf.get('rel_root_url'),
                                            tag=tag)
@@ -297,20 +117,6 @@ def tag_url(tag):
 def execute(command, source, dest=''):
     """Executes a command with {source} and {dest} parameter replacements."""
     os.system(os.path.expandvars(command.format(source=source, dest=dest)))
-
-
-def source_dir(source_type):
-    """Map source file type to the relevant fully qualified directory path."""
-    dirs = {
-        const.ASSET_TYPE: conf.get('assets_path'),
-        const.POST_TYPE: conf.get('posts_path'),
-        const.PAGE_TYPE: conf.get('pages_path'),
-    }
-
-    try:
-        return dirs[source_type]
-    except:
-        raise Exception('invalid source type')
 
 
 def mergedicts(*args):

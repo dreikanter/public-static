@@ -95,12 +95,6 @@ def site_dir():
     return os.path.dirname(_path)
 
 
-def gen_dir():
-    """Returns generic site directory within the package."""
-    path = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(path, const.GENERIC_PATH)
-
-
 def _dumpopt(opt_name):
     """Serializes configuration option with default value."""
     desc = const.DEFAULTS[opt_name]['desc']

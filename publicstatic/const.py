@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import os
+import os.path
 import re
 from publicstatic.version import get_version
 
@@ -17,7 +17,9 @@ LOG_FORMAT = "%(asctime)s %(levelname)s: %(message)s"
 # Logger message timestamp format
 LOG_DATE_FORMAT = "%Y/%m/%d %H:%M:%S"
 
-GENERIC_PATH = 'generic-site'
+# generic site directory within the package directory
+GENERIC_PATH = \
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), 'generic-site')
 
 GENERIC_PAGES = 'generic-pages'
 
