@@ -38,6 +38,9 @@ BROWSER_DELAY = 2.0
 
 UNTITLED_POST = 'untitled-post'
 
+# environment variable name to override 'verbose' configuration parameter
+ENV_VERBOSE = 'ps_verbose'
+
 # parameters sequence for the configuration file
 EXPORTS = [
         'title',
@@ -174,10 +177,6 @@ DEFAULTS = {
         'value': 'index.html',
         'desc': 'File name for an index page',
     },
-    'archive_page': {
-        'value': 'archive.html',
-        'desc': 'File name for an archive page',
-    },
     'atom_feed': {
         'value': 'feed.atom',
         'desc': 'Atom feed file name.',
@@ -222,7 +221,7 @@ DEFAULTS = {
     'menu': {
         'value': [
             { 'title': 'About', 'href': '/about.html' },
-            { 'title': 'Archive', 'href': '/archive.html' },
+            { 'title': 'Archive', 'href': '/archive/index.html' },
         ],
         'desc': 'Navigation menu items',
     },
