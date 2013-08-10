@@ -95,6 +95,25 @@ def site_dir():
     return os.path.dirname(_path)
 
 
+def commons():
+    """Site-wide environmental parameters for page building."""
+    return {
+            'root_url': get('root_url'),
+            'rel_root_url': get('rel_root_url'),
+            'archive_url':
+                get('rel_root_url') + get('archive_page'),
+            'site_title': get('title'),
+            'site_subtitle': get('subtitle'),
+            'menu': get('menu'),
+            'time': datetime.now(),
+            'author': get('author'),
+            'author_url': get('author_url'),
+            'generator': const.GENERATOR,
+            'source_url': get('source_url'),
+            'enable_search_form': get('enable_search_form'),
+        }
+
+
 def _dumpopt(opt_name):
     """Serializes configuration option with default value."""
     desc = const.DEFAULTS[opt_name]['desc']

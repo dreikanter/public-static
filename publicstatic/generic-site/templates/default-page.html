@@ -1,5 +1,5 @@
 {% import '_macros.html' as macros -%}
 {% include '_header.html' %}
-{{ content }}
-{{ macros.tags_list(tags) }}
+{{ page.content }}
+{{ macros.tags_list(page.tags) }}
 {% include '_footer.html' -%}

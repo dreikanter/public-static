@@ -18,7 +18,7 @@ RE_H1 = re.compile(r"^\s*#\s*(.*)\s*", re.I|re.M|re.U)
 
 
 def makedirs(dir_path):
-    """Creates directory if it not exists"""
+    """Creates directory if it not exists."""
     if dir_path and not os.path.isdir(dir_path):
         os.makedirs(dir_path)
         return True
@@ -26,7 +26,8 @@ def makedirs(dir_path):
 
 
 def browse(url, delay):
-    """Opens specified @url with system default browser after @delay seconds"""
+    """Opens specified @url with system default browser
+    after @delay seconds."""
     time.sleep(delay)
     from webbrowser import open_new_tab
     open_new_tab(url)
@@ -47,7 +48,7 @@ def parse_time(value, default=None):
 
 
 def check_build(path):
-    """Check if the web content was built and exit if it isn't"""
+    """Check if the web content was built and exit if it isn't."""
     if not os.path.isdir(path):
         sys.exit("web content directory not exists: '%s'" % path)
 
@@ -61,7 +62,7 @@ def drop_build(path, create=False):
 
 
 def get_h1(text):
-    """Extracts the first h1-header from markdown text"""
+    """Extracts the first h1-header from markdown text."""
     matches = RE_H1.search(text)
     return matches.group(1) if matches else ''
 

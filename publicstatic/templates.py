@@ -63,7 +63,7 @@ def template(name=None, path=None, format='html'):
 def render(data=None, name=None, path=None, format='html', dest=None):
     """Render data using a specified template to a file."""
     if not path:
-        name = name or data['template']
+        name = name or data['page']['template']
     tpl = template(name=name, path=path, format=format)
     result = tpl.render(data)
 

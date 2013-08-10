@@ -58,7 +58,7 @@ def build(args):
             builders.static,
             builders.pages,
             builders.posts,
-            # builders.archive,
+            builders.archive,
             # builders.tags,
             # builders.rss,
             # builders.atom,

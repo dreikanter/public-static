@@ -115,10 +115,12 @@ def pages(cache):
         logger.info("page: %s -> %s" % (source.rel_path(), source.rel_dest()))
         helpers.makedirs(source.dest_dir())
         try:
-            templates.render(source.data(), dest=source.dest())
+            data = _complement(source.data(), cache)
+            templates.render(data, dest=source.dest())
         except Exception as ex:
             logger.error('page building error: ' + str(ex))
             logger.debug(traceback.format_exc())
+
 
 def posts(cache):
     """Build blog posts and copy the latest post to the site root."""
@@ -126,7 +128,8 @@ def posts(cache):
         logger.info("post: %s -> %s" % (source.rel_path(), source.rel_dest()))
         helpers.makedirs(source.dest_dir())
         try:
-            templates.render(source.data(), dest=source.dest())
+            data = _complement(source.data(), cache)
+            templates.render(data, dest=source.dest())
         except Exception as ex:
             logger.error('post building error: ' + str(ex))
             logger.debug(traceback.format_exc())
@@ -144,8 +147,7 @@ def posts(cache):
 
 def archive(cache):
     """Build blog archive page (full post list)."""
-
-    pass
+    cache.data()
 
 
 def tags(cache):
@@ -170,3 +172,10 @@ def sitemap(cache):
     """Build sitemap.xml."""
 
     pass
+
+def _complement(page_data, cache):
+    return {
+            'commons': conf.commons(),
+            'page': page_data,
+            'index': cache.data(),
+        }

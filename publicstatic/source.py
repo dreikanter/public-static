@@ -14,7 +14,7 @@ from publicstatic.urlify import urlify
 POST_NAME_FORMAT = "{year}{month}{day}-{name}.md"
 
 # regular expression to extract {name} from a base name of post source file
-RE_POST_NAME = re.compile(r"^[\d_-]*([^\.]*)", re.I|re.M|re.U)
+RE_POST_NAME = re.compile(r"^[\d_-]*([^\.]*)", re.U)
 
 
 class NotImplementedException(Exception):
@@ -23,25 +23,6 @@ class NotImplementedException(Exception):
 
 class PageExistsException(Exception):
     pass
-
-
-def commons_data():
-    """Common data fields for page building."""
-    return {
-            'root_url': conf.get('root_url'),
-            'rel_root_url': conf.get('rel_root_url'),
-            'archive_url':
-                conf.get('rel_root_url') + conf.get('archive_page'),
-            'site_title': conf.get('title'),
-            'site_subtitle': conf.get('subtitle'),
-            'menu': conf.get('menu'),
-            'time': datetime.now(),
-            'author': conf.get('author'),
-            'author_url': conf.get('author_url'),
-            'generator': const.GENERATOR,
-            'source_url': conf.get('source_url'),
-            'enable_search_form': conf.get('enable_search_form'),
-        }
 
 
 class SourceFile:
@@ -113,13 +94,6 @@ class SourceFile:
             self._processed = value
         return self._processed
 
-    def _tags(value):
-        """Parses tags from comma-separaed string, or returns default
-        tags set from configuration."""
-        tags = list(helpers.xsplit(',', value, strip=True, drop_empty=True))
-        for tag in tags or conf.get('default_tags'):
-            yield {'name': tag, 'url': helpers.tag_url(tag)}
-
     def create():
         """Class function to create new source files of the certain type."""
         raise NotImplementedException()
@@ -129,7 +103,7 @@ class ParseableFile(SourceFile):
     """Basic abstraction for parseable source files."""
 
     # parse '<key>: <value>' string to (str, str) tuple
-    _re_param = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", re.I|re.M|re.U)
+    _re_param = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", re.U)
 
     def __init__(self, file_name):
         super().__init__(file_name)
@@ -138,8 +112,7 @@ class ParseableFile(SourceFile):
     def data(self, key=None, default=None):
         """Returns page data as a dictionary, or a single data field
         if key argument specified."""
-        data = helpers.mergedicts(self._data, commons_data())
-        return data.get(key, default) if key else data
+        return self._data.get(key, default) if key else self._data
 
     def text(self):
         """Source file contents."""
@@ -174,31 +147,38 @@ class ParseableFile(SourceFile):
                 num += 1
             else:
                 break
-        result['content'] = ''.join(lines[num:])
-        return result
+        return result, ''.join(lines[num:])
+
+    @staticmethod
+    def _tags(value):
+        """Parses tags from comma-separaed string, or returns default
+        tags set from configuration."""
+        tags = list(helpers.xsplit(',', value, strip=True, drop_empty=True))
+        for tag in tags or conf.get('default_tags'):
+            yield {'name': tag, 'url': helpers.tag_url(tag)}
 
     def _parse(self):
         """Extract page header data and content from a list of lines
         and return the result as key-value couples."""
-        result = self._split()
-        content = helpers.md(result.get('content', ''),
-                             conf.get('markdown_extensions'))
-
-        result.update({
+        meta, content = self._split()
+        meta.update({
                 'source': self._path,
-                'title': result.get('title', helpers.get_h1(result['content'])),
-                'template': result.get('template', self.default_template()),
-                'author': result.get('author', conf.get('author')),
-                'content': content,
-                'tags': SourceFile._tags(result.get('tags', '')),
+                'title':
+                    meta.get('title', helpers.get_h1(content)),
+                'template':
+                    meta.get('template', self.default_template()),
+                'author': meta.get('author', conf.get('author')),
+                'tags': list(ParseableFile._tags(meta.get('tags', ''))),
                 'source_url': self.source_url(),
                 'created':
-                    helpers.parse_time(result.get('created'), self._ctime),
+                    helpers.parse_time(meta.get('created'), self._ctime),
                 'updated':
-                    helpers.parse_time(result.get('updated'), self._utime),
+                    helpers.parse_time(meta.get('updated'), self._utime),
+                'content':
+                    helpers.md(content, conf.get('markdown_extensions')),
             })
 
-        return result
+        return meta
 
 
 class AssetFile(SourceFile):
@@ -232,12 +212,14 @@ class PageFile(ParseableFile):
                               type='posts',
                               name=self.basename())
 
+    @staticmethod
     def create(name, force=False):
         """Creates page file.
 
         Arguments:
             name -- page name (will be used for file name and URL).
-            force -- True to overwrite existing file; False to throw exception."""
+            force -- True to overwrite existing file;
+                False to throw exception."""
         page_name = urlify(name, ext_map={ord(u'\\'): u'/'}) + '.md'
         file_name = os.path.join(conf.get('pages_path'), page_name)
         if os.path.exists(file_name) and not force:
@@ -280,6 +262,7 @@ class PostFile(ParseableFile):
                               type='pages',
                               name=self.basename())
 
+    @staticmethod
     def create(name, force=False):
         """Create new post file placeholder with a unique name.
 
