@@ -4,12 +4,11 @@ import codecs
 import re
 import os
 from datetime import datetime
-from pprint import pformat
 from publicstatic import conf
 from publicstatic import const
 from publicstatic import helpers
 from publicstatic import logger
-from publicstatic import urlify
+from publicstatic.urlify import urlify
 
 # format for the post source files
 POST_NAME_FORMAT = "{year}{month}{day}-{name}.md"
@@ -19,6 +18,10 @@ RE_POST_NAME = re.compile(r"^[\d_-]*([^\.]*)", re.I|re.M|re.U)
 
 
 class NotImplementedException(Exception):
+    pass
+
+
+class PageExistsException(Exception):
     pass
 
 
@@ -162,14 +165,16 @@ class ParseableFile(SourceFile):
         """Coarse parser for the source file."""
         result = {}
         lines = self.text().splitlines()
-        for num, line in enumerate(lines):
+        num = 0
+        for line in lines:
             match = ParseableFile._re_param.match(line)
             if match:
                 field = match.group(1).strip().lower()
                 result[field] = match.group(2).strip()
+                num += 1
             else:
-                result['content'] = ''.join(lines[num:])
                 break
+        result['content'] = ''.join(lines[num:])
         return result
 
     def _parse(self):
@@ -227,17 +232,33 @@ class PageFile(ParseableFile):
                               type='posts',
                               name=self.basename())
 
+    def create(name, force=False):
+        """Creates page file.
+
+        Arguments:
+            name -- page name (will be used for file name and URL).
+            force -- True to overwrite existing file; False to throw exception."""
+        page_name = urlify(name, ext_map={ord(u'\\'): u'/'}) + '.md'
+        file_name = os.path.join(conf.get('pages_path'), page_name)
+        if os.path.exists(file_name) and not force:
+            raise PageExistsException()
+
+        created = datetime.now().strftime(conf.get('time_format')[0])
+        text = helpers.prototype('default-page')
+        helpers.newfile(file_name, text.format(title=name, created=created))
+        return page_name
+
 
 class PostFile(ParseableFile):
     def __init__(self, file_name):
         super().__init__(file_name)
-        name = RE_POST_NAME.match(self._rel_path).group(1)
+        name = os.path.basename(self._rel_path).lstrip('0123456789-_')
         path = conf.get('post_location')
         created = self.created()
         self._rel_dest = path.format(year=created.strftime('%Y'),
                                      month=created.strftime('%m'),
                                      day=created.strftime('%d'),
-                                     name=name)
+                                     name=os.path.splitext(name)[0])
 
     def source_dir(self):
         return conf.get('posts_path')
@@ -258,3 +279,30 @@ class PostFile(ParseableFile):
         return pattern.format(root=conf.get('source_url'),
                               type='pages',
                               name=self.basename())
+
+    def create(name, force=False):
+        """Create new post file placeholder with a unique name.
+
+        Arguments:
+            name -- post name.
+            force -- True to overwrite existing file;
+                False to raise an exception."""
+        created = datetime.now()
+        post_name = urlify(name) or const.UNTITLED_POST
+        file_name = POST_NAME_FORMAT.format(year=created.strftime('%Y'),
+                                            month=created.strftime('%m'),
+                                            day=created.strftime('%d'),
+                                            name=post_name)
+        post_path = os.path.join(conf.get('posts_path'), file_name)
+
+        count = 1
+        while True:
+            file_name = helpers.suffix(post_path, count)
+            if force or not os.path.exists(file_name):
+                created = created.strftime(conf.get('time_format')[0])
+                text = helpers.prototype('default-post')
+                text = text.format(title=name, created=created)
+                helpers.newfile(file_name, text)
+                break
+            count += 1
+        return os.path.basename(file_name)
