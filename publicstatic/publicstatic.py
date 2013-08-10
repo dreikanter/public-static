@@ -60,7 +60,7 @@ def build(args):
             builders.humans,
             builders.static,
             builders.pages,
-            # builders.posts,
+            builders.posts,
             # builders.archive,
             # builders.tags,
             # builders.rss,
@@ -160,7 +160,7 @@ def page(args):
     text = helpers.prototype('default-page')
     try:
         path = creators.newpage(args.name, text, args.force)
-    except creators.PageExists:
+    except creators.PageExistsException:
         logger.error('page already exists, use -f to overwrite')
         return
 

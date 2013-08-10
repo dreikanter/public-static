@@ -374,10 +374,6 @@ def less(cache):
         source.processed(True)
 
 
-def _tag_location(root, tag):
-    return
-
-
 def robots(cache):
     """Build robots.txt."""
     for source in cache.assets(basename='robots.txt'):
@@ -428,8 +424,8 @@ def static(cache):
 def pages(cache):
     """Build pages/*.md to {dest} (independant, keep rel path)."""
     for source in cache.pages():
-        helpers.makedirs(source.dest_dir())
         logger.info("page: %s -> %s" % (source.rel_path(), source.rel_dest()))
+        helpers.makedirs(source.dest_dir())
         try:
             templates.render(source.data(), dest=source.dest())
         except Exception as ex:
@@ -439,8 +435,8 @@ def pages(cache):
 def posts(cache):
     """Build blog posts and copy the latest post to the site root."""
     for source in cache.posts():
-        helpers.makedirs(source.dest_dir())
         logger.info("post: %s -> %s" % (source.rel_path(), source.rel_dest()))
+        helpers.makedirs(source.dest_dir())
         try:
             templates.render(source.data(), dest=source.dest())
         except Exception as ex:
@@ -449,11 +445,13 @@ def posts(cache):
 
     # put the latest post at site root url
     if conf.get('post_at_root_url'):
-        last_post = cache.posts()[-1]
+        last = cache.posts()[-1]
         path = os.path.join(conf.get('build_path'), conf.get('index_page'))
-        if os.path.exists(path):
-            logger.warn('index page will be overwritten by latest post')
-        shutil.copyfile(last_post.dest(), path)
+        logger.info("root: %s -> %s" %
+            (last.rel_dest(), conf.get('index_page')))
+        if any(cache.pages(dest=conf.get('index_page'))):
+            logger.warn('root page will be overwritten by the latest post')
+        shutil.copyfile(last.dest(), path)
 
 
 def archive(cache):

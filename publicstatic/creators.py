@@ -8,15 +8,8 @@ from publicstatic import conf
 from publicstatic import helpers
 from publicstatic.urlify import urlify
 
-# RE_POST_NAME = re.compile(r"[\w\\/]+")
 
-
-# def validate_name(value):
-#     if not RE_POST_NAME.match(value):
-#         raise Exception('illegal entry name')
-
-
-class PageExists(Exception):
+class PageExistsException(Exception):
     pass
 
 
@@ -30,7 +23,7 @@ def newpage(name, text, force=False):
     good_name = urlify(name, ext_map={ord(u'\\'): u'/'})
     file_name = os.path.join(conf.get('pages_path'), good_name) + '.md'
     if os.path.exists(file_name) and not force:
-        raise PageExists()
+        raise PageExistsException()
 
     created = datetime.now().strftime(conf.get('time_format')[0])
     text = text.format(title=name, created=created)

@@ -33,7 +33,8 @@ class Cache():
                   source_type=None,
                   ext=None,
                   processed=None,
-                  basename=None):
+                  basename=None,
+                  dest=None):
         """Creates source file filter function."""
         conditions = []
 
@@ -48,6 +49,9 @@ class Cache():
 
         if basename != None:
             conditions.append(lambda source: basename == source.basename())
+
+        if dest != None:
+            conditions.append(lambda source: dest == source.rel_dest())
 
         def _condition(source):
             return all([cond(source) for cond in conditions])
@@ -65,9 +69,9 @@ class Cache():
                                    basename=basename)
         return filter(condition, self._cache)
 
-    def pages(self):
+    def pages(self, dest=None):
         """Get pages."""
-        return filter(self.condition(PageFile), self._cache)
+        return filter(self.condition(PageFile, dest=dest), self._cache)
 
     def posts(self):
         """Get ordered posts."""
@@ -76,7 +80,7 @@ class Cache():
         return self._posts
 
     def _process_posts(self):
-        posts = list(filter(PostFile, self._cache))
+        posts = list(filter(self.condition(PostFile), self._cache))
         posts.sort(key=lambda item: item.created())
 
         prev = None

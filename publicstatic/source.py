@@ -9,6 +9,13 @@ from publicstatic import conf
 from publicstatic import const
 from publicstatic import helpers
 from publicstatic import logger
+from publicstatic import urlify
+
+# format for the post source files
+POST_NAME_FORMAT = "{year}{month}{day}-{name}.md"
+
+# regular expression to extract {name} from a base name of post source file
+RE_POST_NAME = re.compile(r"^[\d_-]*([^\.]*)", re.I|re.M|re.U)
 
 
 class NotImplementedException(Exception):
@@ -75,10 +82,8 @@ class SourceFile:
         return self._ext
 
     def rel_dest(self):
-        """Get/set relative path to destination file."""
-        base, ext = os.path.splitext(self._rel_path)
-        ext = {'.md': '.html', '.less': '.css'}.get(self._ext, self._ext)
-        return base + ext
+        """Get relative path to destination file."""
+        return self._rel_dest
 
     def dest(self):
         """Returns fully qualified destination file."""
@@ -112,6 +117,10 @@ class SourceFile:
         for tag in tags or conf.get('default_tags'):
             yield {'name': tag, 'url': helpers.tag_url(tag)}
 
+    def create():
+        """Class function to create new source files of the certain type."""
+        raise NotImplementedException()
+
 
 class ParseableFile(SourceFile):
     """Basic abstraction for parseable source files."""
@@ -121,11 +130,7 @@ class ParseableFile(SourceFile):
 
     def __init__(self, file_name):
         super().__init__(file_name)
-        if self.parseable():
-            self._data = self._parse()
-
-    def parseable(self):
-        return True
+        self._data = self._parse()
 
     def data(self, key=None, default=None):
         """Returns page data as a dictionary, or a single data field
@@ -154,6 +159,7 @@ class ParseableFile(SourceFile):
         raise NotImplementedException()
 
     def _split(self):
+        """Coarse parser for the source file."""
         result = {}
         lines = self.text().splitlines()
         for num, line in enumerate(lines):
@@ -191,11 +197,23 @@ class ParseableFile(SourceFile):
 
 
 class AssetFile(SourceFile):
+    def __init__(self, file_name):
+        super().__init__(file_name)
+        base = os.path.splitext(self._rel_path)[0]
+        ext = '.css' if self.ext() == '.less' else self.ext()
+        self._rel_dest = base + ext
+
     def source_dir(self):
         return conf.get('assets_path')
 
 
 class PageFile(ParseableFile):
+    def __init__(self, file_name):
+        super().__init__(file_name)
+        base = os.path.splitext(self._rel_path)[0]
+        ext = '.html' if self.ext() in ['.md', '.markdown'] else self.ext()
+        self._rel_dest = base + ext
+
     def source_dir(self):
         return conf.get('pages_path')
 
@@ -211,20 +229,22 @@ class PageFile(ParseableFile):
 
 
 class PostFile(ParseableFile):
+    def __init__(self, file_name):
+        super().__init__(file_name)
+        name = RE_POST_NAME.match(self._rel_path).group(1)
+        path = conf.get('post_location')
+        created = self.created()
+        self._rel_dest = path.format(year=created.strftime('%Y'),
+                                     month=created.strftime('%m'),
+                                     day=created.strftime('%d'),
+                                     name=name)
+
     def source_dir(self):
         return conf.get('posts_path')
 
-    def set_rel_dest(self, value):
-        self._rel_dest = value
-
-    def rel_dest(self):
-        try:
-            return self._rel_dest
-        except:
-            raise Exception('post destination path not initialized')
-
-    def parseable(self):
-        return True
+    def name(self):
+        base, ext = os.path.splitex(os.path.basename(self._rel_path))
+        return
 
     def default_template(self):
         return conf.get('post_tpl')
