@@ -1,2 +1,2 @@
 User-agent: *
-Disallow: {tags_path}
+Disallow: {{ tags_path }}

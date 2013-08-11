@@ -100,8 +100,6 @@ def commons():
     return {
             'root_url': get('root_url'),
             'rel_root_url': get('rel_root_url'),
-            'archive_url':
-                get('rel_root_url') + get('archive_page'),
             'site_title': get('title'),
             'site_subtitle': get('subtitle'),
             'menu': get('menu'),
@@ -136,9 +134,9 @@ def _purify(params):
     params['build_path'] = _expand(params['build_path'])
     params['tpl_path'] = _expand(params['tpl_path'])
     params['prototypes_path'] = _expand(params['prototypes_path'])
-    params['root_url'] = _trslash(params['root_url'].strip())
-    params['rel_root_url'] = _trslash(params['rel_root_url'].strip())
-    params['source_url'] = _trslash(params['source_url'].strip())
+    params['root_url'] = _trsl(params['root_url'].strip())
+    params['rel_root_url'] = _trsl(params['rel_root_url'].strip())
+    params['source_url'] = _trsl(params['source_url'].strip())
     params['port'] = int(params['port'])
     params['log_file'] = params['log_file'].strip()
     params['log_max_size'] = int(params['log_max_size'])
@@ -151,6 +149,9 @@ def _purify(params):
     for item in menu:
         item['href'] = item['href'].strip() if 'href' in item else ''
         item['title'] = item['title'].strip() if 'title' in item else ''
+
+    params['verbose'] = params['verbose'] or const.ENV_VERBOSE in os.environ
+
     return params
 
 
@@ -164,6 +165,6 @@ def _expand(rel_path):
     return path.rstrip(os.sep + os.altsep)
 
 
-def  _trslash(url):
+def  _trsl(url):
     """Guarantees the URL have a single trailing slash."""
     return url.rstrip('/') + '/'

@@ -145,11 +145,6 @@ def posts(cache):
         shutil.copyfile(last.dest(), path)
 
 
-def archive(cache):
-    """Build blog archive page (full post list)."""
-    cache.data()
-
-
 def tags(cache):
     """Build blog tag pages."""
 
@@ -174,6 +169,7 @@ def sitemap(cache):
     pass
 
 def _complement(page_data, cache):
+    """Complement individual page data with common variables and site index."""
     return {
             'commons': conf.commons(),
             'page': page_data,

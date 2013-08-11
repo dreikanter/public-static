@@ -109,9 +109,14 @@ class ParseableFile(SourceFile):
         super().__init__(file_name)
         self._data = self._parse()
 
+    def set(self, key, value):
+        self._data[key] = value
+
     def data(self, key=None, default=None):
         """Returns page data as a dictionary, or a single data field
         if key argument specified."""
+        if 'url' not in self._data:
+            self._data['url'] = self.url()
         return self._data.get(key, default) if key else self._data
 
     def text(self):
@@ -122,10 +127,10 @@ class ParseableFile(SourceFile):
         return self._text
 
     def created(self):
-        return self.data('created')
+        return self._data.get('created')
 
     def updated(self):
-        return self.data('updated')
+        return self._data.get('updated')
 
     def default_template(self):
         raise NotImplementedException()
@@ -134,33 +139,10 @@ class ParseableFile(SourceFile):
         """Source file URL."""
         raise NotImplementedException()
 
-    def _split(self):
-        """Coarse parser for the source file."""
-        result = {}
-        lines = self.text().splitlines()
-        num = 0
-        for line in lines:
-            match = ParseableFile._re_param.match(line)
-            if match:
-                field = match.group(1).strip().lower()
-                result[field] = match.group(2).strip()
-                num += 1
-            else:
-                break
-        return result, ''.join(lines[num:])
-
-    @staticmethod
-    def _tags(value):
-        """Parses tags from comma-separaed string, or returns default
-        tags set from configuration."""
-        tags = list(helpers.xsplit(',', value, strip=True, drop_empty=True))
-        for tag in tags or conf.get('default_tags'):
-            yield {'name': tag, 'url': helpers.tag_url(tag)}
-
     def _parse(self):
         """Extract page header data and content from a list of lines
         and return the result as key-value couples."""
-        meta, content = self._split()
+        meta, content = self._split(self.text())
         meta.update({
                 'source': self._path,
                 'title':
@@ -179,6 +161,30 @@ class ParseableFile(SourceFile):
             })
 
         return meta
+
+    @staticmethod
+    def _split(text):
+        """Coarse parser for the source file."""
+        result = {}
+        lines = text.splitlines()
+        num = 0
+        for line in lines:
+            match = ParseableFile._re_param.match(line)
+            if match:
+                field = match.group(1).strip().lower()
+                result[field] = match.group(2).strip()
+                num += 1
+            else:
+                break
+        return result, '\n'.join(lines[num:])
+
+    @staticmethod
+    def _tags(value):
+        """Parses tags from comma-separaed string, or returns default
+        tags set from configuration."""
+        tags = list(helpers.xsplit(',', value, strip=True, drop_empty=True))
+        for tag in tags or conf.get('default_tags'):
+            yield {'name': tag, 'url': helpers.tag_url(tag)}
 
 
 class AssetFile(SourceFile):

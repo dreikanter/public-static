@@ -37,22 +37,21 @@ class Cache():
                             posts.append(source)
             helpers.walk(path, save)
 
-        self._data = {
-                'pages': list([page.data() for page in pages]),
-                'posts': list([post.data() for post in posts]),
-            }
-
         posts.sort(key=lambda item: item.created())
         prev = None
         next = None
         for num, post in enumerate(posts, start=1):
             next = posts[num] if num < len(posts) else None
-            post.data('prev_url', prev and prev.url())
-            post.data('prev_title', prev and prev.data('title'))
-            post.data('next_url', next and next.url())
-            post.data('next_title', next and next.data('title'))
+            post.set('prev_url', prev and prev.url())
+            post.set('prev_title', prev and prev.data('title'))
+            post.set('next_url', next and next.url())
+            post.set('next_title', next and next.data('title'))
             prev = post
         self._posts = posts
+        self._data = {
+                'pages': list([page.data() for page in pages]),
+                'posts': list([post.data() for post in posts]),
+            }
 
     def condition(self,
                   source_type=None,
