@@ -30,7 +30,6 @@ edit_arg = arg('-e', '--edit',
                default=False,
                help='open with preconfigured editor')
 
-# Commands
 
 @source_arg
 def init(args):
@@ -49,27 +48,7 @@ def build(args):
     """generate web content from source"""
     conf.load(args.source)
     cache = Cache()
-    steps = [
-            builders.css,
-            builders.js,
-            builders.less,
-            builders.robots,
-            builders.humans,
-            builders.static,
-            builders.pages,
-            builders.posts,
-            # builders.tags,
-            # builders.rss,
-            # builders.atom,
-            # builders.sitemap,
-        ]
-
-    for builder in steps:
-        try:
-            builder(cache)
-        except Exception as ex:
-            # logger.error(str(ex))
-            raise
+    map(lambda builder: builder(cache), builders.all())
 
 
 @source_arg
@@ -191,7 +170,17 @@ def version(args):
 def main():
     try:
         p = ArghParser(prog='pub')
-        p.add_commands([init, build, run, deploy, clean, page, post, update, version])
+        p.add_commands([
+            init,
+            build,
+            run,
+            deploy,
+            clean,
+            page,
+            post,
+            update,
+            version
+        ])
         p.dispatch()
     except Exception:
         # logger.crash()

@@ -7,7 +7,6 @@ from datetime import datetime
 from publicstatic import conf
 from publicstatic import const
 from publicstatic import helpers
-from publicstatic import logger
 from publicstatic.urlify import urlify
 
 # format for the post source files
@@ -39,11 +38,11 @@ class SourceFile:
     def __str__(self):
         """Human-readable string representation."""
         return '\n'.join(["%s: %s" % (k, v) for k, v in [
-                ('class', self.__class__),
-                ('fullname', self._path),
-                ('created', self.created().isoformat()),
-                ('updated', self.updated().isoformat()),
-            ]])
+            ('class', self.__class__),
+            ('fullname', self._path),
+            ('created', self.created().isoformat()),
+            ('updated', self.updated().isoformat()),
+        ]])
 
     def source_dir(self):
         """Source file directory path."""
@@ -144,21 +143,16 @@ class ParseableFile(SourceFile):
         and return the result as key-value couples."""
         meta, content = self._split(self.text())
         meta.update({
-                'source': self._path,
-                'title':
-                    meta.get('title', helpers.get_h1(content)),
-                'template':
-                    meta.get('template', self.default_template()),
-                'author': meta.get('author', conf.get('author')),
-                'tags': list(ParseableFile._tags(meta.get('tags', ''))),
-                'source_url': self.source_url(),
-                'created':
-                    helpers.parse_time(meta.get('created'), self._ctime),
-                'updated':
-                    helpers.parse_time(meta.get('updated'), self._utime),
-                'content':
-                    helpers.md(content, conf.get('markdown_extensions')),
-            })
+            'source': self._path,
+            'title': meta.get('title', helpers.get_h1(content)),
+            'template': meta.get('template', self.default_template()),
+            'author': meta.get('author', conf.get('author')),
+            'tags': list(ParseableFile._tags(meta.get('tags', ''))),
+            'source_url': self.source_url(),
+            'created': helpers.parse_time(meta.get('created'), self._ctime),
+            'updated': helpers.parse_time(meta.get('updated'), self._utime),
+            'content': helpers.md(content, conf.get('markdown_extensions')),
+        })
 
         return meta
 
@@ -230,7 +224,6 @@ class PageFile(ParseableFile):
         file_name = os.path.join(conf.get('pages_path'), page_name)
         if os.path.exists(file_name) and not force:
             raise PageExistsException()
-
         created = datetime.now().strftime(conf.get('time_format')[0])
         text = helpers.prototype('default-page')
         helpers.newfile(file_name, text.format(title=name, created=created))
@@ -260,8 +253,7 @@ class PostFile(ParseableFile):
 
     def source_url(self):
         """Source file URL."""
-        root = conf.get('source_url')
-        if not root:
+        if not conf.get('source_url'):
             return None
         pattern = "{root}blob/master/{type}/{name}"
         return pattern.format(root=conf.get('source_url'),
@@ -295,3 +287,12 @@ class PostFile(ParseableFile):
                 break
             count += 1
         return os.path.basename(file_name)
+
+    @staticmethod
+    def _similar_names(name):
+        """Returns a list of existing posts with a similar name,
+        that diffes only by date prefix.
+
+        E.g. if we have 20131010-about.md, 20131010-news-update.md,
+        and 20131010-news-update.md"""
+        return []

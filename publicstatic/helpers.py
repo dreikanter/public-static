@@ -11,10 +11,8 @@ import shutil
 import sys
 import time
 from publicstatic import conf
-from publicstatic import const
-from publicstatic.urlify import urlify
 
-RE_H1 = re.compile(r"^\s*#\s*(.*)\s*", re.I|re.M|re.U)
+RE_H1 = re.compile(r"^\s*#\s*(.*)\s*", re.I | re.M | re.U)
 
 
 def makedirs(dir_path):
@@ -78,14 +76,16 @@ def md(text, extensions):
 def prototype(name):
     """Returns full path to specified prototype page."""
     try:
-        file_name = os.path.join(conf.get('prototypes_path'), str(name) + '.md')
+        file_name = os.path.join(conf.get('prototypes_path'),
+                                 str(name) + '.md')
         with codecs.open(file_name, mode='r', encoding='utf-8') as f:
             return f.read()
     except Exception as ex:
-        raise Exception("error reading prototype post: '%s'" % str(name)) from ex
+        message = "error reading prototype post: '%s'" % str(name)
+        raise Exception(message) from ex
 
 
-def copydir(source, dest, indent = 0):
+def copydir(source, dest, indent=0):
     """Copy a directory structure overwriting existing files."""
     for root, dirs, files in os.walk(source):
         if not os.path.isdir(root):

@@ -4,7 +4,7 @@
 
 import jinja2
 import codecs
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlparse
 from publicstatic import conf
 
 _env = None
@@ -12,7 +12,6 @@ _env = None
 
 def env():
     global _env
-
     if _env is None:
         loader = jinja2.FileSystemLoader(searchpath=conf.get('tpl_path'))
         _env = jinja2.Environment(loader=loader)
@@ -20,7 +19,6 @@ def env():
         _env.filters['date'] = filter_date
         _env.filters['isodatetime'] = filter_isodatetime
         _env.filters['trimurl'] = filter_trimurl
-
     return _env
 
 
