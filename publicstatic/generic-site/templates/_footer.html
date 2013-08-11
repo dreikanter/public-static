@@ -1,10 +1,10 @@
-<div class="footer"><hr><p>Copyright © {{ commons.time.year }} by <a href="{{ commons.author_url }}">{{ commons.author }}</a> • Generated with {{ commons.generator }}
+<div class="small footer"><hr><p>Copyright © {{ commons.time.year }} by <a href="{{ commons.author_url }}">{{ commons.author }}</a> • Generated with {{ commons.generator }}
 {%- if commons.source_url %} • <a href="{{ commons.source_url }}">Source</a>{% endif %}</p>
 {%- if commons.enable_search_form -%}
-<form action="http://google.com/search" method="get" class="search-form">
+<form action="http://google.com/search" method="get" class="search-form small">
   <fieldset role="search">
     <input type="hidden" name="q" value="site:{{ commons.root_url|trimurl }}">
-    <input type="text" name="q" results="0" placeholder="Search" class="search">
+    <input type="text" name="q" results="0" placeholder="Search" class="search small">
   </fieldset>
 </form>
 {%- endif -%}

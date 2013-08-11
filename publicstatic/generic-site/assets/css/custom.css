@@ -32,14 +32,17 @@ p strong {
 	color: #999;
 }
 
+.small {
+	font-size: 13px;
+	line-height: 17px;
+}
+
 .tags a {
 	white-space: nowrap;
 }
 
 div.flipper {
 	text-align: center;
-	font-size: 13px;
-	line-height: 17px;
 	margin: 37px 0 15px 0;
 }
 
@@ -63,8 +66,6 @@ ul.archive li {
 }
 
 .footer, .footer a {
-	font-size: 13px;
-	line-height: 17px;
 	text-align:  center;
 	color: #ccc;
 }
@@ -74,8 +75,6 @@ ul.archive li {
 
 header p.muted {
 	margin: -15px 0 26px 3px;
-	font-size: 13px;
-	line-height: 17px;
 }
 
 .search-form {
@@ -83,8 +82,6 @@ header p.muted {
 }
 
 .search-form .search {
-	font-size: 13px;
-	height: 17px;
 	width: 200px;
     padding-right: 3px;
     padding-right: 4px \9;
