@@ -1,7 +1,6 @@
 __pycache__
 *.py[co]
 *.bak
-
 *.egg
 *.egg-info
 dist
@@ -9,6 +8,7 @@ build
 bin
 sdist
 MANIFEST
-
 *.log
 tests/test-*
+tests/_*
+*.sublime*
