@@ -12,10 +12,10 @@ from publicstatic import builders
 from publicstatic import logger
 from publicstatic import helpers
 from publicstatic.cache import Cache
-from publicstatic.source import PageFile, PostFile, PageExistsException
+from publicstatic import source
 from publicstatic.version import get_version
 
-# Common command line arguments
+# Common command line argume t source.
 
 source_arg = arg('-s', '--source',
                  default=None,
@@ -30,7 +30,6 @@ edit_arg = arg('-e', '--edit',
                default=False,
                help='open with preconfigured editor')
 
-# Commands
 
 @source_arg
 def init(args):
@@ -65,11 +64,7 @@ def build(args):
         ]
 
     for builder in steps:
-        try:
-            builder(cache)
-        except Exception as ex:
-            # logger.error(str(ex))
-            raise
+        builder(cache)
 
 
 @source_arg
@@ -139,7 +134,7 @@ def page(args):
     """create new page"""
     conf.load(args.source)
     try:
-        path = PageFile.create(args.name, args.force)
+        path = source.PageFile.create(args.name, args.force)
     except PageExistsException:
         logger.error('page already exists, use -f to overwrite')
         return
@@ -155,7 +150,7 @@ def page(args):
 def post(args):
     """create new post"""
     conf.load(args.source)
-    path = PostFile.create(args.name, args.force)
+    path = source.PostFile.create(args.name, args.force)
     logger.info('post created: ' + path)
     if args.edit:
         helpers.execute(conf.get('editor_cmd'), path)
@@ -188,11 +183,22 @@ def version(args):
     return get_version()
 
 
+USER_ERRORS = (conf.NotFoundException,
+               conf.DirectoryExistsException,
+               source.PageExistsException)
+
+CRITICAL_ERRORS = (conf.ParsingError,
+                   conf.UnknownParameterException,
+                   conf.NotInitializedException,
+                   source.NotImplementedException,
+                   Exception)
+
 def main():
     try:
         p = ArghParser(prog='pub')
         p.add_commands([init, build, run, deploy, clean, page, post, update, version])
         p.dispatch()
-    except Exception:
-        # logger.crash()
-        raise
+    except USER_ERRORS as e:
+        logger.error(e)
+    except CRITICAL_ERRORS:
+        logger.crash()

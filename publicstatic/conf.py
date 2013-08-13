@@ -8,10 +8,38 @@ import os
 import re
 import yaml
 from publicstatic import const
+from publicstatic.errors import BasicException
 from publicstatic.version import get_version
 
 _params = {}  # Configuration parameters
 _path = ''  # Configuration file absolute path
+
+
+class NotFoundException(BasicException):
+    """configuration file not found"""
+    pass
+
+
+class ParsingError(BasicException):
+    """error reading configuration file"""
+    pass
+
+
+class DirectoryExistsException(BasicException):
+    """directory already exists"""
+    pass
+
+
+class UnknownParameterException(BasicException):
+    """unknown configuration parameter"""
+    pass
+
+
+class NotInitializedException(BasicException):
+    """configuration was not initialized"""
+    pass
+
+
 
 
 def defaults():
@@ -25,13 +53,13 @@ def load(conf_path):
     _path = find_conf(conf_path or '.')
 
     if not _path:
-        raise Exception('configuration file not found')
+        raise NotFoundException()
 
     try:
         with codecs.open(_path, mode='r', encoding='utf-8') as f:
             loaded = yaml.load(f.read())
     except (IOError, OSError) as ex:
-        raise Exception('error reading configuration file') from ex
+        raise ParsingError(error=str(ex)) from ex
 
     global _params
     _params = defaults()
@@ -45,7 +73,7 @@ def generate(conf_path):  # force=False
     _path = os.path.join(os.path.abspath(conf_path), const.CONF_NAME)
 
     if os.path.isdir(site_dir()):
-        raise Exception("directory already exists: '%s'" % site_dir())
+        raise DirectoryExistsException(path=site_dir())
     else:
         os.makedirs(site_dir())
 
@@ -79,9 +107,9 @@ def get(param):
     try:
         return _params[param]
     except KeyError:
-        raise Exception('unknown configuration parameter: "%s"' % param)
+        raise UnknownParameterException(name=param)
     except TypeError:
-        raise Exception('configuration was not initialized')
+        raise NotInitializedException()
 
 
 def conf_file():
@@ -123,7 +151,7 @@ def _dumpopt(opt_name):
 
 def _check(value):
     if not value:
-        raise Exception('configuration was not initialized')
+        raise NotInitializedException()
 
 
 def _purify(params):

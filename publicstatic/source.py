@@ -8,6 +8,7 @@ from publicstatic import conf
 from publicstatic import const
 from publicstatic import helpers
 from publicstatic import logger
+from publicstatic.errors import BasicException
 from publicstatic.urlify import urlify
 
 # format for the post source files
@@ -17,11 +18,13 @@ POST_NAME_FORMAT = "{year}{month}{day}-{name}.md"
 RE_POST_NAME = re.compile(r"^[\d_-]*([^\.]*)", re.U)
 
 
-class NotImplementedException(Exception):
+class NotImplementedException(BasicException):
+    """required functionality is not implemented"""
     pass
 
 
-class PageExistsException(Exception):
+class PageExistsException(BasicException):
+    """page with the same name already exists"""
     pass
 
 
@@ -229,7 +232,7 @@ class PageFile(ParseableFile):
         page_name = urlify(name, ext_map={ord(u'\\'): u'/'}) + '.md'
         file_name = os.path.join(conf.get('pages_path'), page_name)
         if os.path.exists(file_name) and not force:
-            raise PageExistsException()
+            raise PageExistsException(path=file_name)
 
         created = datetime.now().strftime(conf.get('time_format')[0])
         text = helpers.prototype('default-page')
