@@ -5,13 +5,24 @@
 import codecs
 from datetime import datetime
 import os
-import re
 import yaml
 from publicstatic import const
-from publicstatic.version import get_version
+from publicstatic import errors
 
 _params = {}  # Configuration parameters
 _path = ''  # Configuration file absolute path
+
+
+class ConfigurationNotFoundError(errors.BasicError):
+    message = 'configuration file not found'
+
+
+class ConfigurationError(errors.BasicError):
+    message = 'error reading configuration file'
+
+
+class DirectoryExistsError(errors.BasicError):
+    message = 'destination directory already exists'
 
 
 def defaults():
@@ -25,13 +36,13 @@ def load(conf_path):
     _path = find_conf(conf_path or '.')
 
     if not _path:
-        raise Exception('configuration file not found')
+        raise ConfigurationNotFoundError()
 
     try:
         with codecs.open(_path, mode='r', encoding='utf-8') as f:
             loaded = yaml.load(f.read())
-    except (IOError, OSError) as ex:
-        raise Exception('error reading configuration file') from ex
+    except (IOError, OSError, yaml.scanner.ScannerError) as e:
+        raise ConfigurationError() from e
 
     global _params
     _params = defaults()
@@ -45,7 +56,7 @@ def generate(conf_path):  # force=False
     _path = os.path.join(os.path.abspath(conf_path), const.CONF_NAME)
 
     if os.path.isdir(site_dir()):
-        raise Exception("directory already exists: '%s'" % site_dir())
+        raise DirectoryExistsError(site_dir())
     else:
         os.makedirs(site_dir())
 

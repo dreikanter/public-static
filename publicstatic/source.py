@@ -7,6 +7,7 @@ from datetime import datetime
 from publicstatic import conf
 from publicstatic import const
 from publicstatic import helpers
+from publicstatic import errors
 from publicstatic.urlify import urlify
 
 # format for the post source files
@@ -16,12 +17,8 @@ POST_NAME_FORMAT = "{year}{month}{day}-{name}.md"
 RE_POST_NAME = re.compile(r"^[\d_-]*([^\.]*)", re.U)
 
 
-class NotImplementedException(Exception):
-    pass
-
-
-class PageExistsException(Exception):
-    pass
+class AlreadyExistsError(errors.BasicError):
+    message = 'page file already exists'
 
 
 class SourceFile:
@@ -46,7 +43,7 @@ class SourceFile:
 
     def source_dir(self):
         """Source file directory path."""
-        raise NotImplementedException()
+        raise errors.NotImplementedException()
 
     def path(self):
         """Full path to the source file."""
@@ -95,7 +92,7 @@ class SourceFile:
 
     def create():
         """Class function to create new source files of the certain type."""
-        raise NotImplementedException()
+        raise errors.NotImplementedException()
 
 
 class ParseableFile(SourceFile):
@@ -132,11 +129,11 @@ class ParseableFile(SourceFile):
         return self._data.get('updated')
 
     def default_template(self):
-        raise NotImplementedException()
+        raise errors.NotImplementedException()
 
     def source_url(self):
         """Source file URL."""
-        raise NotImplementedException()
+        raise errors.NotImplementedException()
 
     def _parse(self):
         """Extract page header data and content from a list of lines
@@ -223,7 +220,7 @@ class PageFile(ParseableFile):
         page_name = urlify(name, ext_map={ord(u'\\'): u'/'}) + '.md'
         file_name = os.path.join(conf.get('pages_path'), page_name)
         if os.path.exists(file_name) and not force:
-            raise PageExistsException()
+            raise PageExistsError()
         created = datetime.now().strftime(conf.get('time_format')[0])
         text = helpers.prototype('default-page')
         helpers.newfile(file_name, text.format(title=name, created=created))
@@ -276,7 +273,7 @@ class PostFile(ParseableFile):
                                             name=post_name)
         post_path = os.path.join(conf.get('posts_path'), file_name)
 
-        count = 1
+        count = 0
         while True:
             file_name = helpers.suffix(post_path, count)
             if force or not os.path.exists(file_name):
@@ -287,12 +284,3 @@ class PostFile(ParseableFile):
                 break
             count += 1
         return os.path.basename(file_name)
-
-    @staticmethod
-    def _similar_names(name):
-        """Returns a list of existing posts with a similar name,
-        that diffes only by date prefix.
-
-        E.g. if we have 20131010-about.md, 20131010-news-update.md,
-        and 20131010-news-update.md"""
-        return []
