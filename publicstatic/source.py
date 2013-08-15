@@ -227,7 +227,6 @@ class PageFile(ParseableFile):
         file_name = os.path.join(conf.get('pages_path'), page_name)
         if os.path.exists(file_name) and not force:
             raise PageExistsException(path=file_name)
-
         created = datetime.now().strftime(conf.get('time_format')[0])
         text = helpers.prototype('default-page')
         helpers.newfile(file_name, text.format(title=name, created=created))

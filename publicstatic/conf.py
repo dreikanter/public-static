@@ -5,37 +5,35 @@
 import codecs
 from datetime import datetime
 import os
-import re
 import yaml
 from publicstatic import const
-from publicstatic.errors import BasicException
-from publicstatic.version import get_version
+from publicstatic import errors
 
 _params = {}  # Configuration parameters
 _path = ''  # Configuration file absolute path
 
 
-class NotFoundException(BasicException):
+class NotFoundException(errors.BasicException):
     """configuration file not found"""
     pass
 
 
-class ParsingError(BasicException):
+class ParsingError(errors.BasicException):
     """error reading configuration file"""
     pass
 
 
-class DirectoryExistsException(BasicException):
+class DirectoryExistsException(errors.BasicException):
     """directory already exists"""
     pass
 
 
-class UnknownParameterException(BasicException):
+class UnknownParameterException(errors.BasicException):
     """unknown configuration parameter"""
     pass
 
 
-class NotInitializedException(BasicException):
+class NotInitializedException(errors.BasicException):
     """configuration was not initialized"""
     pass
 
@@ -56,7 +54,7 @@ def load(conf_path):
     try:
         with codecs.open(_path, mode='r', encoding='utf-8') as f:
             loaded = yaml.load(f.read())
-    except (IOError, OSError) as ex:
+    except (IOError, OSError, yaml.scanner.ScannerError) as e:
         raise ParsingError(error=str(ex)) from ex
 
     global _params
