@@ -11,11 +11,11 @@ from publicstatic import const
 from publicstatic import builders
 from publicstatic import logger
 from publicstatic import helpers
-from publicstatic.cache import Cache
 from publicstatic import source
+from publicstatic.cache import Cache
 from publicstatic.version import get_version
 
-# Common command line argume t source.
+# Common command line arguments
 
 source_arg = arg('-s', '--source',
                  default=None,
@@ -48,22 +48,7 @@ def build(args):
     """generate web content from source"""
     conf.load(args.source)
     cache = Cache()
-    steps = [
-            builders.css,
-            builders.js,
-            builders.less,
-            builders.robots,
-            builders.humans,
-            builders.static,
-            builders.pages,
-            builders.posts,
-            # builders.tags,
-            # builders.rss,
-            # builders.atom,
-            # builders.sitemap,
-        ]
-
-    for builder in steps:
+    for builder in builders.all():
         builder(cache)
 
 
@@ -196,7 +181,17 @@ CRITICAL_ERRORS = (conf.ParsingError,
 def main():
     try:
         p = ArghParser(prog='pub')
-        p.add_commands([init, build, run, deploy, clean, page, post, update, version])
+        p.add_commands([
+            init,
+            build,
+            run,
+            deploy,
+            clean,
+            page,
+            post,
+            update,
+            version
+        ])
         p.dispatch()
     except USER_ERRORS as e:
         logger.error(e)

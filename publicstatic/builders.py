@@ -2,19 +2,28 @@
 
 """Website building routines."""
 
-import codecs
 from datetime import datetime
 import os
 import shutil
 import traceback
 from publicstatic import conf
-from publicstatic import const
 from publicstatic import logger
 from publicstatic import helpers
 from publicstatic import templates
-from publicstatic.lib.pyatom import AtomFeed
-from publicstatic.urlify import urlify
-from publicstatic.version import get_version
+
+
+def all():
+    """Returns a sequence of builder functions."""
+    return [
+        css,
+        js,
+        less,
+        robots,
+        humans,
+        static,
+        pages,
+        posts
+    ]
 
 
 def css(cache):
@@ -112,7 +121,7 @@ def static(cache):
 def pages(cache):
     """Build pages/*.md to {dest} (independant, keep rel path)."""
     for source in cache.pages():
-        logger.info("page: %s -> %s" % (source.rel_path(), source.rel_dest()))
+        logger.info(_to('page', source.rel_path(), source.rel_dest()))
         helpers.makedirs(source.dest_dir())
         try:
             data = _complement(source.data(), cache)
@@ -125,7 +134,7 @@ def pages(cache):
 def posts(cache):
     """Build blog posts and copy the latest post to the site root."""
     for source in cache.posts():
-        logger.info("post: %s -> %s" % (source.rel_path(), source.rel_dest()))
+        logger.info(_to('post', source.rel_path(), source.rel_dest()))
         helpers.makedirs(source.dest_dir())
         try:
             data = _complement(source.data(), cache)
@@ -134,12 +143,10 @@ def posts(cache):
             logger.error('post building error: ' + str(ex))
             logger.debug(traceback.format_exc())
 
-    # put the latest post at site root url
-    if conf.get('post_at_root_url'):
+    if conf.get('post_at_root_url'):  # put the latest post at site root url
         last = cache.posts()[-1]
         path = os.path.join(conf.get('build_path'), conf.get('index_page'))
-        logger.info("root: %s -> %s" %
-            (last.rel_dest(), conf.get('index_page')))
+        logger.info(_to('root', last.rel_dest(), conf.get('index_page')))
         if any(cache.pages(dest=conf.get('index_page'))):
             logger.warn('root page will be overwritten by the latest post')
         shutil.copyfile(last.dest(), path)
@@ -168,10 +175,15 @@ def sitemap(cache):
 
     pass
 
+
 def _complement(page_data, cache):
     """Complement individual page data with common variables and site index."""
     return {
-            'commons': conf.commons(),
-            'page': page_data,
-            'index': cache.data(),
-        }
+        'commons': conf.commons(),
+        'page': page_data,
+        'index': cache.data(),
+    }
+
+
+def _to(subj, src, dest):
+    return "%s: %s -> %s" % (subj, src, dest)

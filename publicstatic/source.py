@@ -7,8 +7,7 @@ from datetime import datetime
 from publicstatic import conf
 from publicstatic import const
 from publicstatic import helpers
-from publicstatic import logger
-from publicstatic.errors import BasicException
+from publicstatic import errors
 from publicstatic.urlify import urlify
 
 # format for the post source files
@@ -42,15 +41,15 @@ class SourceFile:
     def __str__(self):
         """Human-readable string representation."""
         return '\n'.join(["%s: %s" % (k, v) for k, v in [
-                ('class', self.__class__),
-                ('fullname', self._path),
-                ('created', self.created().isoformat()),
-                ('updated', self.updated().isoformat()),
-            ]])
+            ('class', self.__class__),
+            ('fullname', self._path),
+            ('created', self.created().isoformat()),
+            ('updated', self.updated().isoformat()),
+        ]])
 
     def source_dir(self):
         """Source file directory path."""
-        raise NotImplementedException()
+        raise errors.NotImplementedException()
 
     def path(self):
         """Full path to the source file."""
@@ -99,7 +98,7 @@ class SourceFile:
 
     def create():
         """Class function to create new source files of the certain type."""
-        raise NotImplementedException()
+        raise errors.NotImplementedException()
 
 
 class ParseableFile(SourceFile):
@@ -136,32 +135,27 @@ class ParseableFile(SourceFile):
         return self._data.get('updated')
 
     def default_template(self):
-        raise NotImplementedException()
+        raise errors.NotImplementedException()
 
     def source_url(self):
         """Source file URL."""
-        raise NotImplementedException()
+        raise errors.NotImplementedException()
 
     def _parse(self):
         """Extract page header data and content from a list of lines
         and return the result as key-value couples."""
         meta, content = self._split(self.text())
         meta.update({
-                'source': self._path,
-                'title':
-                    meta.get('title', helpers.get_h1(content)),
-                'template':
-                    meta.get('template', self.default_template()),
-                'author': meta.get('author', conf.get('author')),
-                'tags': list(ParseableFile._tags(meta.get('tags', ''))),
-                'source_url': self.source_url(),
-                'created':
-                    helpers.parse_time(meta.get('created'), self._ctime),
-                'updated':
-                    helpers.parse_time(meta.get('updated'), self._utime),
-                'content':
-                    helpers.md(content, conf.get('markdown_extensions')),
-            })
+            'source': self._path,
+            'title': meta.get('title', helpers.get_h1(content)),
+            'template': meta.get('template', self.default_template()),
+            'author': meta.get('author', conf.get('author')),
+            'tags': list(ParseableFile._tags(meta.get('tags', ''))),
+            'source_url': self.source_url(),
+            'created': helpers.parse_time(meta.get('created'), self._ctime),
+            'updated': helpers.parse_time(meta.get('updated'), self._utime),
+            'content': helpers.md(content, conf.get('markdown_extensions')),
+        })
 
         return meta
 
@@ -263,8 +257,7 @@ class PostFile(ParseableFile):
 
     def source_url(self):
         """Source file URL."""
-        root = conf.get('source_url')
-        if not root:
+        if not conf.get('source_url'):
             return None
         pattern = "{root}blob/master/{type}/{name}"
         return pattern.format(root=conf.get('source_url'),
@@ -287,7 +280,7 @@ class PostFile(ParseableFile):
                                             name=post_name)
         post_path = os.path.join(conf.get('posts_path'), file_name)
 
-        count = 1
+        count = 0
         while True:
             file_name = helpers.suffix(post_path, count)
             if force or not os.path.exists(file_name):

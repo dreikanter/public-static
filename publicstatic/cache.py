@@ -2,9 +2,7 @@
 
 import os
 from publicstatic import conf
-from publicstatic import const
 from publicstatic import helpers
-from publicstatic import logger
 from publicstatic.source import ParseableFile, AssetFile, PostFile, PageFile
 
 
@@ -16,10 +14,10 @@ class Cache():
         self._tags = {}  # global tags list
 
         source_types = {
-                AssetFile: conf.get('assets_path'),
-                PostFile: conf.get('posts_path'),
-                PageFile: conf.get('pages_path'),
-            }
+            AssetFile: conf.get('assets_path'),
+            PostFile: conf.get('posts_path'),
+            PageFile: conf.get('pages_path'),
+        }
 
         pages = []
         posts = []
@@ -49,9 +47,9 @@ class Cache():
             prev = post
         self._posts = posts
         self._data = {
-                'pages': list([page.data() for page in pages]),
-                'posts': list([post.data() for post in posts]),
-            }
+            'pages': list([page.data() for page in pages]),
+            'posts': list([post.data() for post in posts]),
+        }
 
     def condition(self,
                   source_type=None,
@@ -62,19 +60,19 @@ class Cache():
         """Creates source file filter function."""
         conditions = []
 
-        if source_type != None:
+        if source_type is not None:
             conditions.append(lambda source: source_type == type(source))
 
-        if ext != None:
+        if ext is not None:
             conditions.append(lambda source: ext == source.ext())
 
-        if processed != None:
+        if processed is not None:
             conditions.append(lambda source: processed == source.processed())
 
-        if basename != None:
+        if basename is not None:
             conditions.append(lambda source: basename == source.basename())
 
-        if dest != None:
+        if dest is not None:
             conditions.append(lambda source: dest == source.rel_dest())
 
         def _condition(source):

@@ -11,19 +11,25 @@ from publicstatic import helpers
 _logger = None
 
 
-def _check_init():
-    if _logger is None:
-        init()
-
-
-def init():
+def logger():
     global _logger
-    _logger = logging.getLogger()
-    _logger.setLevel(logging.DEBUG)
-    level = logging.DEBUG if conf.get('verbose') else logging.INFO
-    formatter = logging.Formatter(const.LOG_FORMAT, const.LOG_DATE_FORMAT)
+    if _logger is None:
+        _logger = get_logger()
+    return _logger
 
-    _add_channel(logging.StreamHandler(), level, formatter)
+
+def get_logger():
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+
+    def add_channel(channel):
+        level = logging.DEBUG if conf.get('verbose') else logging.INFO
+        formatter = logging.Formatter(const.LOG_FORMAT, const.LOG_DATE_FORMAT)
+        channel.setLevel(level)
+        channel.setFormatter(formatter)
+        logger.addHandler(channel)
+
+    add_channel(logging.StreamHandler())
 
     log_file = conf.get('log_file')
     if log_file:
@@ -31,38 +37,29 @@ def init():
         channel = RotatingFileHandler(log_file,
                                       maxBytes=conf.get('log_max_size'),
                                       backupCount=conf.get('log_backup_cnt'))
-        _add_channel(channel, level, formatter)
+        add_channel(channel)
 
-
-def _add_channel(channel, level, formatter):
-    channel.setLevel(level)
-    channel.setFormatter(formatter)
-    _logger.addHandler(channel)
+    return logger
 
 
 def debug(message):
-    _check_init()
-    _logger.debug(message)
+    logger().debug(message)
 
 
 def info(message):
-    _check_init()
-    _logger.info(message)
+    logger().info(message)
 
 
 def warn(message):
-    _check_init()
-    _logger.warn(message)
+    logger().warn(message)
 
 
 def error(message):
-    _check_init()
-    _logger.error(message)
+    logger().error(message)
 
 
 def fatal(message):
-    _check_init()
-    _logger.fatal(message)
+    logger().fatal(message)
 
 
 def crash():
@@ -70,7 +67,6 @@ def crash():
     import traceback
     import sys
     from datetime import datetime
-
     message = sys.exc_info()[1]
     with open(const.DUMP_FILE, 'w') as f:
         report = "{generator}, {time}\n\n{message}"
@@ -78,9 +74,4 @@ def crash():
         f.write(report.format(generator=const.GENERATOR,
                               time=timestamp,
                               message=traceback.format_exc()))
-
-    report = "error: %s\nsee %s for details" % (message, const.DUMP_FILE)
-    if _logger:
-        fatal(report)
-    else:
-        exit(report)
+    exit("error: %s\nsee %s for details" % (message, const.DUMP_FILE))

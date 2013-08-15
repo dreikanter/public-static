@@ -40,8 +40,6 @@ class NotInitializedException(BasicException):
     pass
 
 
-
-
 def defaults():
     """Returns default configuration."""
     return {key: value['value'] for key, value in const.DEFAULTS.items()}
