@@ -36,7 +36,7 @@ def init(args):
     """create new website"""
     conf.generate(args.source)
     try:
-        helpers.copydir(const.GENERIC_PATH, conf.site_dir())
+        helpers.copydir(conf.generic_dir(), conf.site_dir())
         logger.info('website created successfully, have fun!')
     except Exception as ex:
         logger.error('initialization failed: ' + str(ex))
@@ -120,7 +120,7 @@ def page(args):
     conf.load(args.source)
     try:
         path = source.PageFile.create(args.name, args.force)
-    except PageExistsException:
+    except source.PageExistsException:
         logger.error('page already exists, use -f to overwrite')
         return
     logger.info('page created: ' + path)
@@ -152,7 +152,7 @@ def update(args):
         if os.path.isdir(dir_name):
             os.rename(dir_name, tmp)
         path = lambda dirname: os.path.join(dirname, subject)
-        helpers.copydir(path(const.GENERIC_PATH), path(site_dir))
+        helpers.copydir(path(conf.generic_dir()), path(site_dir))
         if os.path.exists(tmp):
             shutil.rmtree(tmp)
 
@@ -177,6 +177,7 @@ CRITICAL_ERRORS = (conf.ParsingError,
                    conf.NotInitializedException,
                    source.NotImplementedException,
                    Exception)
+
 
 def main():
     try:

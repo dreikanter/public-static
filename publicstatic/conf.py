@@ -54,7 +54,7 @@ def load(conf_path):
     try:
         with codecs.open(_path, mode='r', encoding='utf-8') as f:
             loaded = yaml.load(f.read())
-    except (IOError, OSError, yaml.scanner.ScannerError) as e:
+    except (IOError, OSError, yaml.scanner.ScannerError) as ex:
         raise ParsingError(error=str(ex)) from ex
 
     global _params
@@ -63,7 +63,7 @@ def load(conf_path):
     _params = _purify(_params)
 
 
-def generate(conf_path):  # force=False
+def generate(conf_path):
     """Generates new configuration file using defaults."""
     global _path
     _path = os.path.join(os.path.abspath(conf_path), const.CONF_NAME)
@@ -119,21 +119,27 @@ def site_dir():
     return os.path.dirname(_path)
 
 
+def generic_dir():
+    """Returns full path to the generic directory."""
+    path = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(path, const.GENERIC_DIR)
+
+
 def commons():
     """Site-wide environmental parameters for page building."""
     return {
-            'root_url': get('root_url'),
-            'rel_root_url': get('rel_root_url'),
-            'site_title': get('title'),
-            'site_subtitle': get('subtitle'),
-            'menu': get('menu'),
-            'time': datetime.now(),
-            'author': get('author'),
-            'author_url': get('author_url'),
-            'generator': const.GENERATOR,
-            'source_url': get('source_url'),
-            'enable_search_form': get('enable_search_form'),
-        }
+        'root_url': get('root_url'),
+        'rel_root_url': get('rel_root_url'),
+        'site_title': get('title'),
+        'site_subtitle': get('subtitle'),
+        'menu': get('menu'),
+        'time': datetime.now(),
+        'author': get('author'),
+        'author_url': get('author_url'),
+        'generator': const.GENERATOR,
+        'source_url': get('source_url'),
+        'enable_search_form': get('enable_search_form'),
+    }
 
 
 def _dumpopt(opt_name):
@@ -141,8 +147,8 @@ def _dumpopt(opt_name):
     desc = const.DEFAULTS[opt_name]['desc']
     desc = ("# %s\n" % desc) if desc else ''
     return desc + yaml.dump({
-            opt_name: const.DEFAULTS[opt_name]['value']
-        }, width=79, indent=2, default_flow_style=False)
+        opt_name: const.DEFAULTS[opt_name]['value']
+    }, width=79, indent=2, default_flow_style=False)
 
 
 def _check(value):
@@ -189,6 +195,6 @@ def _expand(rel_path):
     return path.rstrip(os.sep + os.altsep)
 
 
-def  _trsl(url):
+def _trsl(url):
     """Guarantees the URL have a single trailing slash."""
     return url.rstrip('/') + '/'

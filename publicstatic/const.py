@@ -1,7 +1,5 @@
 # coding: utf-8
 
-import os.path
-import re
 from publicstatic.version import get_version
 
 
@@ -17,16 +15,16 @@ LOG_FORMAT = "%(asctime)s %(levelname)s: %(message)s"
 # Logger message timestamp format
 LOG_DATE_FORMAT = "%Y/%m/%d %H:%M:%S"
 
-# generic site directory within the package directory
-GENERIC_PATH = \
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), 'generic-site')
+# generic site directory name within the package directory
+GENERIC_DIR = 'generic-site'
 
-GENERIC_PAGES = 'generic-pages'
-
+# crash log file name
 DUMP_FILE = 'crash.log'
 
+# templates directory name
 TEMPLATES_DIR = 'templates'
 
+# prototypes directory name
 PROTO_DIR = 'prototypes'
 
 # source file types
@@ -36,6 +34,7 @@ PAGE_TYPE = 'page'
 
 BROWSER_DELAY = 2.0
 
+# default post name
 UNTITLED_POST = 'untitled-post'
 
 # environment variable name to override 'verbose' configuration parameter
@@ -43,26 +42,26 @@ ENV_VERBOSE = 'ps_verbose'
 
 # parameters sequence for the configuration file
 EXPORTS = [
-        'title',
-        'subtitle',
-        'author',
-        'author_url',
-        'root_url',
-        'source_url',
-        'post_location',
-        'port',
-        'min_js',
-        'min_css',
-        'min_js_cmd',
-        'min_css_cmd',
-        'less_cmd',
-        'deploy_cmd',
-        'editor_cmd',
-        'default_tags',
-        'verbose',
-        'menu',
-        'enable_search_form',
-    ]
+    'title',
+    'subtitle',
+    'author',
+    'author_url',
+    'root_url',
+    'source_url',
+    'post_location',
+    'port',
+    'min_js',
+    'min_css',
+    'min_js_cmd',
+    'min_css_cmd',
+    'less_cmd',
+    'deploy_cmd',
+    'editor_cmd',
+    'default_tags',
+    'verbose',
+    'menu',
+    'enable_search_form',
+]
 
 # configuration parameters
 DEFAULTS = {
@@ -112,12 +111,12 @@ DEFAULTS = {
     },
     'tpl_path': {
         'value': TEMPLATES_DIR,
-        'desc': 'Relative path to the templates directory inside ' \
+        'desc': 'Relative path to the templates directory inside '
                 'website source dir',
     },
     'prototypes_path': {
         'value': PROTO_DIR,
-        'desc': 'Relative path to the prototypes directory inside ' \
+        'desc': 'Relative path to the prototypes directory inside '
                 'website source dir',
     },
     'post_location': {
@@ -166,7 +165,7 @@ DEFAULTS = {
     },
     'editor_cmd': {
         'value': "$EDITOR \"\"{source}\"\"",
-        'desc': 'Shell command to open files in text editor. {source} will ' \
+        'desc': 'Shell command to open files in text editor. {source} will '
                 'be replaced with a file path to open.',
     },
     'markdown_extensions': {
@@ -186,7 +185,7 @@ DEFAULTS = {
         'desc': 'Put a copy of the latest post to the website root',
     },
     'default_tags': {
-        'value': [ 'misc' ],
+        'value': ['misc'],
         'desc': 'A list of default tags to be added to a new post',
     },
     'log_file': {
@@ -206,8 +205,8 @@ DEFAULTS = {
         'desc': 'Enable verbose logging',
     },
     'time_format': {
-        'value': [ '%Y/%m/%d %H:%M:%S', '%Y/%m/%d' ],
-        'desc': 'A list of possible date/time formats for the ' \
+        'value': ['%Y/%m/%d %H:%M:%S', '%Y/%m/%d'],
+        'desc': 'A list of possible date/time formats for the '
                 ' post and page header fields',
     },
     'page_datetime_format': {
@@ -220,8 +219,8 @@ DEFAULTS = {
     },
     'menu': {
         'value': [
-            { 'title': 'About', 'href': '/about.html' },
-            { 'title': 'Archive', 'href': '/archive/index.html' },
+            {'title': 'About', 'href': '/about.html'},
+            {'title': 'Archive', 'href': '/archive/index.html'},
         ],
         'desc': 'Navigation menu items',
     },
@@ -250,7 +249,7 @@ DEFAULTS = {
         'desc': 'Site author location for humans.txt',
     },
     'tag_location': {
-        'value': '{root}tags/{tag}.html',
+        'value': 'tags/{tag}.html',
         'desc': 'Tag file name pattern for tag page and URL generation',
     }
 }
