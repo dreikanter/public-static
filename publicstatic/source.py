@@ -17,12 +17,12 @@ POST_NAME_FORMAT = "{year}{month}{day}-{name}.md"
 RE_POST_NAME = re.compile(r"^[\d_-]*([^\.]*)", re.U)
 
 
-class NotImplementedException(BasicException):
+class NotImplementedException(errors.BasicException):
     """required functionality is not implemented"""
     pass
 
 
-class PageExistsException(BasicException):
+class PageExistsException(errors.BasicException):
     """page with the same name already exists"""
     pass
 

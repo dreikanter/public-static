@@ -10,10 +10,10 @@ class BasicException(Exception):
     def __str__(self):
         message = self.__doc__
         if hasattr(self, 'params'):
-            params = map(lambda item: "%s=%s" % (item[0], item[1]), self.params.items())
+            params = ["%s=%s" % (p[0], p[1]) for p in self.params.items()]
             message = "%s: %s" % (message, ';'.join(params))
         return message
 
 
-class NotImplementedException(BasicError):
+class NotImplementedException(BasicException):
     message = 'not implemented'
