@@ -137,7 +137,7 @@ def posts(cache):
         logger.info(_to('post', source.rel_path(), source.rel_dest()))
         helpers.makedirs(source.dest_dir())
         try:
-            data = _complement(source.data(), cache)
+            data = _complement(source.data())
             templates.render(data, dest=source.dest())
         except Exception as ex:
             logger.error('post building error: ' + str(ex))
@@ -176,13 +176,15 @@ def sitemap(cache):
     pass
 
 
-def _complement(page_data, cache):
+def _complement(page_data, cache=None):
     """Complement individual page data with common variables and site index."""
-    return {
+    result = {
         'commons': conf.commons(),
         'page': page_data,
-        'index': cache.data(),
     }
+    if cache:
+        result['index'] = cache.data()
+    return result
 
 
 def _to(subj, src, dest):
