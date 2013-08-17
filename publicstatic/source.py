@@ -290,3 +290,14 @@ class PostFile(ParseableFile):
                 break
             count += 1
         return os.path.basename(file_name)
+
+
+class MultiSource(ParseableFile):
+    """Source file producing multiple items in the website
+    destination directory."""
+
+    _re_rep = re.compile(r"{[\w\d_-]+}")
+
+    def match(path):
+        """Check if a source file path contains {replaceables}."""
+        return MultiSource._re_rep.match(path)
