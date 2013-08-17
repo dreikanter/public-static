@@ -101,9 +101,13 @@ def copydir(source, dest, indent=0):
 
 def walk(path, operation):
     """Performs operation for each file in the specified path.
-    Operation should take two arguments: the original path and
-    additional relative path to each file."""
-    for curdir, _, curfiles in os.walk(path):
+
+    - Operation should take two arguments: the original path and
+      additional relative path to each file.
+    - Directory names starting with underscore will be ignored."""
+    visible = lambda name: not name.startswith('_')
+    for curdir, dirnames, curfiles in os.walk(path):
+        dirnames[:] = filter(visible, dirnames)
         for nextfile in curfiles:
             fullpath = os.path.join(curdir, nextfile)
             relpath = fullpath[len(path):].strip(os.sep)
