@@ -28,7 +28,7 @@ p strong {
 	text-align: right;
 }
 
-.muted a {
+.muted, .muted a {
 	color: #999;
 }
 
@@ -62,12 +62,12 @@ ul.page_list li {
 }
 
 .site_subtitle, .site_subtitle a {
-	color: #ccc;
+	color: #999;
 }
 
 .footer, .footer a {
 	text-align:  center;
-	color: #ccc;
+	color: #999;
 }
 .footer hr {
 	margin: 15px 0;
@@ -91,4 +91,9 @@ header p.muted {
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     border-radius: 3px;
+}
+
+span.sep {
+	margin-left: 3px;
+	margin-right: 3px;
 }
