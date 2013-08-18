@@ -28,11 +28,6 @@ class DirectoryExistsException(errors.BasicException):
     pass
 
 
-class UnknownParameterException(errors.BasicException):
-    """unknown configuration parameter"""
-    pass
-
-
 class NotInitializedException(errors.BasicException):
     """configuration was not initialized"""
     pass
@@ -98,12 +93,10 @@ def find_conf(conf_path):
     return None
 
 
-def get(param):
-    """Returns a single configuration parameter."""
+def get(param, default=None):
+    """Returns a single configuration parameter or default value."""
     try:
-        return _params[param]
-    except KeyError:
-        raise UnknownParameterException(name=param)
+        return _params.get(param, default)
     except TypeError:
         raise NotInitializedException()
 

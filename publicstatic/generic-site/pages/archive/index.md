@@ -1,2 +1,0 @@
-title: Archive
-template: archive
