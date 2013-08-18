@@ -156,7 +156,7 @@ DEFAULTS = {
         'desc': 'Shell command for CSS minification',
     },
     'less_cmd': {
-        'value': "dotless {source} {dest}",
+        'value': "lessc --yui-compress {source} > {dest}",
         'desc': 'Shell command for LESS compillation',
     },
     'deploy_cmd': {

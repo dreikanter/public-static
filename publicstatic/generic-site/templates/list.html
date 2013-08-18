@@ -3,7 +3,7 @@
 <h1>{{ page.title }}</h1>
 <ul class="page_list">
 {%- for item in index %}
-<li><a href='{{ item.url }}'>{{ item.title }}</a><br>
+<li><a href='{{ item.rel_url }}'>{{ item.title }}</a><br>
 <small class="muted">Created at {{ item.created|date }}{%- if item.tags %} • Tags: {{ macros.tags_list(item.tags, inline=True) }}{%- endif -%}</small></li>
 {%- endfor %}
 </ul>

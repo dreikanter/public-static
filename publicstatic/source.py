@@ -44,7 +44,6 @@ class Source:
         self._ctime = datetime.fromtimestamp(os.path.getctime(self._path))
         self._utime = datetime.fromtimestamp(os.path.getmtime(self._path))
         self._processed = False
-        self._rel_dest = None
 
     def __str__(self):
         """Human-readable string representation."""
@@ -83,7 +82,7 @@ class Source:
 
     def rel_dest(self):
         """Get relative path to destination file."""
-        return self._rel_dest
+        raise errors.NotImplementedException()
 
     def dest(self):
         """Returns fully qualified destination file."""
@@ -130,6 +129,7 @@ class ParseableSource(Source):
         if key argument specified."""
         if 'url' not in self._data:
             self._data['url'] = self.url(full=True)
+            self._data['rel_url'] = self.url(full=False)
         return self._data.get(key, default) if key else self._data
 
     def text(self):
@@ -199,11 +199,9 @@ class ParseableSource(Source):
 
 
 class AssetSource(Source):
-    def __init__(self, file_name):
-        super().__init__(file_name)
-        base = os.path.splitext(self._rel_path)[0]
+    def rel_dest(self):
         ext = '.css' if self.ext() == '.less' else self.ext()
-        self._rel_dest = base + ext
+        return os.path.splitext(self._rel_path)[0] + ext
 
     @staticmethod
     def source_dir():
@@ -211,11 +209,9 @@ class AssetSource(Source):
 
 
 class PageSource(ParseableSource):
-    def __init__(self, file_name):
-        super().__init__(file_name)
-        base = os.path.splitext(self._rel_path)[0]
+    def rel_dest(self):
         ext = '.html' if self.ext() in ['.md', '.markdown'] else self.ext()
-        self._rel_dest = base + ext
+        return os.path.splitext(self._rel_path)[0] + ext
 
     @staticmethod
     def source_dir():
@@ -250,15 +246,10 @@ class PageSource(ParseableSource):
 
 
 class PostSource(ParseableSource):
-    def __init__(self, file_name):
-        super().__init__(file_name)
+    def rel_dest(self):
         name = os.path.basename(self._rel_path).lstrip('0123456789-_')
-        path = conf.get('post_location')
-        created = self.created()
-        self._rel_dest = path.format(year=created.strftime('%Y'),
-                                     month=created.strftime('%m'),
-                                     day=created.strftime('%d'),
-                                     name=os.path.splitext(name)[0])
+        name = os.path.splitext(name)[0]
+        return PostSource._ymd(conf.get('post_location'), self.created(), name)
 
     @staticmethod
     def source_dir():
@@ -274,10 +265,7 @@ class PostSource(ParseableSource):
                 False to raise an exception."""
         created = datetime.now()
         post_name = urlify(name) or const.UNTITLED_POST
-        file_name = POST_NAME_FORMAT.format(year=created.strftime('%Y'),
-                                            month=created.strftime('%m'),
-                                            day=created.strftime('%d'),
-                                            name=post_name)
+        file_name = PostSource._ymd(POST_NAME_FORMAT, created, post_name)
         post_path = os.path.join(conf.get('posts_path'), file_name)
 
         count = 0
@@ -307,3 +295,11 @@ class PostSource(ParseableSource):
         return pattern.format(root=conf.get('source_url'),
                               type='pages',
                               name=self.basename())
+
+    @staticmethod
+    def _ymd(pattern, timestamp, name):
+        """Fills a string pattern with year, month, date, and name values."""
+        return pattern.format(year=timestamp.strftime('%Y'),
+                              month=timestamp.strftime('%m'),
+                              day=timestamp.strftime('%d'),
+                              name=name)
