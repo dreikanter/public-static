@@ -18,10 +18,10 @@ def order():
         css,
         js,
         less,
-        # robots,
-        # humans,
-        # static,
-        # pages,
+        robots,
+        humans,
+        static,
+        pages,
         posts,
         archive,
         tags,
@@ -43,6 +43,7 @@ def css(cache):
         else:
             logger.info('copying: ' + source.rel_path())
             shutil.copyfile(source.path(), source.dest())
+        helpers.utime(source.dest(), source.updated())
         source.processed(True)
 
 
@@ -57,6 +58,7 @@ def js(cache):
         else:
             logger.info('copying: ' + source.rel_path())
             shutil.copyfile(source.path(), source.dest())
+        helpers.utime(source.dest(), source.updated())
         source.processed(True)
 
 
@@ -73,6 +75,7 @@ def less(cache):
             os.remove(tmp_file)
         else:
             helpers.execute(conf.get('less_cmd'), source.path(), source.dest())
+        helpers.utime(source.dest(), source.updated())
         source.processed(True)
 
 
@@ -82,9 +85,10 @@ def robots(cache):
         logger.info('processing ' + source.rel_path())
         helpers.makedirs(source.dest_dir())
         try:
-            templates.render(path=source.path(), dest=source.dest(), data={
-                'tags_path': os.path.dirname(helpers.tag_url('')),
-            })
+            data = {'tags_path': os.path.dirname(helpers.tag_url(''))}
+            templates.render(data, source.dest(),
+                             path=source.path(),
+                             utime=source.updated())
         except Exception as ex:
             logger.error('robots.txt processing failed: ' + str(ex))
             logger.debug(traceback.format_exc())
@@ -98,7 +102,7 @@ def humans(cache):
         logger.info('processing ' + source.rel_path())
         helpers.makedirs(source.dest_dir())
         try:
-            templates.render(path=source.path(), dest=source.dest(), data={
+            data = {
                 'author': conf.get('author'),
                 'author_url': conf.get('author_url'),
                 'author_twitter': conf.get('humans_author_twitter'),
@@ -107,7 +111,11 @@ def humans(cache):
                 'language': conf.get('humans_language'),
                 'doctype': conf.get('humans_doctype'),
                 'ide': conf.get('humans_ide'),
-            })
+            }
+            templates.render(data,
+                             source.dest(),
+                             path=source.path(),
+                             utime=source.updated())
         except Exception as ex:
             logger.error('humans.txt processing failed: ' + str(ex))
             logger.debug(traceback.format_exc())
@@ -120,6 +128,7 @@ def static(cache):
     for source in cache.assets(processed=False):
         logger.info('copying: ' + source.rel_path())
         shutil.copyfile(source.path(), source.dest())
+        helpers.utime(source.dest(), source.updated())
         source.processed(True)
 
 
@@ -130,7 +139,7 @@ def pages(cache):
         helpers.makedirs(source.dest_dir())
         try:
             data = _complement(source.data(), index=cache.index())
-            templates.render(data, dest=source.dest())
+            templates.render(data, source.dest(), utime=source.updated())
         except Exception as ex:
             logger.error('page building error: ' + str(ex))
             logger.debug(traceback.format_exc())
@@ -143,7 +152,7 @@ def posts(cache):
         helpers.makedirs(source.dest_dir())
         try:
             data = _complement(source.data())
-            templates.render(data, dest=source.dest())
+            templates.render(data, source.dest(), utime=source.updated())
         except Exception as ex:
             logger.error('post building error: ' + str(ex))
             logger.debug(traceback.format_exc())
@@ -155,6 +164,7 @@ def posts(cache):
         if any(cache.pages(dest=conf.get('index_page'))):
             logger.warn('root page will be overwritten by the latest post')
         shutil.copyfile(last.dest(), path)
+        helpers.utime(path, last.updated())
 
 
 def archive(cache):
@@ -162,17 +172,17 @@ def archive(cache):
     logger.info('archive: ' + dest)
     helpers.makedirs(os.path.dirname(dest))
     data = _complement({'title': 'Archive'}, index=cache.index())
-    templates.render(data, name='list', dest=dest)
+    templates.render(data, dest, name='list', utime=cache.updated())
 
 
 def tags(cache):
     """Build blog tag pages."""
     for tag in cache.tags():
-        file_name = helpers.tag_path(tag)
-        logger.info(_to('tag', tag, file_name))
-        helpers.makedirs(os.path.dirname(file_name))
+        dest = helpers.tag_path(tag)
+        logger.info(_to('tag', tag, dest))
+        helpers.makedirs(os.path.dirname(dest))
         data = _complement({'title': '#' + tag}, index=cache.index(tag=tag))
-        templates.render(data, name='list', dest=file_name)
+        templates.render(data, dest, name='list', utime=cache.updated())
 
 
 def rss(cache):

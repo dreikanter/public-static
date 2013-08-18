@@ -89,6 +89,10 @@ class Cache():
         """Returns blog index data with optional tag filtering."""
         return list([p.data() for p in self.posts(tag=tag)])
 
+    def updated(self):
+        """Returns last update timestamp of all source files."""
+        return max(source.updated() for source in self._cache)
+
     def _get_posts(self):
         posts = list(filter(self.cond(source.PostSource), self._cache))
         posts.sort(key=lambda item: item.created())

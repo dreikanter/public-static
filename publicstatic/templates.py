@@ -6,6 +6,7 @@ import jinja2
 import codecs
 from urllib.parse import urlparse
 from publicstatic import conf
+from publicstatic import helpers
 
 _env = None
 
@@ -60,15 +61,24 @@ def template(name=None, path=None, format='html'):
         raise Exception('either template name or path should be specified')
 
 
-def render(data=None, name=None, path=None, format='html', dest=None):
+def render(data,
+           dest,
+           name=None,
+           path=None,
+           format='html',
+           utime=None):
     """Render data using a specified template to a file."""
-    if not path:
-        name = name or data['page']['template']
-    tpl = template(name=name, path=path, format=format)
-    result = tpl.render(data)
+    if not isinstance(data, dict):
+        raise Exception('template data should be a dictionary')
 
-    if dest:
-        with codecs.open(dest, mode='w', encoding='utf-8') as f:
-            f.write(result)
-    else:
-        return result
+    if path is None and name is None:
+        # try to use template name from page data
+        name = data.get('page', {}).get('template')
+
+    result = template(name=name, path=path, format=format).render(data)
+
+    with codecs.open(dest, mode='w', encoding='utf-8') as f:
+        f.write(result)
+
+    if utime is not None:
+        helpers.utime(dest, utime)

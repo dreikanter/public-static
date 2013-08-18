@@ -162,3 +162,10 @@ def newfile(file_name, text=''):
     makedirs(os.path.dirname(file_name))
     with codecs.open(file_name, mode='w', encoding='utf-8') as f:
         f.write(text)
+
+
+def utime(path, value):
+    """Set access time and modification time for the specified file
+    using datetime value."""
+    ts = value.timestamp()
+    os.utime(path, (ts, ts))
