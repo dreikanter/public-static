@@ -129,7 +129,7 @@ class ParseableSource(Source):
         """Returns page data as a dictionary, or a single data field
         if key argument specified."""
         if 'url' not in self._data:
-            self._data['url'] = self.url()
+            self._data['url'] = self.url(full=True)
         return self._data.get(key, default) if key else self._data
 
     def text(self):

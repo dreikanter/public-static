@@ -25,7 +25,6 @@ def order():
         posts,
         archive,
         tags,
-        rss,
         atom,
         sitemap,
     ]
@@ -172,7 +171,7 @@ def archive(cache):
     logger.info('archive: ' + dest)
     helpers.makedirs(os.path.dirname(dest))
     data = _complement({'title': 'Archive'}, index=cache.index())
-    templates.render(data, dest, name='list', utime=cache.updated())
+    templates.render(data, dest, name='list.html', utime=cache.updated())
 
 
 def tags(cache):
@@ -182,24 +181,18 @@ def tags(cache):
         logger.info(_to('tag', tag, dest))
         helpers.makedirs(os.path.dirname(dest))
         data = _complement({'title': '#' + tag}, index=cache.index(tag=tag))
-        templates.render(data, dest, name='list', utime=cache.updated())
-
-
-def rss(cache):
-    """Build rss feed."""
-
-    pass
+        templates.render(data, dest, name='list.html', utime=cache.updated())
 
 
 def atom(cache):
     """Build atom feed."""
-
-    pass
+    data = _complement(index=cache.index())
+    dest = os.path.join(conf.get('build_path'), conf.get('atom_location'))
+    templates.render(data, dest, name='atom.xml')
 
 
 def sitemap(cache):
     """Build sitemap.xml."""
-
     pass
 
 

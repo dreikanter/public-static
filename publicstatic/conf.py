@@ -132,6 +132,7 @@ def commons():
         'generator': const.GENERATOR,
         'source_url': get('source_url'),
         'enable_search_form': get('enable_search_form'),
+        'atom_url': get('root_url') + get('atom_location'),
     }
 
 

@@ -10,17 +10,28 @@ from publicstatic import helpers
 
 _env = None
 
+JINJA_EXTENSIONS = [
+    'jinja2.ext.loopcontrols',
+]
+
 
 def env():
     global _env
     if _env is None:
         loader = jinja2.FileSystemLoader(searchpath=conf.get('tpl_path'))
-        _env = jinja2.Environment(loader=loader)
-        _env.filters['datetime'] = filter_datetime
-        _env.filters['date'] = filter_date
-        _env.filters['isodatetime'] = filter_isodatetime
-        _env.filters['trimurl'] = filter_trimurl
+        _env = jinja2.Environment(loader=loader, extensions=JINJA_EXTENSIONS)
+        _env.filters.update(custom_filters())
     return _env
+
+
+def custom_filters():
+    """Returns a dictionary of custom extensions for Jinja2."""
+    return {
+        'datetime': filter_datetime,
+        'date': filter_date,
+        'isodatetime': filter_isodatetime,
+        'trimurl': filter_trimurl,
+    }
 
 
 def filter_datetime(value):
@@ -43,7 +54,7 @@ def filter_trimurl(value):
     return url.netloc + url.path.rstrip('/')
 
 
-def template(name=None, path=None, format='html'):
+def template(name=None, path=None):
     """Gets template file contents.
 
     Arguments:
@@ -53,7 +64,7 @@ def template(name=None, path=None, format='html'):
         format -- template format (file extension), must be specified
             if the template is defined by name."""
     if name:
-        return env().get_template("%s.%s" % (name, format))
+        return env().get_template(name)
     elif path:
         with codecs.open(path, mode='r', encoding='utf-8') as f:
             return env().from_string(f.read())
@@ -61,24 +72,14 @@ def template(name=None, path=None, format='html'):
         raise Exception('either template name or path should be specified')
 
 
-def render(data,
-           dest,
-           name=None,
-           path=None,
-           format='html',
-           utime=None):
+def render(data, dest, name=None, path=None, utime=None):
     """Render data using a specified template to a file."""
     if not isinstance(data, dict):
         raise Exception('template data should be a dictionary')
-
-    if path is None and name is None:
-        # try to use template name from page data
-        name = data.get('page', {}).get('template')
-
-    result = template(name=name, path=path, format=format).render(data)
-
+    if path is None and name is None:  # use template name from page data
+        name = data.get('page', {}).get('template') + '.html'
+    result = template(name=name, path=path).render(data)
     with codecs.open(dest, mode='w', encoding='utf-8') as f:
         f.write(result)
-
     if utime is not None:
         helpers.utime(dest, utime)

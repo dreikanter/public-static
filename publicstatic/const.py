@@ -176,8 +176,8 @@ DEFAULTS = {
         'value': 'index.html',
         'desc': 'File name for an index page',
     },
-    'atom_feed': {
-        'value': 'feed.atom',
+    'atom_location': {
+        'value': 'atom.xml',
         'desc': 'Atom feed file name.',
     },
     'post_at_root_url': {
@@ -220,7 +220,7 @@ DEFAULTS = {
     'menu': {
         'value': [
             {'title': 'About', 'href': '/about.html'},
-            {'title': 'Archive', 'href': '/archive/index.html'},
+            {'title': 'Archive', 'href': '/archive/'},
         ],
         'desc': 'Navigation menu items',
     },
