@@ -27,6 +27,8 @@ def filter_datetime(value):
 
 
 def filter_date(value):
+    if callable(value):
+        value = value.__call__()
     return value.strftime(conf.get('page_date_format'))
 
 

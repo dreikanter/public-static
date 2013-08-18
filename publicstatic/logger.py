@@ -23,7 +23,7 @@ def get_logger():
     logger.setLevel(logging.DEBUG)
 
     def add_channel(channel):
-        level = logging.DEBUG if conf.get('verbose') else logging.INFO
+        level = logging.DEBUG if conf.get('verbose', False) else logging.INFO
         formatter = logging.Formatter(const.LOG_FORMAT, const.LOG_DATE_FORMAT)
         channel.setLevel(level)
         channel.setFormatter(formatter)
@@ -32,13 +32,13 @@ def get_logger():
     add_channel(logging.StreamHandler())
 
     log_file = conf.get('log_file')
-    if log_file:
+    if log_file is not None:
         helpers.makedirs(os.path.dirname(log_file))
-        channel = RotatingFileHandler(log_file,
-                                      maxBytes=conf.get('log_max_size'),
-                                      backupCount=conf.get('log_backup_cnt'))
-        add_channel(channel)
-
+        backup_cnt = conf.get('log_backup_cnt', 0)
+        max_bytes = conf.get('log_max_size', 0)
+        add_channel(RotatingFileHandler(log_file,
+                                        maxBytes=max_bytes,
+                                        backupCount=backup_cnt))
     return logger
 
 

@@ -11,20 +11,27 @@ class Cache():
 
     def __init__(self):
         self._cache = []
-        for param in ['assets_path', 'posts_path', 'pages_path']:
-            helpers.walk(conf.get(param), self._add)
+        for source_type in source.order():
+            def add(root, rel):
+                self._cache.append(source_type(os.path.join(root, rel)))
+            helpers.walk(source_type.source_dir(), add)
 
-    def condition(self,
-                  source_type=None,
-                  ext=None,
-                  processed=None,
-                  basename=None,
-                  dest=None):
+    def cond(self,
+             source_type=None,
+             is_inst=None,
+             ext=None,
+             processed=None,
+             basename=None,
+             dest=None,
+             tag=None):
         """Creates source file filter function."""
         conditions = []
 
         if source_type is not None:
             conditions.append(lambda source: source_type == type(source))
+
+        if is_inst is not None:
+            conditions.append(lambda source: isinstance(source, is_inst))
 
         if ext is not None:
             conditions.append(lambda source: ext == source.ext())
@@ -38,6 +45,11 @@ class Cache():
         if dest is not None:
             conditions.append(lambda source: dest == source.rel_dest())
 
+        if tag is not None:
+            tagged = lambda source: isinstance(source, ParseableSource)
+            hastag = lambda source: tagged(source) and source.has_tag(tag)
+            conditions.append(lambda source: hastag(source))
+
         def _condition(source):
             return all([cond(source) for cond in conditions])
 
@@ -48,7 +60,7 @@ class Cache():
                processed=None,
                basename=None):
         """Get assets."""
-        condition = self.condition(source.AssetFile,
+        condition = self.cond(source.AssetSource,
                                    ext=ext,
                                    processed=processed,
                                    basename=basename)
@@ -56,13 +68,16 @@ class Cache():
 
     def pages(self, dest=None):
         """Get pages."""
-        return filter(self.condition(source.PageFile, dest=dest), self._cache)
+        return filter(self.cond(source.PageSource, dest=dest), self._cache)
 
-    def posts(self):
+    def posts(self, tag=None):
         """Get ordered posts."""
         if not hasattr(self, '_posts'):
             self._posts = self._get_posts()
-        return self._posts
+        if tag is None:
+            return self._posts
+        else:
+            return list([p for p in self._posts if p.has_tag(tag)])
 
     def tags(self):
         """Return a global list of tags with a number of related pages."""
@@ -70,28 +85,12 @@ class Cache():
             self._tags = self._get_tags()
         return self._tags
 
-    def data(self, tag=None):
-        """Returns everything."""
-        return {
-            'pages': list([page.data() for page in self.pages()]),
-            'posts': list([post.data() for post in self.posts()]),
-        }
-
-    def _add(self, root_path, rel_path):
-        file_name = os.path.join(root_path, rel_path)
-        if root_path == conf.get('assets_path'):
-            what = source.AssetFile
-        elif root_path == conf.get('pages_path'):
-            if source.MultiSource.match(rel_path):
-                what = source.MultiSource
-            else:
-                what = source.PageFile
-        elif root_path == conf.get('posts_path'):
-            what = source.PostFile
-        self._cache.append(what(file_name))
+    def index(self, tag=None):
+        """Returns blog index data with optional tag filtering."""
+        return list([p.data() for p in self.posts(tag=tag)])
 
     def _get_posts(self):
-        posts = list(filter(self.condition(source.PostFile), self._cache))
+        posts = list(filter(self.cond(source.PostSource), self._cache))
         posts.sort(key=lambda item: item.created())
         prev = None
         next = None
@@ -105,8 +104,9 @@ class Cache():
         return posts
 
     def _get_tags(self):
+        pages = filter(self.cond(is_inst=source.ParseableSource), self._cache)
         result = set()
-        for page in filter(self.condition(source.ParseableFile), self._cache):
+        for page in pages:
             for tag in page.data('tags'):
-                result.append(tag)
+                result.add(tag['name'])
         return result

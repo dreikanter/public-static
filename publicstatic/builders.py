@@ -12,17 +12,22 @@ from publicstatic import helpers
 from publicstatic import templates
 
 
-def all():
+def order():
     """Returns a sequence of builder functions."""
     return [
         css,
         js,
         less,
-        robots,
-        humans,
-        static,
-        pages,
-        posts
+        # robots,
+        # humans,
+        # static,
+        # pages,
+        posts,
+        archive,
+        tags,
+        rss,
+        atom,
+        sitemap,
     ]
 
 
@@ -124,7 +129,7 @@ def pages(cache):
         logger.info(_to('page', source.rel_path(), source.rel_dest()))
         helpers.makedirs(source.dest_dir())
         try:
-            data = _complement(source.data(), cache)
+            data = _complement(source.data(), index=cache.index())
             templates.render(data, dest=source.dest())
         except Exception as ex:
             logger.error('page building error: ' + str(ex))
@@ -152,10 +157,22 @@ def posts(cache):
         shutil.copyfile(last.dest(), path)
 
 
+def archive(cache):
+    dest = os.path.join(conf.get('build_path'), conf.get('archive_location'))
+    logger.info('archive: ' + dest)
+    helpers.makedirs(os.path.dirname(dest))
+    data = _complement({'title': 'Archive'}, index=cache.index())
+    templates.render(data, name='list', dest=dest)
+
+
 def tags(cache):
     """Build blog tag pages."""
-
-    pass
+    for tag in cache.tags():
+        file_name = helpers.tag_path(tag)
+        logger.info(_to('tag', tag, file_name))
+        helpers.makedirs(os.path.dirname(file_name))
+        data = _complement({'title': '#' + tag}, index=cache.index(tag=tag))
+        templates.render(data, name='list', dest=file_name)
 
 
 def rss(cache):
@@ -176,15 +193,13 @@ def sitemap(cache):
     pass
 
 
-def _complement(page_data, cache=None):
+def _complement(page_data=None, index=None):
     """Complement individual page data with common variables and site index."""
-    result = {
+    return {
         'commons': conf.commons(),
         'page': page_data,
+        'index': index if index is not None else [],
     }
-    if cache:
-        result['index'] = cache.data()
-    return result
 
 
 def _to(subj, src, dest):

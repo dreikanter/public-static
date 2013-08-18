@@ -115,8 +115,14 @@ def walk(path, operation):
 
 
 def tag_url(tag):
-    return conf.get('tag_location').format(root=conf.get('rel_root_url'),
-                                           tag=tag)
+    """Returns relative URL to the specified tag page."""
+    return conf.get('rel_root_url') + conf.get('tag_location').format(tag=tag)
+
+
+def tag_path(tag):
+    """Returns full path to the specified tag page."""
+    file_name = conf.get('tag_location').format(tag=tag)
+    return os.path.join(conf.get('build_path'), file_name)
 
 
 def execute(command, source, dest=''):

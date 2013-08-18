@@ -16,6 +16,14 @@ POST_NAME_FORMAT = "{year}{month}{day}-{name}.md"
 # regular expression to extract {name} from a base name of post source file
 RE_POST_NAME = re.compile(r"^[\d_-]*([^\.]*)", re.U)
 
+def order():
+    """Source files processing order."""
+    return [
+        AssetSource,
+        PostSource,
+        PageSource,
+    ]
+
 
 class NotImplementedException(errors.BasicException):
     """required functionality is not implemented"""
@@ -27,7 +35,7 @@ class PageExistsException(errors.BasicException):
     pass
 
 
-class SourceFile:
+class Source:
     """Basic abstraction used for static files to be copied w/o processing."""
     def __init__(self, file_name):
         self._path = os.path.join(self.source_dir(), file_name)
@@ -47,8 +55,14 @@ class SourceFile:
             ('updated', self.updated().isoformat()),
         ]])
 
-    def source_dir(self):
+    @staticmethod
+    def source_dir():
         """Source file directory path."""
+        raise errors.NotImplementedException()
+
+    @staticmethod
+    def create():
+        """Class function to create new source files of the certain type."""
         raise errors.NotImplementedException()
 
     def path(self):
@@ -96,12 +110,8 @@ class SourceFile:
             self._processed = value
         return self._processed
 
-    def create():
-        """Class function to create new source files of the certain type."""
-        raise errors.NotImplementedException()
 
-
-class ParseableFile(SourceFile):
+class ParseableSource(Source):
     """Basic abstraction for parseable source files."""
 
     # parse '<key>: <value>' string to (str, str) tuple
@@ -110,6 +120,7 @@ class ParseableFile(SourceFile):
     def __init__(self, file_name):
         super().__init__(file_name)
         self._data = self._parse()
+        self._tag_names = list([tag['name'] for tag in self._data['tags']])
 
     def set(self, key, value):
         self._data[key] = value
@@ -141,6 +152,10 @@ class ParseableFile(SourceFile):
         """Source file URL."""
         raise errors.NotImplementedException()
 
+    def has_tag(self, tag):
+        """Check if source file has specified tag."""
+        return tag in self._tag_names
+
     def _parse(self):
         """Extract page header data and content from a list of lines
         and return the result as key-value couples."""
@@ -150,13 +165,12 @@ class ParseableFile(SourceFile):
             'title': meta.get('title', helpers.get_h1(content)),
             'template': meta.get('template', self.default_template()),
             'author': meta.get('author', conf.get('author')),
-            'tags': list(ParseableFile._tags(meta.get('tags', ''))),
+            'tags': list(self._tags(meta.get('tags', ''))),
             'source_url': self.source_url(),
             'created': helpers.parse_time(meta.get('created'), self._ctime),
             'updated': helpers.parse_time(meta.get('updated'), self._utime),
             'content': helpers.md(content, conf.get('markdown_extensions')),
         })
-
         return meta
 
     @staticmethod
@@ -166,7 +180,7 @@ class ParseableFile(SourceFile):
         lines = text.splitlines()
         num = 0
         for line in lines:
-            match = ParseableFile._re_param.match(line)
+            match = ParseableSource._re_param.match(line)
             if match:
                 field = match.group(1).strip().lower()
                 result[field] = match.group(2).strip()
@@ -184,36 +198,28 @@ class ParseableFile(SourceFile):
             yield {'name': tag, 'url': helpers.tag_url(tag)}
 
 
-class AssetFile(SourceFile):
+class AssetSource(Source):
     def __init__(self, file_name):
         super().__init__(file_name)
         base = os.path.splitext(self._rel_path)[0]
         ext = '.css' if self.ext() == '.less' else self.ext()
         self._rel_dest = base + ext
 
-    def source_dir(self):
+    @staticmethod
+    def source_dir():
         return conf.get('assets_path')
 
 
-class PageFile(ParseableFile):
+class PageSource(ParseableSource):
     def __init__(self, file_name):
         super().__init__(file_name)
         base = os.path.splitext(self._rel_path)[0]
         ext = '.html' if self.ext() in ['.md', '.markdown'] else self.ext()
         self._rel_dest = base + ext
 
-    def source_dir(self):
+    @staticmethod
+    def source_dir():
         return conf.get('pages_path')
-
-    def default_template(self):
-        return conf.get('page_tpl')
-
-    def source_url(self):
-        """Source file URL."""
-        pattern = "{root}blob/master/{type}/{name}"
-        return pattern.format(root=conf.get('source_url'),
-                              type='posts',
-                              name=self.basename())
 
     @staticmethod
     def create(name, force=False):
@@ -232,8 +238,18 @@ class PageFile(ParseableFile):
         helpers.newfile(file_name, text.format(title=name, created=created))
         return page_name
 
+    def default_template(self):
+        return conf.get('page_tpl')
 
-class PostFile(ParseableFile):
+    def source_url(self):
+        """Source file URL."""
+        pattern = "{root}blob/master/{type}/{name}"
+        return pattern.format(root=conf.get('source_url'),
+                              type='posts',
+                              name=self.basename())
+
+
+class PostSource(ParseableSource):
     def __init__(self, file_name):
         super().__init__(file_name)
         name = os.path.basename(self._rel_path).lstrip('0123456789-_')
@@ -244,24 +260,9 @@ class PostFile(ParseableFile):
                                      day=created.strftime('%d'),
                                      name=os.path.splitext(name)[0])
 
-    def source_dir(self):
+    @staticmethod
+    def source_dir():
         return conf.get('posts_path')
-
-    def name(self):
-        base, ext = os.path.splitex(os.path.basename(self._rel_path))
-        return
-
-    def default_template(self):
-        return conf.get('post_tpl')
-
-    def source_url(self):
-        """Source file URL."""
-        if not conf.get('source_url'):
-            return None
-        pattern = "{root}blob/master/{type}/{name}"
-        return pattern.format(root=conf.get('source_url'),
-                              type='pages',
-                              name=self.basename())
 
     @staticmethod
     def create(name, force=False):
@@ -291,13 +292,18 @@ class PostFile(ParseableFile):
             count += 1
         return os.path.basename(file_name)
 
+    def name(self):
+        base, ext = os.path.splitex(os.path.basename(self._rel_path))
+        return
 
-class MultiSource(ParseableFile):
-    """Source file producing multiple items in the website
-    destination directory."""
+    def default_template(self):
+        return conf.get('post_tpl')
 
-    _re_rep = re.compile(r"{[\w\d_-]+}")
-
-    def match(path):
-        """Check if a source file path contains {replaceables}."""
-        return MultiSource._re_rep.match(path)
+    def source_url(self):
+        """Source file URL."""
+        if not conf.get('source_url'):
+            return None
+        pattern = "{root}blob/master/{type}/{name}"
+        return pattern.format(root=conf.get('source_url'),
+                              type='pages',
+                              name=self.basename())

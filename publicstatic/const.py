@@ -94,7 +94,7 @@ DEFAULTS = {
         'desc': 'Website source URL',
     },
     'build_path': {
-        'value': 'www',
+        'value': 'build',
         'desc': 'Build path for web content generator output',
     },
     'pages_path': {
@@ -251,5 +251,10 @@ DEFAULTS = {
     'tag_location': {
         'value': 'tags/{tag}.html',
         'desc': 'Tag file name pattern for tag page and URL generation',
+    },
+    'archive_location': {
+        'value': 'archive/index.html',
+        'desc': 'Blog archive page location.',
     }
+
 }

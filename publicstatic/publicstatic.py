@@ -48,7 +48,7 @@ def build(args):
     """generate web content from source"""
     conf.load(args.source)
     cache = Cache()
-    for builder in builders.all():
+    for builder in builders.order():
         builder(cache)
 
 
@@ -119,7 +119,7 @@ def page(args):
     """create new page"""
     conf.load(args.source)
     try:
-        path = source.PageFile.create(args.name, args.force)
+        path = source.PageSource.create(args.name, args.force)
     except source.PageExistsException:
         logger.error('page already exists, use -f to overwrite')
         return
@@ -135,7 +135,7 @@ def page(args):
 def post(args):
     """create new post"""
     conf.load(args.source)
-    path = source.PostFile.create(args.name, args.force)
+    path = source.PostSource.create(args.name, args.force)
     logger.info('post created: ' + path)
     if args.edit:
         helpers.execute(conf.get('editor_cmd'), path)
@@ -168,31 +168,35 @@ def version(args):
     return get_version()
 
 
-USER_ERRORS = (conf.NotFoundException,
-               conf.DirectoryExistsException,
-               source.PageExistsException)
+USER_ERRORS = (
+    conf.NotFoundException,
+    conf.DirectoryExistsException,
+    source.PageExistsException
+)
 
-CRITICAL_ERRORS = (conf.ParsingError,
-                   conf.UnknownParameterException,
-                   conf.NotInitializedException,
-                   source.NotImplementedException,
-                   Exception)
+CRITICAL_ERRORS = (
+    conf.ParsingError,
+    conf.NotInitializedException,
+    source.NotImplementedException,
+    Exception
+)
 
+COMMANDS = [
+    init,
+    build,
+    run,
+    deploy,
+    clean,
+    page,
+    post,
+    update,
+    version
+]
 
 def main():
     try:
         p = ArghParser(prog='pub')
-        p.add_commands([
-            init,
-            build,
-            run,
-            deploy,
-            clean,
-            page,
-            post,
-            update,
-            version
-        ])
+        p.add_commands(COMMANDS)
         p.dispatch()
     except USER_ERRORS as e:
         logger.error(e)
