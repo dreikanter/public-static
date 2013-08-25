@@ -6,6 +6,7 @@ import codecs
 from datetime import datetime
 import os
 import yaml
+from publicstatic import authoring
 from publicstatic import const
 from publicstatic import errors
 
@@ -68,10 +69,11 @@ def generate(conf_path):
     else:
         os.makedirs(site_dir())
 
+    header = "# %s\n\n" % const.CONF_HEADER
     exports = [opt for opt in const.DEFAULTS.keys() if opt in const.EXPORTS]
     text = '\n'.join([_dumpopt(opt) for opt in exports])
     with codecs.open(_path, mode='w', encoding='utf-8') as f:
-        f.write(text)
+        f.write(header + text)
 
     global _params
     _params = _purify(defaults())

@@ -4,7 +4,10 @@ from publicstatic.version import get_version
 
 
 # Site configuration file name
-CONF_NAME = 'pub.conf'
+CONF_NAME = 'conf.yaml'
+
+# Configuration file header
+CONF_HEADER = """public-static configuration file"""
 
 # Program name and version info
 GENERATOR = "public-static {version}".format(version=get_version())
