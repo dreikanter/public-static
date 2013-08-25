@@ -26,6 +26,7 @@
 
 		<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
 		<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet">
+		<!-- <link href="//cdnjs.cloudflare.com/ajax/libs/prettify/r224/prettify.css" rel="stylesheet"> -->
 		<link href="{{ commons.rel_root_url }}css/prettify.css" rel="stylesheet">
 		<link href="{{ commons.rel_root_url }}css/custom.css" rel="stylesheet">
 
@@ -67,7 +68,7 @@
 						<div class="form-group">
 							<fieldset role="search">
 								<input type="hidden" name="q" value="site:{{ commons.root_url|trimurl }}">
-								<input type="text" placeholder="Search" class="form-control input-sm">
+								<input type="text" name="q" placeholder="Search" class="form-control input-sm">
 							</fieldset>
 						</div>
 						<button type="submit" class="btn btn-sm"><i class="icon-search"></i></button>
