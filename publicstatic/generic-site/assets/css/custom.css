@@ -43,3 +43,15 @@ body {
 .list li {
   margin-bottom: 10px;
 }
+
+/* Prettyprint customization */
+
+.linenums li {
+  list-style-type: decimal;
+  color: #ccc;
+}
+
+pre.prettyprint {
+  border-color: #eee;
+  background-color: #fffeee;
+}
