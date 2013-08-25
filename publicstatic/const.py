@@ -1,8 +1,5 @@
 # coding: utf-8
 
-from publicstatic.version import get_version
-
-
 # Site configuration file name
 CONF_NAME = 'conf.yaml'
 
@@ -10,7 +7,10 @@ CONF_NAME = 'conf.yaml'
 CONF_HEADER = """public-static configuration file"""
 
 # Program name and version info
-GENERATOR = "public-static {version}".format(version=get_version())
+GENERATOR = "public-static"
+
+# Program home page
+GENERATOR_URL = 'http://github.com/dreikanter/public-static'
 
 # Logger message format
 LOG_FORMAT = "%(asctime)s %(levelname)s: %(message)s"
@@ -135,11 +135,11 @@ DEFAULTS = {
         'desc': 'Port number for the local web server',
     },
     'page_tpl': {
-        'value': 'default-page',
+        'value': 'page',
         'desc': 'Template name for pages',
     },
     'post_tpl': {
-        'value': 'default-post',
+        'value': 'post',
         'desc': 'Template name for blog posts',
     },
     'min_js': {

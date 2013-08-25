@@ -230,7 +230,7 @@ class PageSource(ParseableSource):
         if os.path.exists(file_name) and not force:
             raise PageExistsException(path=file_name)
         created = datetime.now().strftime(conf.get('time_format')[0])
-        text = helpers.prototype('default-page')
+        text = helpers.prototype('page')
         helpers.newfile(file_name, text.format(title=name, created=created))
         return page_name
 
@@ -273,7 +273,7 @@ class PostSource(ParseableSource):
             file_name = helpers.suffix(post_path, count)
             if force or not os.path.exists(file_name):
                 created = created.strftime(conf.get('time_format')[0])
-                text = helpers.prototype('default-post')
+                text = helpers.prototype('post')
                 text = text.format(title=name, created=created)
                 helpers.newfile(file_name, text)
                 break

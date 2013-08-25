@@ -1,15 +1,50 @@
-<div class="small footer"><hr><p>Copyright © {{ commons.time.year }} by <a href="{{ commons.author_url }}">{{ commons.author }}</a> • Generated with {{ commons.generator }}
-{%- if commons.source_url %} • <a href="{{ commons.source_url }}">Source</a>{% endif %}</p>
-{%- if commons.enable_search_form -%}
-<form action="http://google.com/search" method="get" class="search-form small">
-  <fieldset role="search">
-    <input type="hidden" name="q" value="site:{{ commons.root_url|trimurl }}">
-    <input type="text" name="q" results="0" placeholder="Search" class="search small">
-  </fieldset>
-</form>
-{%- endif -%}
-</div>
-</div>
-</div>
-</body>
+		<div class="container text-muted center footer">
+
+			<div class="muted small flipper">
+				{%- if page.prev_url %}&larr;&nbsp;<a href="{{ page.prev_url }}" title="{{ page.prev_title }}">Ctrl+Left</a>{%- if page.next_url %} / {% endif %}{%- endif -%}
+				{%- if page.next_url %}<a href="{{ page.next_url }}" title="{{ page.next_title }}">Ctrl+Right</a>&nbsp;&rarr;{% endif -%}
+			</div>
+			<hr>
+			<div>
+				<a href="http://drafts.cc/">drafts.cc</a> • Created by <a href="{{ commons.author_url }}">{{ commons.author }}</a>, {{ commons.time.year }} • Licensed under <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/deed.en_US">CC 3.0</a><br>
+				Content sources <a href="{{ commons.source_url }}">at GitHub</a> • Generated with <a href="{{ commons.generator_url }}">{{ commons.generator }}</a> {{ commons.generator_version }}
+			</div>
+		</div>
+		<script src="//code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+		<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+		<script type="text/javascript">
+			!function ($) {
+				$(function() {
+					// activate google prettyprint
+					$('pre').addClass('prettyprint linenums');
+					{% if page.prev_url or page.next_url -%}
+
+						window.prettyPrint && prettyPrint()
+
+					{%- endif %}
+				})
+			}(window.jQuery);
+
+			{% if page.prev_url or page.next_url -%}
+
+			// enable ctrl-arrows navigation
+			document.onkeydown = function (e) {
+				e = e || window.event;
+				if (!e.ctrlKey) return;
+				var keyCode = e.keyCode || e.which;
+				switch (keyCode) {
+					case 37: // left
+						var url = "{% if page.prev_url %}{{ page.prev_url }}{% endif %}";
+						if(url) window.location.href = url;
+						break;
+					case 39: // right
+						var url = "{% if page.next_url %}{{ page.next_url }}{% endif %}";
+						if(url) window.location.href = url;
+						break;
+				}
+			};
+
+			{% endif -%}
+		</script>
+	</body>
 </html>

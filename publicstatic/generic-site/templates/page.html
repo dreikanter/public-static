@@ -1,0 +1,9 @@
+{% import '_macros.html' as macros -%}
+{% include '_header.html' %}
+
+    <div class="container">
+      {{ page.content }}
+      <p class="muted"><small>Tags: {{ macros.tags_list(page.tags, inline=True) }}</small></p>
+    </div>
+
+{% include '_footer.html' -%}

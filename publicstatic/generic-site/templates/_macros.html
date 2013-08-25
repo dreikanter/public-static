@@ -10,46 +10,46 @@
 
 
 {# This macro is derived from the Octopress template,
-   https://github.com/imathis/octopress #}
+	 https://github.com/imathis/octopress #}
 {% macro google_analytics(tags, inline=False, add_hash=False) -%}
 
 {% if google_analytics_tracking_id %}
-  <script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', '{{ google_analytics_tracking_id }}']);
-    _gaq.push(['_trackPageview']);
+	<script type="text/javascript">
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', '{{ google_analytics_tracking_id }}']);
+		_gaq.push(['_trackPageview']);
 
-    (function() {
-      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
-  </script>
+		(function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
+	</script>
 {% endif %}
 
 {%- endmacro -%}
 
 
 {# This macro is derived from the Octopress template,
-   https://github.com/imathis/octopress #}
+	 https://github.com/imathis/octopress #}
 {% macro disqus(tags, inline=False, add_hash=False) -%}
 
 {% if site.disqus_short_name %}
 <script type="text/javascript">
-      var disqus_shortname = '{{ site.disqus_short_name }}';
-      {% if page.comments == true %}
-        // var disqus_developer = 1;
-        var disqus_identifier = '';
-        var disqus_url = '';
-        var disqus_script = 'embed.js';
-      {% else %}
-        var disqus_script = 'count.js';
-      {% endif %}
-    (function () {
-      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    }());
+			var disqus_shortname = '{{ site.disqus_short_name }}';
+			{% if page.comments == true %}
+				// var disqus_developer = 1;
+				var disqus_identifier = '';
+				var disqus_url = '';
+				var disqus_script = 'embed.js';
+			{% else %}
+				var disqus_script = 'count.js';
+			{% endif %}
+		(function () {
+			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		}());
 </script>
 
 {% endif %}
