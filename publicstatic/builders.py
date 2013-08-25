@@ -126,6 +126,7 @@ def static(cache):
     """Copy other assets as is to the {dest}."""
     for source in cache.assets(processed=False):
         logger.info('copying: ' + source.rel_path())
+        helpers.makedirs(source.dest_dir())
         shutil.copyfile(source.path(), source.dest())
         helpers.utime(source.dest(), source.updated())
         source.processed(True)
