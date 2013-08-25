@@ -15,7 +15,8 @@
 		<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/r224/prettify.js"></script>
 		<script>
 			!function ($) {
-				$(function() { window.prettyPrint && prettyPrint() })
+				$(function() { window.prettyPrint && prettyPrint() });
+				$('pre').addClass('prettyprint linenums');
 			}(window.jQuery);
 
 			{% if page.prev_url or page.next_url -%}
