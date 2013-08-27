@@ -99,12 +99,12 @@ class Cache():
         prev = None
         next = None
         for num, post in enumerate(posts, start=1):
-            next = posts[num] if num < len(posts) else None
-            post.set('prev_url', prev and prev.url())
-            post.set('prev_title', prev and prev.data('title'))
+            prev = posts[num] if num < len(posts) else None
             post.set('next_url', next and next.url())
             post.set('next_title', next and next.data('title'))
-            prev = post
+            post.set('prev_url', prev and prev.url())
+            post.set('prev_title', prev and prev.data('title'))
+            next = post
         return posts
 
     def _get_tags(self):
