@@ -167,7 +167,7 @@ def _purify(params):
     params['rel_root_url'] = _trsl(params['rel_root_url'].strip())
     params['source_url'] = _trsl(params['source_url'].strip())
     params['port'] = int(params['port'])
-    params['log_file'] = params['log_file'].strip()
+    params['log_file'] = _expand(params['log_file'].strip())
     params['log_max_size'] = int(params['log_max_size'])
     params['log_backup_cnt'] = int(params['log_backup_cnt'])
 
