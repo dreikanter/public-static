@@ -95,7 +95,7 @@ class Cache():
 
     def _get_posts(self):
         posts = list(filter(self.cond(source.PostSource), self._cache))
-        posts.sort(key=lambda item: item.created())
+        posts.sort(key=lambda item: item.created(), reverse=True)
         prev = None
         next = None
         for num, post in enumerate(posts, start=1):

@@ -158,7 +158,7 @@ def posts(cache):
             logger.debug(traceback.format_exc())
 
     if conf.get('post_at_root_url'):  # put the latest post at site root url
-        last = cache.posts()[-1]
+        last = cache.posts()[0]
         path = os.path.join(conf.get('build_path'), conf.get('index_page'))
         logger.info(_to('root', last.rel_dest(), conf.get('index_page')))
         if any(cache.pages(dest=conf.get('index_page'))):
