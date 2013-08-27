@@ -208,7 +208,7 @@ DEFAULTS = {
         'desc': 'Enable verbose logging',
     },
     'time_format': {
-        'value': ['%Y/%m/%d %H:%M:%S', '%Y/%m/%d'],
+        'value': ['%Y/%m/%d %H:%M:%S', '%Y/%m/%d %H:%M', '%Y/%m/%d'],
         'desc': 'A list of possible date/time formats for the '
                 ' post and page header fields',
     },
