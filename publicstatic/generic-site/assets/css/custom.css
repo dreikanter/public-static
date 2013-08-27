@@ -55,3 +55,9 @@ pre.prettyprint {
   border-color: #eee;
   background-color: #fffeee;
 }
+
+.btn-search {
+  padding: 4px 10px;
+  font-size: 14px;
+  color: #999;
+}
