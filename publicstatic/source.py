@@ -150,7 +150,17 @@ class ParseableSource(Source):
 
     def source_url(self):
         """Source file URL."""
+        if not conf.get('source_url'):
+            return None
+        pattern = "{root}blob/master/{type}/{name}"
+        return pattern.format(root=conf.get('source_url'),
+                              type=self.source_type(),
+                              name=self.basename())
+
+    def source_type(self):
+        """Helper function to return 'type' part for source_url()."""
         raise errors.NotImplementedException()
+
 
     def has_tag(self, tag):
         """Check if source file has specified tag."""
@@ -237,12 +247,8 @@ class PageSource(ParseableSource):
     def default_template(self):
         return conf.get('page_tpl')
 
-    def source_url(self):
-        """Source file URL."""
-        pattern = "{root}blob/master/{type}/{name}"
-        return pattern.format(root=conf.get('source_url'),
-                              type='posts',
-                              name=self.basename())
+    def source_type(self):
+        return 'pages'
 
 
 class PostSource(ParseableSource):
@@ -287,14 +293,8 @@ class PostSource(ParseableSource):
     def default_template(self):
         return conf.get('post_tpl')
 
-    def source_url(self):
-        """Source file URL."""
-        if not conf.get('source_url'):
-            return None
-        pattern = "{root}blob/master/{type}/{name}"
-        return pattern.format(root=conf.get('source_url'),
-                              type='pages',
-                              name=self.basename())
+    def source_type(self):
+        return 'posts'
 
     @staticmethod
     def _ymd(pattern, timestamp, name):
