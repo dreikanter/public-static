@@ -64,18 +64,6 @@ def get_h1(text):
     return matches.group(1) if matches else ''
 
 
-def prototype(name):
-    """Returns full path to specified prototype page."""
-    try:
-        file_name = os.path.join(conf.get('prototypes_path'),
-                                 str(name) + '.md')
-        with codecs.open(file_name, mode='r', encoding='utf-8') as f:
-            return f.read()
-    except Exception as ex:
-        message = "error reading prototype post: '%s'" % str(name)
-        raise Exception(message) from ex
-
-
 def copydir(source, dest, indent=0):
     """Copy a directory structure overwriting existing files."""
     for root, dirs, files in os.walk(source):

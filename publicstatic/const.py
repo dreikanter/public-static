@@ -27,9 +27,6 @@ DUMP_FILE = 'crash.log'
 # templates directory name
 TEMPLATES_DIR = 'templates'
 
-# prototypes directory name
-PROTO_DIR = 'prototypes'
-
 # source file types
 ASSET_TYPE = 'asset'
 POST_TYPE = 'post'
@@ -42,6 +39,21 @@ UNTITLED_POST = 'untitled-post'
 
 # environment variable name to override 'verbose' configuration parameter
 ENV_VERBOSE = 'ps_verbose'
+
+# page prototype
+PROTO_PAGE = """title: {title}
+created: {created}
+
+# {title}
+
+This is a new page."""
+
+# blog post prototype
+PROTO_POST = """title: {title}
+created: {created}
+tags: unsorted
+
+This is a new blog post."""
 
 # parameters sequence for the configuration file
 EXPORTS = [
@@ -115,11 +127,6 @@ DEFAULTS = {
     'tpl_path': {
         'value': TEMPLATES_DIR,
         'desc': 'Relative path to the templates directory inside '
-                'website source dir',
-    },
-    'prototypes_path': {
-        'value': PROTO_DIR,
-        'desc': 'Relative path to the prototypes directory inside '
                 'website source dir',
     },
     'post_location': {

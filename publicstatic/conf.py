@@ -162,7 +162,6 @@ def _purify(params):
     params['assets_path'] = _expand(params['assets_path'])
     params['build_path'] = _expand(params['build_path'])
     params['tpl_path'] = _expand(params['tpl_path'])
-    params['prototypes_path'] = _expand(params['prototypes_path'])
     params['root_url'] = _trsl(params['root_url'].strip())
     params['rel_root_url'] = _trsl(params['rel_root_url'].strip())
     params['source_url'] = _trsl(params['source_url'].strip())

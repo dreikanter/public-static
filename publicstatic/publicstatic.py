@@ -143,7 +143,7 @@ def post(args):
 
 @source_arg
 def update(args):
-    """update templates and prototypes to the latest version"""
+    """update templates to the latest version"""
     conf.load(args.source)
     site_dir = conf.site_dir()
 
@@ -158,8 +158,6 @@ def update(args):
 
     logger.info('updating templates')
     replace(const.TEMPLATES_DIR, conf.get('tpl_path'))
-    logger.info('updating prototypes')
-    replace(const.PROTO_DIR, conf.get('prototypes_path'))
     logger.info('done')
 
 
