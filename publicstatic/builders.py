@@ -172,7 +172,7 @@ def archive(cache):
     logger.info('archive: ' + dest)
     helpers.makedirs(os.path.dirname(dest))
     data = _complement({'title': 'Archive'}, index=cache.index())
-    templates.render(data, dest, name='list.html', utime=cache.updated())
+    templates.render(data, dest, name='archive.html', utime=cache.updated())
 
 
 def tags(cache):
@@ -182,7 +182,7 @@ def tags(cache):
         logger.info(_to('tag', tag, dest))
         helpers.makedirs(os.path.dirname(dest))
         data = _complement({'title': '#' + tag}, index=cache.index(tag=tag))
-        templates.render(data, dest, name='list.html', utime=cache.updated())
+        templates.render(data, dest, name='tag.html', utime=cache.updated())
 
 
 def atom(cache):

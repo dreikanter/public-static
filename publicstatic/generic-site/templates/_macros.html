@@ -1,4 +1,7 @@
 {% macro tags_list(tags, inline=False, add_hash=False) -%}
+{#
+	Generate a list of linked tag
+#}
 
 {% if inline -%}<span class="tags">{%- else -%}<div class="tags">{%- endif -%}
 	{%- for tag in tags -%}
@@ -9,9 +12,14 @@
 {%- endmacro -%}
 
 
-{# This macro is derived from the Octopress template,
-	 https://github.com/imathis/octopress #}
+
 {% macro google_analytics(tags, inline=False, add_hash=False) -%}
+{#
+	Inserts Google Analytics code
+
+	This macro is derived from the Octopress template,
+	https://github.com/imathis/octopress
+#}
 
 {% if google_analytics_tracking_id %}
 	<script type="text/javascript">
@@ -30,9 +38,13 @@
 {%- endmacro -%}
 
 
-{# This macro is derived from the Octopress template,
-	 https://github.com/imathis/octopress #}
 {% macro disqus(tags, inline=False, add_hash=False) -%}
+{#
+	Inserts Disqus code
+
+	This macro is derived from the Octopress template,
+	https://github.com/imathis/octopress
+#}
 
 {% if site.disqus_short_name %}
 <script type="text/javascript">
@@ -53,5 +65,55 @@
 </script>
 
 {% endif %}
+
+{%- endmacro -%}
+
+
+{% macro list(index) -%}
+{#
+	Post list generation with year sections
+#}
+
+{%- for item in index -%}
+	{%- if loop.first -%}
+		{%- set last_year = item.created.year -%}
+
+<h2 class="list-year">{{ item.created.year }}</h2>
+<ul class="list">
+
+	{%- elif last_year != item.created.year -%}
+		{%- set last_year = item.created.year -%}
+
+</ul>
+<h2 class="list-year">{{ item.created.year }}</h2>
+<ul class="list">
+
+	{%- endif -%}
+
+<li>
+<a href='{{ item.rel_url }}'>{{ item.title }}</a><br>
+<small class="text-muted">Created at {{ item.created|date }}{%- if item.tags %} • Tags: {{ tags_list(item.tags, inline=True) }}{%- endif %} • Words: {{ item.content|wordcount }}</small>
+</li>
+
+{%- endfor -%}
+
+</ul>
+
+{%- endmacro -%}
+
+
+{% macro plain_list(index) -%}
+{#
+	Plain post list
+#}
+
+<ul class="list">
+	{%- for item in index %}
+	<li>
+		<a href='{{ item.rel_url }}'>{{ item.title }}</a><br>
+		<small class="text-muted">Created at {{ item.created|date }}{%- if item.tags %} • Tags: {{ tags_list(item.tags, inline=True) }}{%- endif %} • Words: {{ item.content|wordcount }}</small>
+	</li>
+	{%- endfor %}
+</ul>
 
 {%- endmacro -%}

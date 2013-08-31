@@ -45,6 +45,10 @@ body {
   margin-bottom: 10px;
 }
 
+h2.list-year {
+  color: #ccc;
+}
+
 /* Prettyprint customization */
 
 .linenums li {
