@@ -9,6 +9,4 @@ bin
 sdist
 MANIFEST
 *.log
-tests/test-*
-tests/_*
 *.sublime*

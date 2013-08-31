@@ -4,7 +4,6 @@
 
 import codecs
 from datetime import datetime
-import markdown
 import os
 import re
 import shutil
@@ -63,14 +62,6 @@ def get_h1(text):
     """Extracts the first h1-header from markdown text."""
     matches = RE_H1.search(text)
     return matches.group(1) if matches else ''
-
-
-def md(text, extensions):
-    """Converts markdown formatted text to HTML"""
-    try:
-        return markdown.markdown(text.strip(), extensions=extensions)
-    except Exception as ex:
-        raise Exception('markdown processing error') from ex
 
 
 def prototype(name):

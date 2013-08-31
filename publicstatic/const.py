@@ -171,10 +171,6 @@ DEFAULTS = {
         'desc': 'Shell command to open files in text editor. {source} will '
                 'be replaced with a file path to open.',
     },
-    'markdown_extensions': {
-        'value': ['nl2br', 'grid', 'smartypants'],
-        'desc': 'A list of markdown processor extensions',
-    },
     'index_page': {
         'value': 'index.html',
         'desc': 'File name for an index page',

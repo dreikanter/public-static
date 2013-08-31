@@ -3,6 +3,7 @@
 import codecs
 import re
 import os
+import misaka
 from datetime import datetime
 from publicstatic import conf
 from publicstatic import const
@@ -179,9 +180,14 @@ class ParseableSource(Source):
             'source_url': self.source_url(),
             'created': helpers.parse_time(meta.get('created'), self._ctime),
             'updated': helpers.parse_time(meta.get('updated'), self._utime),
-            'content': helpers.md(content, conf.get('markdown_extensions')),
+            'content': self._md(content.strip()),
         })
         return meta
+
+    @staticmethod
+    def _md(text):
+        exts = misaka.EXT_STRIKETHROUGH
+        return misaka.html(text, extensions=exts)
 
     @staticmethod
     def _split(text):
