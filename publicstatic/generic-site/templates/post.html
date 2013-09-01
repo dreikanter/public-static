@@ -1,16 +1,10 @@
-{% import '_macros.html' as macros -%}
-{% include '_header.html' %}
+{% extends "page.html" %}
 
-	<div class="container">
-		{% if page.prev_url or page.next_url -%}
-		<div class="header">
-			<h1>{{ page.title }}</h1>
-			<span class="text-muted small"><time pubdate datetime="{{ page.created|isodatetime }}"><a href="{{ page.url }}">{{ page.created|date }}</a></time> • Tags: {{ macros.tags_list(page.tags, inline=True) }}{%- if page.source_url %} • <a href="{{ page.source_url }}">Source</a>{% endif -%}</span>
-		</div>
-		{% endif %}
-
-		{{ page.content }}
-
+{% block title %}
+	{% if page.prev_url or page.next_url -%}
+	<div class="header">
+		<h1>{{ page.title }}</h1>
+		<span class="text-muted small"><time pubdate datetime="{{ page.created|isodatetime }}"><a href="{{ page.url }}">{{ page.created|date }}</a></time> • Tags: {{ macros.tags_list(page.tags, inline=True) }}{%- if page.source_url %} • <a href="{{ page.source_url }}">Source</a>{% endif -%}</span>
 	</div>
-
-{% include '_footer.html' -%}
+	{% endif %}
+{% endblock %}

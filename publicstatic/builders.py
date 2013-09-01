@@ -176,7 +176,7 @@ def tags(cache):
         dest = helpers.tag_path(tag)
         logger.info(_to('tag', tag, dest))
         helpers.makedirs(os.path.dirname(dest))
-        data = _complement({'title': '#' + tag}, index=cache.index(tag=tag))
+        data = _complement({'title': tag}, index=cache.index(tag=tag))
         templates.render(data, dest, name='tag.html')
 
 
