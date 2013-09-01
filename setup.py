@@ -32,8 +32,10 @@ setup(
     package_data={'publicstatic': get_data_files('publicstatic')},
     install_requires=[
         'argh',
+        'beautifulsoup4',
         'misaka',
         'jinja2',
+        'pyyaml',
         'yuicompressor',
     ],
     entry_points={'console_scripts': ['pub = publicstatic.publicstatic:main']},
