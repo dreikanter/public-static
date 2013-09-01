@@ -49,24 +49,6 @@ h2.list-year {
   color: #ccc;
 }
 
-/* Prettyprint customization */
-
-.linenums li {
-  list-style-type: decimal;
-  color: #ccc;
-}
-
-pre.prettyprint {
-  border-color: #eee;
-  background-color: #fffeee;
-}
-
-.btn-search {
-  padding: 4px 10px;
-  font-size: 14px;
-  color: #999;
-}
-
 /*
   Tomorrow theme for prettify.js
   https://github.com/chriskempson/tomorrow-theme
@@ -227,4 +209,22 @@ li.L5,
 li.L7,
 li.L9 {
   /* */
+}
+
+/* Prettyprint customization */
+
+.linenums li {
+  list-style-type: decimal;
+  color: #ccc;
+}
+
+pre.prettyprint {
+  border-color: #eee;
+  background-color: #fffeee;
+}
+
+.btn-search {
+  padding: 4px 10px;
+  font-size: 14px;
+  color: #999;
 }
