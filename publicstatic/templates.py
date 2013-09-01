@@ -55,32 +55,34 @@ def filter_trimurl(value):
     return url.netloc + url.path.rstrip('/')
 
 
-def template(name=None, path=None):
-    """Gets template file contents.
-
-    Arguments:
-        name -- template name (file base name w/o extension).
-        path -- template file full path, an alternative way to specify
-            the template."""
-    if name:
-        return env().get_template(name)
-    elif path:
-        with codecs.open(path, mode='r', encoding='utf-8') as f:
-            return env().from_string(f.read())
-    else:
-        raise Exception('either template name or path should be specified')
-
-
-def render(data, dest, name=None, path=None, utime=None):
+def render(data, template, dest_path):
     """Render data using a specified template to a file."""
-    if not isinstance(data, dict):
-        raise Exception('template data should be a dictionary')
-    if path is None and name is None:  # use template name from page data
-        name = data.get('page', {}).get('template') + '.html'
-    result = template(name=name, path=path).render(data)
-    if helpers.ext(dest) == '.html' and conf.get('min_html'):
-        result = minify.minify_html(result)
-    with codecs.open(dest, mode='w', encoding='utf-8') as f:
-        f.write(result)
-    if utime is not None:
-        helpers.utime(dest, utime)
+    result = env().get_template(template).render(data)
+    _save(result, dest_path)
+
+
+def render_file(path, data, dest_path):
+    """Read template from a file, and render it to the destination path."""
+    with codecs.open(path, mode='r', encoding='utf-8') as f:
+        template = env().from_string(f.read())
+    _save(template.render(data), dest_path)
+
+
+def render_content(content, data, base_template, dest_path):
+    """This one is tricky. It creates a dynamic templated inherited from
+    the [base_template], adds a 'content' block to this template with
+    [content] inside, and renders the result template to [dest_path]. Boom!"""
+    template = """{%% extends "%s" %%}
+                  {%% block content %%}
+                  %s
+                  {%% endblock %%}"""
+    template = helpers.unindent(template) % (base_template + '.html', content)
+    _save(env().from_string(template).render(data), dest_path)
+
+
+def _save(text, dest_path):
+    """Apply optional HTML minification to the [text] and save it to file."""
+    if conf.get('min_html') and helpers.ext(dest_path) == '.html':
+        text = minify.minify_html(text)
+    with codecs.open(dest_path, mode='w', encoding='utf-8') as f:
+        f.write(text)

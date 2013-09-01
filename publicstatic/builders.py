@@ -31,8 +31,7 @@ def order():
 
 
 def css(cache):
-    """Minify assets/*.css to {dest} (e.g. assets/styles/base.css
-    will go to www/styles/base.css)."""
+    """Minify CSS files to the build path."""
     for source in cache.assets(ext='.css'):
         helpers.makedirs(source.dest_dir())
         command = conf.get('min_css_cmd')
@@ -47,7 +46,7 @@ def css(cache):
 
 
 def js(cache):
-    """Minify assets/*.js to {dest}."""
+    """Minify JavaScript files to the build path."""
     for source in cache.assets(ext='.js'):
         helpers.makedirs(source.dest_dir())
         command = conf.get('min_js_cmd')
@@ -62,7 +61,7 @@ def js(cache):
 
 
 def less(cache):
-    """Compile and minify assets/*.less to {dest}/*.css."""
+    """Compile and minify less files."""
     for source in cache.assets(ext='.less'):
         helpers.makedirs(source.dest_dir())
         logger.info('compiling LESS: ' + source.rel_path())
@@ -85,7 +84,7 @@ def robots(cache):
         helpers.makedirs(source.dest_dir())
         try:
             data = {'tags_path': os.path.dirname(helpers.tag_url(''))}
-            templates.render(data, source.dest(), path=source.path())
+            templates.render_file(source.path(), data, source.dest())
         except Exception as ex:
             logger.error('robots.txt processing failed: ' + str(ex))
             logger.debug(traceback.format_exc())
@@ -109,7 +108,7 @@ def humans(cache):
                 'doctype': conf.get('humans_doctype'),
                 'ide': conf.get('humans_ide'),
             }
-            templates.render(data, source.dest(), path=source.path())
+            templates.render_file(source.path(), data, source.dest())
         except Exception as ex:
             logger.error('humans.txt processing failed: ' + str(ex))
             logger.debug(traceback.format_exc())
@@ -118,7 +117,7 @@ def humans(cache):
 
 
 def static(cache):
-    """Copy other assets as is to the {dest}."""
+    """Copy other assets as is to the build path."""
     for source in cache.assets(processed=False):
         logger.info('copying: ' + source.rel_path())
         helpers.makedirs(source.dest_dir())
@@ -128,13 +127,16 @@ def static(cache):
 
 
 def pages(cache):
-    """Build pages/*.md to {dest} (independant, keep rel path)."""
+    """Build site pages."""
     for source in cache.pages():
         logger.info(_to('page', source.rel_path(), source.rel_dest()))
         helpers.makedirs(source.dest_dir())
         try:
             data = _complement(source.data(), index=cache.index())
-            templates.render(data, source.dest())
+            templates.render_content(content=data['page']['content'],
+                                     data=data,
+                                     base_template=data['page']['template'],
+                                     dest_path=source.dest())
         except Exception as ex:
             logger.error('page building error: ' + str(ex))
             logger.debug(traceback.format_exc())
@@ -147,7 +149,10 @@ def posts(cache):
         helpers.makedirs(source.dest_dir())
         try:
             data = _complement(source.data())
-            templates.render(data, source.dest())
+            templates.render_content(content=data['page']['content'],
+                                     data=data,
+                                     base_template=data['page']['template'],
+                                     dest_path=source.dest())
         except Exception as ex:
             logger.error('post building error: ' + str(ex))
             logger.debug(traceback.format_exc())
@@ -163,11 +168,12 @@ def posts(cache):
 
 
 def archive(cache):
+    """Build blog archive page."""
     dest = os.path.join(conf.get('build_path'), conf.get('archive_location'))
     logger.info('archive: ' + dest)
     helpers.makedirs(os.path.dirname(dest))
     data = _complement({'title': 'Archive'}, index=cache.index())
-    templates.render(data, dest, name='archive.html')
+    templates.render(data, 'archive.html', dest)
 
 
 def tags(cache):
@@ -177,14 +183,14 @@ def tags(cache):
         logger.info(_to('tag', tag, dest))
         helpers.makedirs(os.path.dirname(dest))
         data = _complement({'title': tag}, index=cache.index(tag=tag))
-        templates.render(data, dest, name='tag.html')
+        templates.render(data, 'tag.html', dest)
 
 
 def atom(cache):
     """Build atom feed."""
     data = _complement(index=cache.index())
     dest = os.path.join(conf.get('build_path'), conf.get('atom_location'))
-    templates.render(data, dest, name='atom.xml')
+    templates.render(data, 'atom.xml', dest)
 
 
 def sitemap(cache):

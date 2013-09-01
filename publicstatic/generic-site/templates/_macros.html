@@ -3,7 +3,7 @@
 	Generate a list of linked tag
 #}
 
-{% if inline -%}<span class="tags">{%- else -%}<div class="tags">{%- endif -%}
+{%- if inline -%}<span class="tags">{%- else -%}<div class="tags">{%- endif -%}
 	{%- for tag in tags -%}
 		<a href="{{ tag.url }}">{% if add_hash %}#{% endif %}{{ tag.name }}</a>{% if not loop.last %}, {% endif %}
 	{%- endfor -%}
