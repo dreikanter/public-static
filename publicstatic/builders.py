@@ -7,6 +7,7 @@ import os
 import shutil
 import traceback
 from publicstatic import conf
+from publicstatic import const
 from publicstatic import logger
 from publicstatic import helpers
 from publicstatic import templates
@@ -181,12 +182,18 @@ def atom(cache):
     """Build atom feed."""
     data = _complement(index=cache.index())
     dest = os.path.join(conf.get('build_path'), conf.get('atom_location'))
+    logger.info(_to('atom feed', dest))
+    helpers.makedirs(os.path.dirname(dest))
     templates.render(data, 'atom.xml', dest)
 
 
 def sitemap(cache):
     """Build sitemap.xml."""
-    pass
+    data = _complement(index=cache.full_index())
+    dest = os.path.join(conf.get('build_path'), const.SITEMAP)
+    logger.info(_to('sitemap', dest))
+    helpers.makedirs(os.path.dirname(dest))
+    templates.render(data, 'sitemap.xml', dest)
 
 
 def _complement(page_data=None, index=None):
@@ -198,5 +205,6 @@ def _complement(page_data=None, index=None):
     }
 
 
-def _to(subj, src, dest):
-    return "%s: %s -> %s" % (subj, src, dest)
+def _to(subj, a, b=None):
+    message = ("%s -> %s" % (a, b)) if b is not None else a
+    return "%s: %s" % (subj, message)

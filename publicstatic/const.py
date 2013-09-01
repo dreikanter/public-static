@@ -55,6 +55,9 @@ tags: unsorted
 
 This is a new blog post."""
 
+# sitemap file name
+SITEMAP = 'sitemap.xml'
+
 # parameters sequence for the configuration file
 EXPORTS = [
     'title',
