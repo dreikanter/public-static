@@ -83,7 +83,7 @@ def robots(cache):
         logger.info('processing ' + source.rel_path())
         helpers.makedirs(source.dest_dir())
         try:
-            data = {'tags_path': os.path.dirname(helpers.tag_url(''))}
+            data = conf.commons()
             templates.render_file(source.path(), data, source.dest())
         except Exception as ex:
             logger.error('robots.txt processing failed: ' + str(ex))
@@ -98,16 +98,7 @@ def humans(cache):
         logger.info('processing ' + source.rel_path())
         helpers.makedirs(source.dest_dir())
         try:
-            data = {
-                'author': conf.get('author'),
-                'author_url': conf.get('author_url'),
-                'author_twitter': conf.get('humans_author_twitter'),
-                'author_location': conf.get('humans_author_location'),
-                'last_updated': datetime.now(),
-                'language': conf.get('humans_language'),
-                'doctype': conf.get('humans_doctype'),
-                'ide': conf.get('humans_ide'),
-            }
+            data = conf.commons()
             templates.render_file(source.path(), data, source.dest())
         except Exception as ex:
             logger.error('humans.txt processing failed: ' + str(ex))

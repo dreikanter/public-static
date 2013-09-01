@@ -138,6 +138,16 @@ def commons():
         'source_url': get('source_url'),
         'enable_search_form': get('enable_search_form'),
         'atom_url': get('root_url') + get('atom_location'),
+        'archive_rel_url': get('rel_root_url') + get('archive_location'),
+        'tags_rel_url':
+            os.path.dirname(get('rel_root_url') + get('tag_location')) + '/',
+        'sitemap_url': get('rel_root_url') + 'sitemap.xml',
+        'author_twitter': get('humans_author_twitter'),
+        'author_location': get('humans_author_location'),
+        'language': get('humans_language'),
+        'doctype': get('humans_doctype'),
+        'ide': get('humans_ide'),
+        'last_updated': datetime.now(),
     }
 
 
