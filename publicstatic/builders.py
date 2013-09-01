@@ -85,9 +85,7 @@ def robots(cache):
         helpers.makedirs(source.dest_dir())
         try:
             data = {'tags_path': os.path.dirname(helpers.tag_url(''))}
-            templates.render(data, source.dest(),
-                             path=source.path(),
-                             utime=source.updated())
+            templates.render(data, source.dest(), path=source.path())
         except Exception as ex:
             logger.error('robots.txt processing failed: ' + str(ex))
             logger.debug(traceback.format_exc())
@@ -111,10 +109,7 @@ def humans(cache):
                 'doctype': conf.get('humans_doctype'),
                 'ide': conf.get('humans_ide'),
             }
-            templates.render(data,
-                             source.dest(),
-                             path=source.path(),
-                             utime=source.updated())
+            templates.render(data, source.dest(), path=source.path())
         except Exception as ex:
             logger.error('humans.txt processing failed: ' + str(ex))
             logger.debug(traceback.format_exc())
@@ -139,7 +134,7 @@ def pages(cache):
         helpers.makedirs(source.dest_dir())
         try:
             data = _complement(source.data(), index=cache.index())
-            templates.render(data, source.dest(), utime=source.updated())
+            templates.render(data, source.dest())
         except Exception as ex:
             logger.error('page building error: ' + str(ex))
             logger.debug(traceback.format_exc())
@@ -152,7 +147,7 @@ def posts(cache):
         helpers.makedirs(source.dest_dir())
         try:
             data = _complement(source.data())
-            templates.render(data, source.dest(), utime=source.updated())
+            templates.render(data, source.dest())
         except Exception as ex:
             logger.error('post building error: ' + str(ex))
             logger.debug(traceback.format_exc())
@@ -172,7 +167,7 @@ def archive(cache):
     logger.info('archive: ' + dest)
     helpers.makedirs(os.path.dirname(dest))
     data = _complement({'title': 'Archive'}, index=cache.index())
-    templates.render(data, dest, name='archive.html', utime=cache.updated())
+    templates.render(data, dest, name='archive.html')
 
 
 def tags(cache):
@@ -182,7 +177,7 @@ def tags(cache):
         logger.info(_to('tag', tag, dest))
         helpers.makedirs(os.path.dirname(dest))
         data = _complement({'title': '#' + tag}, index=cache.index(tag=tag))
-        templates.render(data, dest, name='tag.html', utime=cache.updated())
+        templates.render(data, dest, name='tag.html')
 
 
 def atom(cache):
