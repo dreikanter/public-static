@@ -148,3 +148,8 @@ def utime(path, value):
     using datetime value."""
     ts = value.timestamp()
     os.utime(path, (ts, ts))
+
+
+def ext(file_name):
+    """Returns a file name extension in lower case (with leading dot)."""
+    return os.path.splitext(file_name)[1].lower()

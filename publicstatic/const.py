@@ -67,6 +67,7 @@ EXPORTS = [
     'port',
     'min_js',
     'min_css',
+    'min_html',
     'min_js_cmd',
     'min_css_cmd',
     'less_cmd',
@@ -156,6 +157,10 @@ DEFAULTS = {
     'min_css': {
         'value': False,
         'desc': 'Enable CSS minification',
+    },
+    'min_html': {
+        'value': False,
+        'desc': 'Remove extra whitespace from HTML.',
     },
     'min_js_cmd': {
         'value': "yuicompressor --type js --nomunge -o {dest} {source}",

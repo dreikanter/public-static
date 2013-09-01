@@ -7,6 +7,7 @@ import codecs
 from urllib.parse import urlparse
 from publicstatic import conf
 from publicstatic import helpers
+from publicstatic import minify
 
 _env = None
 
@@ -60,9 +61,7 @@ def template(name=None, path=None):
     Arguments:
         name -- template name (file base name w/o extension).
         path -- template file full path, an alternative way to specify
-            the template.
-        format -- template format (file extension), must be specified
-            if the template is defined by name."""
+            the template."""
     if name:
         return env().get_template(name)
     elif path:
@@ -79,6 +78,8 @@ def render(data, dest, name=None, path=None, utime=None):
     if path is None and name is None:  # use template name from page data
         name = data.get('page', {}).get('template') + '.html'
     result = template(name=name, path=path).render(data)
+    if helpers.ext(dest) == '.html' and conf.get('min_html'):
+        result = minify.minify_html(result)
     with codecs.open(dest, mode='w', encoding='utf-8') as f:
         f.write(result)
     if utime is not None:
