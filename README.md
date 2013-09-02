@@ -1,6 +1,18 @@
 # public-static
 
-A python script to build static websites from [Markdown](http://daringfireball.net/projects/markdown) source and [Jinja2](http://jinja.pocoo.org) templates. Inspired by [Jekyll](http://jekyllrb.com) and [addmeto.cc](https://github.com/bobuk/addmeto.cc).
+This is a static website builder with the following features:
+
+- Installs as easy as `pip install publicstatic`, and works out of the box.
+- Capable for blogs and websites with arbitrary content structure.
+- Uses [markdown](http://en.wikipedia.org/wiki/Markdown) page sources and [Jinja2](http://jinja.pocoo.org) templates.
+- Includes neat and responsive default theme based on [Twitter Bootstrap 3](http://getbootstrap.com).
+- Provides optional JavaScript, CSS and HTML minification.
+- Can generate [sitemap.xml](http://sitemaps.org), [robots.txt](http://robotstxt.org), [humans.txt](http://humanstxt.org), and atom feed for blog posts.
+- Supports [LESS](http://lesscss.org) stylesheets.
+- Local host site preview.
+- Code hightlighting based on [Google Code Prettify](https://code.google.com/p/google-code-prettify).
+- Supports Disqus comments and Google Analytics.
+- Tags.
 
 ## Installation
 
@@ -67,7 +79,6 @@ Each page is a plain text/markdown file complemented with the  optional metadata
 
 ```markdown
 title: Hello World!
-created: 2012-06-05 13:49:38
 updated: 2012-06-05 13:49:38
 template: default
 custom-field: Custom field value
