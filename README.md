@@ -2,7 +2,7 @@
 
 This is a static website builder with the following features:
 
-- Installs as easy as `pip install publicstatic`, and works out of the box.
+- Works out of the box.
 - Capable for blogs and websites with arbitrary content structure.
 - Uses [markdown](http://en.wikipedia.org/wiki/Markdown) page sources and [Jinja2](http://jinja.pocoo.org) templates.
 - Includes neat and responsive default theme based on [Twitter Bootstrap 3](http://getbootstrap.com).
