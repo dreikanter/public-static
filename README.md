@@ -61,15 +61,30 @@ The last operation is to deploy generated web content to the destination server:
 pub deploy
 ```
 
-It suppose to use external tool like `rsync`, `lftp`, or `s3cmd` to synchronize local web content directory with the remote one. The actual command should be predefined in the configuration file.
+This command suppose to use external tool like `rsync` or `aws` to synchronize local web content directory to the remote one. The actual command should be predefined in the configuration file as `deploy_cmd` parameter value. Here are some examples. In each case `{build_path}` will be replaced to the actual local build path.
 
-The following configuration example uses [s3 tool](http://s3.codeplex.com) to deploy to an Amazon S3 bucket:
-
-```yaml
-deploy_cmd: s3 put drafts.cc {build_path}\* /sub:withdelete /yes /sync /acl:public-read /nogui
+- Uploading content with `rsync` via SSH:
 ```
+rsync -avz {build_path} <username>@<host>:/website/public_html/
+```
+  Username host and path to the destination directory should be replaced with actual values. Password-less SSH login will also be very helpful here.
 
-`deploy_cmd` here is a configuration parameter definind an actual command behing `pub deploy`. And `{build_path}` will be replaced by public-static to the actual build path.
+- Using [aws-cli](https://github.com/aws/aws-cli) to upload files to S3 bucket (this is a recomended crossplatform solution):
+```
+aws s3 sync {build_path} s3://example.com --acl public-read --delete
+```
+  This assumes the aws [authentication setup](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-set-up.html) is already performed. `example.com` should be replaced with the actual bucket name.
+
+- Using [s3 tool](http://s3.codeplex.com) on Windows:
+```
+s3 put example.com {build_path}\* /sub:withdelete /yes /sync /acl:public-read /nogui
+```
+  This also requires authentication setup.
+
+- Synchronizing through FTP with `lftp`:
+```
+lftp -c "open -u <user>,<password> <host>; mirror -c -e -R -L {build_path} <path to>"
+```
 
 Use `--help` for detailed command line arguments description.
 
