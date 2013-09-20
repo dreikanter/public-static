@@ -164,13 +164,15 @@ def archive(cache):
     dest = os.path.join(conf.get('build_path'), conf.get('archive_location'))
     logger.info('archive: ' + dest)
     helpers.makedirs(os.path.dirname(dest))
-    data = _complement({'title': 'Archive'}, index=cache.index())
+    page_data = {'title': 'Archive', 'tags': cache.tags()}
+    data = _complement(page_data, index=cache.index())
     templates.render(data, 'archive.html', dest)
 
 
 def tags(cache):
     """Build blog tag pages."""
     for tag in cache.tags():
+        tag = tag['name']
         dest = helpers.tag_path(tag)
         logger.info(_to('tag', tag, dest))
         helpers.makedirs(os.path.dirname(dest))

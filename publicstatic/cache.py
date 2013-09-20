@@ -82,7 +82,8 @@ class Cache():
     def tags(self):
         """Return a global list of tags with a number of related pages."""
         if not hasattr(self, '_tags'):
-            self._tags = self._get_tags()
+            self._tags = list(self._get_tags())
+            self._tags.sort(key=lambda item: item['name'])
         return self._tags
 
     def index(self, tag=None):
@@ -114,8 +115,16 @@ class Cache():
 
     def _get_tags(self):
         pages = filter(self.cond(is_inst=source.ParseableSource), self._cache)
-        result = set()
+        tags = set()
+        counter = dict()
         for page in pages:
             for tag in page.data('tags'):
-                result.add(tag['name'])
-        return result
+                tag = tag['name']
+                tags.add(tag)
+                counter[tag] = counter.get(tag, 0) + 1
+        for tag in tags:
+            yield {
+                'name': tag,
+                'count': counter[tag],
+                'url': helpers.tag_url(tag),
+            }

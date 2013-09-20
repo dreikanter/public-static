@@ -31,4 +31,9 @@
 	{%- endfor -%}
 
 	</ul>
+
+	{% if page.tags -%}
+	<h3>Tags</h3>
+		{{ macros.tags_list(page.tags, inline=False, count=True) }}
+	{%- endif %}
 {% endblock %}
