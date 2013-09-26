@@ -80,6 +80,9 @@ EXPORTS = [
     'verbose',
     'menu',
     'enable_search_form',
+    'google_analytics_tracking_id',
+    'disqus_short_name',
+    'addthis_id',
 ]
 
 # configuration parameters
@@ -221,7 +224,7 @@ DEFAULTS = {
     'time_format': {
         'value': ['%Y/%m/%d %H:%M:%S', '%Y/%m/%d %H:%M', '%Y/%m/%d'],
         'desc': 'A list of possible date/time formats for the '
-                ' post and page header fields',
+                'post and page header fields',
     },
     'page_datetime_format': {
         'value': '%Y/%m/%d %H:%M',
@@ -269,6 +272,20 @@ DEFAULTS = {
     'archive_location': {
         'value': 'archive/index.html',
         'desc': 'Blog archive page location.',
-    }
-
+    },
+    'google_analytics_tracking_id': {
+        'value': '',
+        'desc': 'Google Analytics tracking ID, e.g. UA-12345678-9 (tracking '
+                'code will be included if the value is not empty)',
+    },
+    'disqus_short_name': {
+        'value': '',
+        'desc': 'Site short name for Disqus comments (comments code '
+                'will be included if the value is not empty)',
+    },
+    'addthis_id': {
+        'value': '',
+        'desc': 'AddThis.com identifier, e.g. ra-1234567890123456 (sharing '
+                'buttons code will be included if the value is not empty)',
+    },
 }

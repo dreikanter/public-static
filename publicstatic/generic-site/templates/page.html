@@ -84,6 +84,9 @@
       {{ page.content }}
     {%- endblock -%}
 
+    {%- block comments -%}
+    {%- endblock-%}
+
 		</div>
 
 		<div class="container text-muted center footer">
@@ -128,5 +131,7 @@
 
 			{% endif -%}
 		</script>
+		{{- macros.google_analytics(commons.google_analytics_tracking_id) -}}
+		{{- macros.addthis(commons.addthis_id) -}}
 	</body>
 </html>

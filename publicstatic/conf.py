@@ -148,6 +148,9 @@ def commons():
         'doctype': get('humans_doctype'),
         'ide': get('humans_ide'),
         'last_updated': datetime.now(),
+        'disqus_short_name': get('disqus_short_name'),
+        'addthis_id': get('addthis_id'),
+        'google_analytics_tracking_id': get('google_analytics_tracking_id'),
     }
 
 

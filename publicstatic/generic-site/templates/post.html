@@ -8,3 +8,7 @@
 	</div>
 	{% endif %}
 {% endblock %}
+
+{% block comments %}
+	{{- macros.disqus_comments(commons.disqus_short_name) -}}
+{% endblock %}
