@@ -65,13 +65,4 @@ def fatal(message):
 def crash():
     """Crash report."""
     import traceback
-    import sys
-    from datetime import datetime
-    message = sys.exc_info()[1]
-    with open(const.DUMP_FILE, 'w') as f:
-        report = "{generator}, {time}\n\n{message}"
-        timestamp = datetime.now().strftime(const.LOG_DATE_FORMAT)
-        f.write(report.format(generator=const.GENERATOR,
-                              time=timestamp,
-                              message=traceback.format_exc()))
-    exit("error: %s\nsee %s for details" % (message, const.DUMP_FILE))
+    logging.critical(traceback.format_exc())
