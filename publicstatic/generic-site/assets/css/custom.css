@@ -235,3 +235,18 @@ pre.prettyprint {
 #disqus_thread {
   padding-top:37px;
 }
+
+.highlight {
+  margin-top: 37px;
+  font-size: 17px;
+}
+
+@media (max-width: 768px) {
+  .highlight {
+    margin-top: 12px;
+  }
+}
+
+.text-muted strong {
+  color: #222222;
+}

@@ -2,16 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-        	http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+          http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 
-<url>
-	<loc>{{ commons.root_url }}</loc>
-	<lastmod>{{ commons.last_updated|isodatetime }}</lastmod>
-</url>
+  <url>
+    <loc>{{ commons.root_url }}</loc>
+    <lastmod>{{ commons.last_updated|isodatetime }}</lastmod>
+  </url>
 {% for item in index -%}
-<url>
-	<loc>{{ item.url }}</loc>
-	<lastmod>{{ item.updated|isodatetime }}</lastmod>
-</url>
+  <url>
+    <loc>{{ item.url }}</loc>
+    <lastmod>{{ item.updated|isodatetime }}</lastmod>
+  </url>
 {% endfor -%}
 </urlset>

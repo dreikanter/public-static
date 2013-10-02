@@ -6,34 +6,29 @@
 	</div>
 {% endblock %}
 
-{% block content %}
+{% block main %}
 	{%- for item in index -%}
 		{%- if loop.first -%}
 			{%- set last_year = item.created.year -%}
+			<h2 class="list-year">{{ item.created.year }}</h2>
+			<ul class="list">
 
-	<h2 class="list-year">{{ item.created.year }}</h2>
-	<ul class="list">
+				{%- elif last_year != item.created.year -%}
+					{%- set last_year = item.created.year -%}
 
-		{%- elif last_year != item.created.year -%}
-			{%- set last_year = item.created.year -%}
-
-	</ul>
-	<h2 class="list-year">{{ item.created.year }}</h2>
-	<ul class="list">
-
+			</ul>
+			<h2 class="list-year">{{ item.created.year }}</h2>
+			<ul class="list">
 		{%- endif -%}
-
-	<li>
-	<a href='{{ item.rel_url }}'>{{ item.title }}</a><br>
-	<small class="text-muted">Created at {{ item.created|date }}{%- if item.tags %} • Tags: {{ macros.tags_list(item.tags, inline=True) }}{%- endif %} • Words: {{ item.content|wordcount }}</small>
-	</li>
-
+		<li>
+		<a href='{{ item.rel_url }}'>{{ item.title }}</a><br>
+		<small class="text-muted">Created at {{ item.created|date }}{%- if item.tags %} • Tags: {{ macros.tags_list(item.tags, inline=True) }}{%- endif %} • Words: {{ item.content|wordcount }}</small>
+		</li>
 	{%- endfor -%}
-
 	</ul>
 
 	{% if page.tags -%}
-	<h3>Tags</h3>
+		<h3>Tags</h3>
 		{{ macros.tags_list(page.tags, inline=False, count=True) }}
 	{%- endif %}
 {% endblock %}
