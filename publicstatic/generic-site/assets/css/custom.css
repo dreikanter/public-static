@@ -35,8 +35,11 @@ body {
 }
 
 .footer {
-  margin-top: 60px;
   margin-bottom: 20px;
+}
+
+.flipper {
+  margin-top: 37px;
 }
 
 .list {

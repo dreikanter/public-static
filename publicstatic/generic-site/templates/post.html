@@ -9,6 +9,14 @@
 	{% endif %}
 {% endblock %}
 
+{% block main %}
+	{{ super() }}
+	<div class="text-muted center flipper">
+		{%- if page.prev_url %}&larr;&nbsp;<a href="{{ page.prev_url }}" title="{{ page.prev_title }}">Ctrl+Left</a>{%- if page.next_url %} / {% endif %}{%- endif -%}
+		{%- if page.next_url %}<a href="{{ page.next_url }}" title="{{ page.next_title }}">Ctrl+Right</a>&nbsp;&rarr;{% endif -%}
+	</div>
+{% endblock %}
+
 {% block comments %}
 	{{- macros.disqus_comments(commons.disqus_short_name) -}}
 {% endblock %}

@@ -90,15 +90,9 @@
 
     {% block footer -%}
 		<div class="container text-muted center footer">
-			<div class="muted small flipper">
-				{%- if page.prev_url %}&larr;&nbsp;<a href="{{ page.prev_url }}" title="{{ page.prev_title }}">Ctrl+Left</a>{%- if page.next_url %} / {% endif %}{%- endif -%}
-				{%- if page.next_url %}<a href="{{ page.next_url }}" title="{{ page.next_title }}">Ctrl+Right</a>&nbsp;&rarr;{% endif -%}
-			</div>
 			<hr>
-			<div>
-				<a href="http://drafts.cc/">drafts.cc</a> • Created by <a href="{{ commons.author_url }}">{{ commons.author }}</a>, {{ commons.time.year }} • Licensed under <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/deed.en_US">CC 3.0</a><br>
-				Content sources <a href="{{ commons.source_url }}">at GitHub</a> • Generated with <a href="{{ commons.generator_url }}">{{ commons.generator }}</a> {{ commons.generator_version }}
-			</div>
+			<a href="http://drafts.cc/">drafts.cc</a> • Created by <a href="{{ commons.author_url }}">{{ commons.author }}</a>, {{ commons.time.year }} • Licensed under <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/deed.en_US">CC 3.0</a><br>
+			Content sources <a href="{{ commons.source_url }}">at GitHub</a> • Generated with <a href="{{ commons.generator_url }}">{{ commons.generator }}</a> {{ commons.generator_version }}
 		</div>
     {%- endblock %}
 		<script src="//code.jquery.com/jquery-latest.min.js"></script>
