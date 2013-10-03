@@ -130,6 +130,6 @@
 			{% endif -%}
 		</script>
 		{{- macros.google_analytics(commons.google_analytics_tracking_id) -}}
-		{{- macros.addthis(commons.addthis_id) -}}
+		{{- macros.addthis(commons.addthis_id, page.url) -}}
 	</body>
 </html>

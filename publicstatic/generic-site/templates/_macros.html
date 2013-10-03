@@ -92,7 +92,7 @@
 {%- endmacro -%}
 
 
-{% macro addthis(id) -%}
+{% macro addthis(id, url) -%}
 {#
 	Inserts AddThis sharing buttons
 
@@ -102,12 +102,19 @@
 {%- if id -%}
 	<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid={{ id }}"></script>
 	<script type="text/javascript">
+		var addthis_share = {
+		    url : '{{ url }}'
+		};
 	  addthis.layers({
 	    'theme' : 'transparent',
 	    'share' : {
 	      'position' : 'left',
+	      'services' : 'twitter,facebook,google_plusone_share',
 	      'numPreferredServices' : 5
-	    }
+	    },
+	    'whatsnext' : {},
+			'recommended' : {},
+			'thankyou' : false
 	  });
 	</script>
 {%- endif -%}
