@@ -156,7 +156,6 @@ def posts(cache):
         if any(cache.pages(dest=conf.get('index_page'))):
             logger.warn('root page will be overwritten by the latest post')
         shutil.copyfile(last.dest(), path)
-        helpers.utime(path, last.updated())
 
 
 def archive(cache):
