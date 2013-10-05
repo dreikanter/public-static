@@ -100,7 +100,7 @@ test_result = """<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><ti
 
 
 def test_minify():
-    assert minify.html_minify(test_html) == test_result
+    assert minify.minify_html(test_html) == test_result
 
 
 def main():
