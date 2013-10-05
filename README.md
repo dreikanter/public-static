@@ -16,7 +16,13 @@ This is a static website builder with the following features:
 
 ## Installation
 
-The script could be installed directly from GitHub:
+The latest stable version could be installed from PyPI:
+
+```bash
+pip install publicstatic
+```
+
+Use this command to install latest development version directly from GitHub:
 
 ```bash
 pip install -e git+git://github.com/dreikanter/public-static#egg=public-static

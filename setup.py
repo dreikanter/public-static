@@ -1,13 +1,14 @@
-#!/usr/bin/env python
-# coding: utf-8
+# encoding: utf-8
 
 import os
-from setuptools import setup, find_packages
 import publicstatic.authoring
 from publicstatic.version import get_version
+from setuptools import setup, find_packages
+import subprocess
 
 
 def get_data_files(path):
+    """Get package data files."""
     files = []
     path = os.path.abspath(path)
     for dirname, dirnames, filenames in os.walk(path):
@@ -18,6 +19,13 @@ def get_data_files(path):
     return files
 
 
+def get_desc(file_name):
+    """Get long description by converting README file to reStructuredText."""
+    cmd = "pandoc --from=markdown --to=rst %s" % file_name
+    with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
+        return process.stdout.read().decode('utf-8')
+
+
 setup(
     name='publicstatic',
     description='Yet another static website builder. A good one.',
@@ -26,7 +34,7 @@ setup(
     author=publicstatic.authoring.__author__,
     author_email=publicstatic.authoring.__email__,
     url=publicstatic.authoring.__url__,
-    long_description=open('README.md').read(),
+    long_description=get_desc('README.md'),
     platforms=['any'],
     packages=find_packages(),
     package_data={'publicstatic': get_data_files('publicstatic')},
