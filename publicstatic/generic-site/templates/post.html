@@ -2,9 +2,21 @@
 
 {% block title %}
 	{% if page.prev_url or page.next_url -%}
-	<div class="header">
-		<h1>{{ page.title }}</h1>
-		<span class="text-muted small"><time pubdate datetime="{{ page.created|isodatetime }}"><a href="{{ page.url }}">{{ page.created|date }}</a></time> • Tags: {{ macros.tags_list(page.tags, inline=True) }}{%- if page.source_url %} • <a href="{{ page.source_url }}">Source</a>{% endif -%}</span>
-	</div>
+		<div class="header">
+			<h1>{{ page.title }}</h1>
+			<span class="text-muted small"><time pubdate datetime="{{ page.created|isodatetime }}"><a href="{{ page.url }}">{{ page.created|date }}</a></time> • Tags: {{ macros.tags_list(page.tags, inline=True) }}{%- if page.source_url %} • <a href="{{ page.source_url }}">Source</a>{% endif -%}</span>
+		</div>
 	{% endif %}
+{% endblock %}
+
+{% block main %}
+	{{ super() }}
+	<div class="text-muted center flipper">
+		{%- if page.prev_url %}&larr;&nbsp;<a href="{{ page.prev_url }}" title="{{ page.prev_title }}">Previous post</a>{%- if page.next_url %} / {% endif %}{%- endif -%}
+		{%- if page.next_url %}<a href="{{ page.next_url }}" title="{{ page.next_title }}">Next post</a>&nbsp;&rarr;{% endif -%}
+	</div>
+{% endblock %}
+
+{% block comments %}
+	{{- macros.disqus_comments(commons.disqus_short_name) -}}
 {% endblock %}

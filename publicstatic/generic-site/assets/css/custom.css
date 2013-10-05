@@ -1,5 +1,7 @@
 body {
   min-height: 800px;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 @media (min-width: 768px) {
@@ -33,8 +35,11 @@ body {
 }
 
 .footer {
-  margin-top: 60px;
   margin-bottom: 20px;
+}
+
+.flipper {
+  margin-top: 37px;
 }
 
 .list {
@@ -47,6 +52,14 @@ body {
 
 h2.list-year {
   color: #ccc;
+}
+
+pre {
+  font-size: inherit;
+}
+
+code {
+  background-color: transparent;
 }
 
 /*
@@ -130,6 +143,7 @@ h2.list-year {
     color: #4271ae;
   }
 }
+
 /* Use higher contrast and text-weight for printable form. */
 @media print, projection {
   .str {
@@ -172,6 +186,7 @@ h2.list-year {
     color: #006600;
   }
 }
+
 /* Style */
 pre.prettyprint {
   background: white;
@@ -211,7 +226,9 @@ li.L9 {
   /* */
 }
 
-/* Prettyprint customization */
+/*
+  Prettyprint customization
+*/
 
 .linenums li {
   list-style-type: decimal;
@@ -224,7 +241,36 @@ pre.prettyprint {
 }
 
 .btn-search {
+  margin-left: -5px;
   padding: 4px 10px;
   font-size: 14px;
   color: #999;
+  background-color: transparent;
+}
+
+pre.prettyprint {
+  font-size: inherit;
+}
+
+/*
+  Disqus customization
+*/
+
+#disqus_thread {
+  padding-top:37px;
+}
+
+.highlight {
+  margin-top: 37px;
+  font-size: 17px;
+}
+
+@media (max-width: 768px) {
+  .highlight {
+    margin-top: 12px;
+  }
+}
+
+.text-muted strong {
+  color: #222222;
 }

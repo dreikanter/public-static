@@ -13,6 +13,7 @@ from publicstatic import logger
 from publicstatic import helpers
 from publicstatic import source
 from publicstatic.cache import Cache
+from publicstatic.formatter import CustomFormatter
 from publicstatic.version import get_version
 
 # Common command line arguments
@@ -193,7 +194,12 @@ COMMANDS = [
 
 def main():
     try:
-        p = ArghParser(prog='pub')
+        prog = 'pub'
+        p = ArghParser(prog=prog,
+                       usage='%s <command> [options]' % prog,
+                       formatter_class=CustomFormatter)
+        p.add_subparsers(metavar='<command>',
+                         help='one from the following')
         p.add_commands(COMMANDS)
         p.dispatch()
     except USER_ERRORS as e:
