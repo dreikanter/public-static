@@ -3,13 +3,13 @@
 import codecs
 import re
 import os
-import misaka
 from datetime import datetime
 from publicstatic import conf
 from publicstatic import const
 from publicstatic import helpers
 from publicstatic import errors
 from publicstatic.urlify import urlify
+from publicstatic.markdown import md
 
 # format for the post source files
 POST_NAME_FORMAT = "{year}{month}{day}-{name}.md"
@@ -170,24 +170,19 @@ class ParseableSource(Source):
     def _parse(self):
         """Extract page header data and content from a list of lines
         and return the result as key-value couples."""
-        meta, content = self._split(self.text())
+        meta, content = ParseableSource._split(self.text())
         meta.update({
             'source': self._path,
             'title': meta.get('title', helpers.get_h1(content)),
             'template': meta.get('template', self.default_template()),
             'author': meta.get('author', conf.get('author')),
-            'tags': list(self._tags(meta.get('tags', ''))),
+            'tags': list(ParseableSource._tags(meta.get('tags', ''))),
             'source_url': self.source_url(),
             'created': helpers.parse_time(meta.get('created'), self._ctime),
             'updated': helpers.parse_time(meta.get('updated'), self._utime),
-            'content': self._md(content.strip()),
+            'content': md(content.strip()),
         })
         return meta
-
-    @staticmethod
-    def _md(text):
-        exts = misaka.EXT_STRIKETHROUGH
-        return misaka.html(text, extensions=exts)
 
     @staticmethod
     def _split(text):
