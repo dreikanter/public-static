@@ -28,24 +28,17 @@ def env():
 def custom_filters():
     """Returns a dictionary of custom extensions for Jinja2."""
     return {
-        'datetime': filter_datetime,
-        'date': filter_date,
-        'isodatetime': filter_isodatetime,
         'trimurl': filter_trimurl,
+        'strftime': filter_strftime,
+        'isoformat': filter_isoformat,
     }
 
 
-def filter_datetime(value):
-    return value.strftime(conf.get('page_datetime_format'))
+def filter_strftime(value, format):
+    return value.strftime(format)
 
 
-def filter_date(value):
-    if callable(value):
-        value = value.__call__()
-    return value.strftime(conf.get('page_date_format'))
-
-
-def filter_isodatetime(value):
+def filter_isoformat(value):
     return value.isoformat()
 
 

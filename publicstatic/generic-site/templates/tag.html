@@ -11,7 +11,7 @@
 		{%- for item in index %}
 			<li>
 				<a href='{{ item.rel_url }}'>{{ item.title }}</a><br>
-				<small class="text-muted">Created at {{ item.created|date }}{%- if item.tags %} • Tags: {{ macros.tags_list(item.tags, inline=True) }}{%- endif %} • Words: {{ item.content|wordcount }}</small>
+				<small class="text-muted">Created at {{ item.created|strftime(commons.date_format) }}{%- if item.tags %} • Tags: {{ macros.tags_list(item.tags, inline=True) }}{%- endif %} • Words: {{ item.content|wordcount }}</small>
 			</li>
 		{%- endfor %}
 	</ul>

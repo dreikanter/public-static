@@ -226,12 +226,16 @@ DEFAULTS = {
         'desc': 'A list of possible date/time formats for the '
                 'post and page header fields',
     },
-    'page_datetime_format': {
-        'value': '%Y/%m/%d %H:%M',
+    'datetime_format': {
+        'value': '%B %d, %Y %H:%M',
         'desc': 'Page/post full date and time format for generated HTML',
     },
-    'page_date_format': {
-        'value': '%Y/%m/%d',
+    'date_format': {
+        'value': '%B %d, %Y',
+        'desc': 'Page/post short date format for generated HTML',
+    },
+    'iso_datetime_format': {
+        'value': '%B %d, %Y',
         'desc': 'Page/post short date format for generated HTML',
     },
     'menu': {

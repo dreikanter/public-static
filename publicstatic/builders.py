@@ -84,7 +84,7 @@ def robots(cache):
         logger.info('processing ' + source.rel_path())
         helpers.makedirs(source.dest_dir())
         try:
-            data = conf.commons()
+            data = _complement({})
             templates.render_file(source.path(), data, source.dest())
         except Exception as ex:
             logger.error('robots.txt processing failed: ' + str(ex))
@@ -99,7 +99,7 @@ def humans(cache):
         logger.info('processing ' + source.rel_path())
         helpers.makedirs(source.dest_dir())
         try:
-            data = conf.commons()
+            data = _complement({})
             templates.render_file(source.path(), data, source.dest())
         except Exception as ex:
             logger.error('humans.txt processing failed: ' + str(ex))

@@ -151,6 +151,8 @@ def commons():
         'disqus_short_name': get('disqus_short_name'),
         'addthis_id': get('addthis_id'),
         'google_analytics_tracking_id': get('google_analytics_tracking_id'),
+        'datetime_format': get('datetime_format'),
+        'date_format': get('date_format'),
     }
 
 

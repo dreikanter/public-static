@@ -4,7 +4,7 @@
 	{% if page.prev_url or page.next_url -%}
 		<div class="header">
 			<h1>{{ page.title }}</h1>
-			<span class="text-muted small"><time pubdate datetime="{{ page.created|isodatetime }}"><a href="{{ page.url }}">{{ page.created|date }}</a></time> • Tags: {{ macros.tags_list(page.tags, inline=True) }}{%- if page.source_url %} • <a href="{{ page.source_url }}">Source</a>{% endif -%}</span>
+			<span class="text-muted small"><time pubdate datetime="{{ page.created|isoformat }}"><a href="{{ page.url }}">{{ page.created|strftime(commons.date_format) }}</a></time> • Tags: {{ macros.tags_list(page.tags, inline=True) }}{%- if page.source_url %} • <a href="{{ page.source_url }}">Source</a>{% endif -%}</span>
 		</div>
 	{% endif %}
 {% endblock %}

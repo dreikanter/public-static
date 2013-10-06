@@ -6,7 +6,7 @@
   <id>{{ commons.root_url }}</id>
   {%- for post in index %}
     {% if loop.first -%}
-      <updated>{{ post.updated|isodatetime }}</updated>
+      <updated>{{ post.updated|isoformat }}</updated>
       <author>
         <name>{{ commons.author }}</name>
       </author>
@@ -18,8 +18,8 @@
         {% else -%}
           <link rel="alternate" type="text/html" href="{{ post.url|e }}" />
         {% endif -%}
-        <id>tag:{{ commons.root_url }},{{ post.updated|isodatetime }}:{{ post.url }}</id>
-        <updated>{{ post.updated|isodatetime }}</updated>
+        <id>tag:{{ commons.root_url }},{{ post.updated|isoformat }}:{{ post.url }}</id>
+        <updated>{{ post.updated|isoformat }}</updated>
         <author>
           <name>{{ post.author }}</name>
         </author>

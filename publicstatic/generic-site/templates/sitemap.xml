@@ -6,12 +6,12 @@
 
   <url>
     <loc>{{ commons.root_url }}</loc>
-    <lastmod>{{ commons.last_updated|isodatetime }}</lastmod>
+    <lastmod>{{ commons.last_updated|isoformat }}</lastmod>
   </url>
 {% for item in index -%}
   <url>
     <loc>{{ item.url }}</loc>
-    <lastmod>{{ item.updated|isodatetime }}</lastmod>
+    <lastmod>{{ item.updated|isoformat }}</lastmod>
   </url>
 {% endfor -%}
 </urlset>

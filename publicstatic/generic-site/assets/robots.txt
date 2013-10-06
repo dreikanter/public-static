@@ -1,4 +1,4 @@
 User-agent: *
-Disallow: {{ archive_rel_url }}
-Disallow: {{ tags_rel_url }}
-Sitemap: {{ sitemap_url }}
+Disallow: {{ commons.archive_rel_url }}
+Disallow: {{ commons.tags_rel_url }}
+Sitemap: {{ commons.sitemap_url }}

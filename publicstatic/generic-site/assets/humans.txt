@@ -1,13 +1,13 @@
 /* TEAM */
 
-Creator: {{ author }}
-Site: {{ author_url }}
-Twitter: {{ author_twitter }}
-Location: {{ author_location }}
+Creator: {{ commons.author }}
+Site: {{ commons.author_url }}
+Twitter: {{ commons.author_twitter }}
+Location: {{ commons.author_location }}
 
 /* SITE */
 
-Last update: {{ last_updated|datetime }}
-Language: {{ language }}
-Doctype: {{ doctype }}
-IDE: {{ ide }}
+Last update: {{ commons.last_updated|strftime(commons.datetime_format) }}
+Language: {{ commons.language }}
+Doctype: {{ commons.doctype }}
+IDE: {{ commons.ide }}
