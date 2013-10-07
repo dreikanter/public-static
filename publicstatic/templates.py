@@ -6,6 +6,7 @@ import jinja2
 import codecs
 from urllib.parse import urlparse
 from publicstatic import conf
+from publicstatic import images
 from publicstatic import helpers
 from publicstatic import minify
 
@@ -32,6 +33,7 @@ def custom_filters():
         'date': filter_date,
         'isodatetime': filter_isodatetime,
         'trimurl': filter_trimurl,
+        'image': filter_image,
     }
 
 
@@ -53,6 +55,12 @@ def filter_trimurl(value):
     """Trims addressing scheme (protocol) from the specified url."""
     url = urlparse(value)
     return url.netloc + url.path.rstrip('/')
+
+
+def filter_image(id):
+    html = "<img src=\"{uri}\" width=\"{width}\" " \
+           "height=\"{height}\" alt=\"{alt}\">"
+    return html.format(images.get_image(id))
 
 
 def render(data, template, dest_path):
