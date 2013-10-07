@@ -1,6 +1,9 @@
-{% from '_macros.html' import macros as tags_list, google_analytics,
-                                        disqus_comments, disqus_counter,
-                                        addthis, img -%}
+{% from '_macros.html' import tags_list,
+															google_analytics,
+															disqus_comments,
+															disqus_counter,
+															addthis,
+															img -%}
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -106,7 +109,7 @@
 				$('pre').addClass('prettyprint linenums');
 			}(window.jQuery);
 		</script>
-		{{- macros.google_analytics(commons.google_analytics_tracking_id) -}}
-		{{- macros.addthis(commons.addthis_id, page.url) -}}
+		{{- google_analytics(commons.google_analytics_tracking_id) -}}
+		{{- addthis(commons.addthis_id, page.url) -}}
 	</body>
 </html>

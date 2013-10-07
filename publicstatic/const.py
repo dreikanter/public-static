@@ -58,6 +58,12 @@ This is a new blog post."""
 # sitemap file name
 SITEMAP = 'sitemap.xml'
 
+# images metadata file
+IMAGES_INDEX = 'images.yaml'
+
+# standard name for template content block
+MAIN_BLOCK = 'main'
+
 # parameters sequence for the configuration file
 EXPORTS = [
     'title',
@@ -135,6 +141,10 @@ DEFAULTS = {
         'value': TEMPLATES_DIR,
         'desc': 'Relative path to the templates directory inside '
                 'website source dir',
+    },
+    'images_path': {
+        'value': 'images',
+        'desc': 'Image files path inside website source dir',
     },
     'post_location': {
         'value': '{year}/{month}/{day}/{name}.html',
@@ -287,5 +297,9 @@ DEFAULTS = {
         'value': '',
         'desc': 'AddThis.com identifier, e.g. ra-1234567890123456 (sharing '
                 'buttons code will be included if the value is not empty)',
+    },
+    'images_location': {
+        'value': 'img',
+        'desc': 'Path to image files inside build directory',
     },
 }
