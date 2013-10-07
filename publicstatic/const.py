@@ -83,6 +83,7 @@ EXPORTS = [
     'google_analytics_tracking_id',
     'disqus_short_name',
     'addthis_id',
+    'pluso_enabled',
 ]
 
 # configuration parameters
@@ -291,5 +292,9 @@ DEFAULTS = {
         'value': '',
         'desc': 'AddThis.com identifier, e.g. ra-1234567890123456 (sharing '
                 'buttons code will be included if the value is not empty)',
+    },
+    'pluso_enabled': {
+        'value': False,
+        'desc': 'Enable pluso.ru sharing buttons',
     },
 }
