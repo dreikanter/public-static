@@ -172,18 +172,37 @@ def _check(value):
 
 def _purify(params):
     """Preprocess configuration parameters."""
-    params['pages_path'] = _expand(params['pages_path'])
-    params['posts_path'] = _expand(params['posts_path'])
-    params['assets_path'] = _expand(params['assets_path'])
-    params['build_path'] = _expand(params['build_path'])
-    params['tpl_path'] = _expand(params['tpl_path'])
-    params['root_url'] = _trsl(params['root_url'].strip())
-    params['rel_root_url'] = _trsl(params['rel_root_url'].strip())
-    params['source_url'] = _trsl(params['source_url'].strip())
-    params['port'] = int(params['port'])
-    params['log_file'] = _expand(params['log_file'].strip())
-    params['log_max_size'] = int(params['log_max_size'])
-    params['log_backup_cnt'] = int(params['log_backup_cnt'])
+
+    expandables = [
+        'pages_path',
+        'posts_path',
+        'assets_path',
+        'build_path',
+        'tpl_path',
+        'images_path',
+        'log_file',
+    ]
+
+    for param in expandables:
+        params[param] = _expand(params[param])
+
+    urls = [
+        'root_url',
+        'rel_root_url',
+        'source_url',
+    ]
+
+    for param in urls:
+        params[param] = _trsl(params[param].strip())
+
+    integers = [
+        'port',
+        'log_max_size',
+        'log_backup_cnt',
+    ]
+
+    for param in integers:
+        params[param] = int(params[param])
 
     if isinstance(params['time_format'], str):
         params['time_format'] = [params['time_format']]

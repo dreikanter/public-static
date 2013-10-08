@@ -125,10 +125,7 @@ def pages(cache):
         helpers.makedirs(source.dest_dir())
         try:
             data = _complement(source.data(), index=cache.index())
-            templates.render_content(content=data['page']['content'],
-                                     data=data,
-                                     base_template=data['page']['template'],
-                                     dest_path=source.dest())
+            templates.render_page(data, source.dest())
         except Exception as ex:
             logger.error('page building error: ' + str(ex))
             logger.debug(traceback.format_exc())
@@ -141,10 +138,7 @@ def posts(cache):
         helpers.makedirs(source.dest_dir())
         try:
             data = _complement(source.data())
-            templates.render_content(content=data['page']['content'],
-                                     data=data,
-                                     base_template=data['page']['template'],
-                                     dest_path=source.dest())
+            templates.render_page(data, source.dest())
         except Exception as ex:
             logger.error('post building error: ' + str(ex))
             logger.debug(traceback.format_exc())
