@@ -1,9 +1,4 @@
-{% from '_macros.html' import tags_list,
-															google_analytics,
-															disqus_comments,
-															disqus_counter,
-															addthis,
-															img -%}
+{% import '_macros.html' as macros -%}
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -45,40 +40,40 @@
 
 	<body>
     {% block nav %}
-		<div class="navbar navbar-default navbar-static-top">
-			<div class="container">
-				<div class="navbar-header">
-					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-					</button>
-					<a class="navbar-brand" href="{{ commons.rel_root_url }}" title="{{ commons.site_title }}"><i class="icon-home"></i></a>
-				</div>
+			<div class="navbar navbar-default navbar-static-top">
+				<div class="container">
+					<div class="navbar-header">
+						<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+						</button>
+						<a class="navbar-brand" href="{{ commons.rel_root_url }}" title="{{ commons.site_title }}"><i class="icon-home"></i></a>
+					</div>
 
-				<div class="navbar-collapse collapse">
-					{% if commons.menu -%}
-						<ul class="nav navbar-nav">
-							{% for item in commons.menu -%}
-								<li><a href="{{item.href}}">{{ item.title }}</a></li>
-							{%- endfor %}
-						</ul>
-					{%- endif %}
+					<div class="navbar-collapse collapse">
+						{% if commons.menu -%}
+							<ul class="nav navbar-nav">
+								{% for item in commons.menu -%}
+									<li><a href="{{item.href}}">{{ item.title }}</a></li>
+								{%- endfor %}
+							</ul>
+						{%- endif %}
 
-					{%- if commons.enable_search_form -%}
-					<form action="http://google.com/search" method="get" class="navbar-form navbar-right">
-						<div class="form-group">
-							<fieldset role="search">
-								<input type="hidden" name="q" value="site:{{ commons.root_url|trimurl }}">
-								<input type="text" name="q" placeholder="Search" class="form-control input-sm">
-							</fieldset>
-						</div>
-						<button type="submit" class="btn btn-sm btn-search"><i class="icon-search"></i></button>
-					</form>
-					{%- endif -%}
+						{%- if commons.enable_search_form -%}
+							<form action="http://google.com/search" method="get" class="navbar-form navbar-right">
+								<div class="form-group">
+									<fieldset role="search">
+										<input type="hidden" name="q" value="site:{{ commons.root_url|trimurl }}">
+										<input type="text" name="q" placeholder="Search" class="form-control input-sm">
+									</fieldset>
+								</div>
+								<button type="submit" class="btn btn-sm btn-search"><i class="icon-search"></i></button>
+							</form>
+						{%- endif -%}
+					</div>
 				</div>
 			</div>
-		</div>
 		{% endblock %}
 
 		<div class="container">
@@ -89,17 +84,21 @@
 	      {{ page.content }}
 	    {%- endblock -%}
 
+			{%- block middle -%}
+	    {%- endblock -%}
+
 	    {%- block comments -%}
 	    {%- endblock-%}
 		</div>
 
-    {% block footer -%}
-		<div class="container text-muted center footer">
-			<hr>
-			<a href="http://drafts.cc/">drafts.cc</a> • Created by <a href="{{ commons.author_url }}">{{ commons.author }}</a>, {{ commons.time.year }} • Licensed under <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/deed.en_US">CC BY-NC-SA 3.0</a><br>
-			Content sources <a href="{{ commons.source_url }}">at GitHub</a> • Generated with <a href="{{ commons.generator_url }}">{{ commons.generator }}</a> {{ commons.generator_version }}
-		</div>
-    {%- endblock %}
+    {%- block footer -%}
+			<div class="container text-muted center footer">
+				<hr>
+				<a href="http://drafts.cc/">drafts.cc</a> • Created by <a href="{{ commons.author_url }}">{{ commons.author }}</a>, {{ commons.time.year }} • Licensed under <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/deed.en_US">CC BY-NC-SA 3.0</a><br>
+				Content sources <a href="{{ commons.source_url }}">at GitHub</a> • Generated with <a href="{{ commons.generator_url }}">{{ commons.generator }}</a> {{ commons.generator_version }}
+			</div>
+    {%- endblock -%}
+
 		<script src="//code.jquery.com/jquery-latest.min.js"></script>
 		<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/prettify/r224/prettify.js"></script>
@@ -109,7 +108,14 @@
 				$('pre').addClass('prettyprint linenums');
 			}(window.jQuery);
 		</script>
-		{{- google_analytics(commons.google_analytics_tracking_id) -}}
-		{{- addthis(commons.addthis_id, page.url) -}}
+
+		{%- if commons.google_analytics_tracking_id -%}
+			{{- macros.google_analytics(commons.google_analytics_tracking_id) -}}
+		{%- endif -%}
+
+		{%- if commons.addthis_id -%}
+			{{- macros.addthis(commons.addthis_id, page.url) -}}
+		{%- endif -%}
+
 	</body>
 </html>

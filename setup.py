@@ -4,7 +4,7 @@ import os
 import publicstatic.authoring
 from publicstatic.version import get_version
 from setuptools import setup, find_packages
-import subprocess
+import subprocess as sp
 
 
 def get_data_files(path):
@@ -22,7 +22,7 @@ def get_data_files(path):
 def get_desc(file_name):
     """Get long description by converting README file to reStructuredText."""
     cmd = "pandoc --from=markdown --to=rst %s" % file_name
-    with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
+    with sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE) as process:
         return process.stdout.read().decode('utf-8')
 
 

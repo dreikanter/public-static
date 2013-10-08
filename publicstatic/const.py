@@ -89,6 +89,7 @@ EXPORTS = [
     'google_analytics_tracking_id',
     'disqus_short_name',
     'addthis_id',
+    'pluso_enabled',
 ]
 
 # configuration parameters
@@ -305,5 +306,9 @@ DEFAULTS = {
     'images_location': {
         'value': 'img',
         'desc': 'Path to image files inside build directory',
+    },
+    'pluso_enabled': {
+        'value': False,
+        'desc': 'Enable pluso.ru sharing buttons',
     },
 }
