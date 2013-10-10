@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import os
+import codecs
 import publicstatic.authoring
 from publicstatic.version import get_version
 from setuptools import setup, find_packages
@@ -22,8 +23,13 @@ def get_data_files(path):
 def get_desc(file_name):
     """Get long description by converting README file to reStructuredText."""
     cmd = "pandoc --from=markdown --to=rst %s" % file_name
-    with sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE) as process:
-        return process.stdout.read().decode('utf-8')
+    try:
+        with sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE) as process:
+            return process.stdout.read().decode('utf-8')
+    except FileNotFoundError as e:
+        print('pandoc not installed, using readme contents as is')
+        with codecs.open(file_name, mode='r', encoding='utf-8') as f:
+            return f.read()
 
 
 setup(
@@ -46,7 +52,7 @@ setup(
         'pyyaml',
         'yuicompressor',
     ],
-    entry_points={'console_scripts': ['pub = publicstatic.publicstatic:main']},
+    entry_points={'console_scripts': ['pub = publicstatic:main']},
     include_package_data=True,
     zip_safe=False,
     classifiers=[

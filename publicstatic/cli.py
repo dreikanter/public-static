@@ -1,0 +1,107 @@
+import argparse
+from publicstatic import conf
+from publicstatic import const
+from publicstatic.version import get_version
+
+
+def parse(args):
+    parser = argparse.ArgumentParser(prog=const.PROG)
+    parser.add_argument('-v', '--verbose',
+                        action='store_true',
+                        help='verbose output')
+    version = '%(prog)s {version}'.format(version=get_version())
+    parser.add_argument('-V', '--version',
+                        action='version',
+                        version=version,
+                        help='print version number and exit')
+    parser.add_argument('-s', '--source',
+                        default=None,
+                        metavar='DIR',
+                        help='website source path (default is the cwd)')
+    subparsers = parser.add_subparsers(metavar='<command>',
+                                       dest='command',
+                                       help='')
+
+    # a note related to arguments definition: certainly I remember about DRY
+    # principle, but the plain code structure here seem to be more important
+    # than don't-repeating thyself
+
+    # init command parser
+    help = 'initialize new website'
+    subparser = subparsers.add_parser('init', help=help)
+
+    # build command parser
+    help = 'generate web content from source'
+    subparser = subparsers.add_parser('build', help=help)
+
+    # run command parser
+    help = 'run local web server to preview generated website'
+    subparser = subparsers.add_parser('run', help=help)
+    subparser.add_argument('-p', '--port',
+                           default=None,
+                           type=int,
+                           help='port for local HTTP server')
+    subparser.add_argument('-b', '--browse',
+                           action='store_true',
+                           default=False,
+                           help='open in default browser')
+
+    # deploy command parser
+    help = 'deploy generated website to the remote web server'
+    subparser = subparsers.add_parser('deploy', help=help)
+
+    # clean command parser
+    help = 'delete all generated content'
+    subparser = subparsers.add_parser('clean', help=help)
+
+    # page command parser
+    subparser = subparsers.add_parser('page', help='create new page')
+    subparser.add_argument('name', help='page name (may include path)')
+    subparser.add_argument('-f', '--force',
+                           action='store_true',
+                           default=False,
+                           help='overwrite existing file')
+    subparser.add_argument('-e', '--edit',
+                           action='store_true',
+                           default=False,
+                           help='open with text editor')
+
+    # post command parser
+    subparser = subparsers.add_parser('post', help='create new post')
+    subparser.add_argument('name', help='page name (may include path)')
+    subparser.add_argument('-f', '--force',
+                           action='store_true',
+                           default=False,
+                           help='overwrite existing file')
+    subparser.add_argument('-e', '--edit',
+                           action='store_true',
+                           default=False,
+                           help='open with text editor')
+
+    # update command parser
+    help = 'update templates to the latest version'
+    subparser = subparsers.add_parser('update', help=help)
+
+    # image command parser
+    help = 'image management commands group'
+    subparser = subparsers.add_parser('image', help=help)
+    subsubparsers = subparser.add_subparsers(metavar='<subcommand>',
+                                             dest='subcommand',
+                                             help='')
+
+    # image.add command parser
+    subparser = subsubparsers.add_parser('add', help='add new image')
+
+    # image.rm command parser
+    subparser = subsubparsers.add_parser('rm', help='remove image')
+
+    # image.sync command parser
+    subparser = subsubparsers.add_parser('sync', help='sync images')
+
+    # image.index command parser
+    subparser = subsubparsers.add_parser('index', help='reindex image base')
+
+    # image.list command parser
+    subparser = subsubparsers.add_parser('list', help='list images')
+
+    return vars(parser.parse_args(args))

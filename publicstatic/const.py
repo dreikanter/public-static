@@ -1,5 +1,8 @@
 # coding: utf-8
 
+# program name for CLI
+PROG = 'pub'
+
 # Site configuration file name
 CONF_NAME = 'conf.yaml'
 

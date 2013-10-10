@@ -162,6 +162,29 @@ def update(args):
     logger.info('done')
 
 
+@arg('file', 'image file name')
+@arg('id', 'image name')
+@source_arg
+def images(args):
+    print('image')
+    # """update templates to the latest version"""
+    # conf.load(args.source)
+    # site_dir = conf.site_dir()
+
+    # def replace(subject, dir_name):
+    #     tmp = dir_name + '_'
+    #     if os.path.isdir(dir_name):
+    #         os.rename(dir_name, tmp)
+    #     path = lambda dirname: os.path.join(dirname, subject)
+    #     helpers.copydir(path(conf.generic_dir()), path(site_dir))
+    #     if os.path.exists(tmp):
+    #         shutil.rmtree(tmp)
+
+    # logger.info('updating templates')
+    # replace(const.TEMPLATES_DIR, conf.get('tpl_path'))
+    # logger.info('done')
+
+
 def version(args):
     """show version"""
     return get_version()
@@ -192,15 +215,22 @@ COMMANDS = [
     version
 ]
 
+
 def main():
     try:
         prog = 'pub'
         p = ArghParser(prog=prog,
                        usage='%s <command> [options]' % prog,
                        formatter_class=CustomFormatter)
-        p.add_subparsers(metavar='<command>',
-                         help='one from the following')
+        subparsers = p.add_subparsers(metavar='<command>',
+                                      help='one from the following')
         p.add_commands(COMMANDS)
+
+        # image_parser = subparsers.add_parser('image')
+        # image_parser.set_defaults(function=image_list)
+        # image_parser = foo_subparsers.add_parser('bar')
+        # subparsers.set_defaults(function=bar)
+
         p.dispatch()
     except USER_ERRORS as e:
         logger.error(e)
