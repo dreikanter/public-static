@@ -4,7 +4,6 @@ from publicstatic import const
 from publicstatic import publicstatic
 from publicstatic.version import get_version
 
-from pprint import pprint
 
 def parse(args):
     epilog = ("See '%s <command> --help' for more details "
@@ -103,8 +102,10 @@ def parse(args):
     # image.add command parser
     help = 'add new image with optional id'
     subparser = subsubparsers.add_parser('add', help=help)
-    subparser.add_argument('filename', help='image file name')
+    subparser.add_argument('filename',
+                           help='image file name')
     subparser.add_argument('id',
+                           nargs='?',
                            default=None,
                            help='image identifier')
 
@@ -119,9 +120,9 @@ def parse(args):
     default = 10
     help = 'output the last N lines, instead of the last %d' % default
     subparser.add_argument('-n', '--lines',
+                           dest='number',
                            default=default,
                            type=int,
-                           dest='number',
                            metavar='N',
                            help=help)
 

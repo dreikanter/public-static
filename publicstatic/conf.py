@@ -200,6 +200,8 @@ def _purify(params):
         'port',
         'log_max_size',
         'log_backup_cnt',
+        'image_max_width',
+        'image_max_height',
     ]
 
     for param in integers:

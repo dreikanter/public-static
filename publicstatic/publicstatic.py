@@ -2,9 +2,11 @@
 
 """public-static - static website builder."""
 
+import glob
 import http.server
-# from multiprocessing import Process
 import os
+import PIL
+import re
 import shutil
 import socketserver
 import subprocess
@@ -22,7 +24,7 @@ from publicstatic.version import get_version
 
 
 def init(source=None):
-    """create new website"""
+    """Create new website."""
     conf.generate(source)
     try:
         helpers.copydir(conf.generic_dir(), conf.site_dir())
@@ -33,7 +35,7 @@ def init(source=None):
 
 
 def build(source=None):
-    """generate web content from source"""
+    """Generate web content from source."""
     conf.load(source)
     cache = Cache()
     for builder in builders.order():
@@ -41,6 +43,7 @@ def build(source=None):
 
 
 def _serve(path, port):
+    """Running web server in a background thread."""
     print("running HTTP server on port %d..." % port)
     print('use Ctrl-Break to stop webserver')
     os.chdir(path)
@@ -50,7 +53,7 @@ def _serve(path, port):
 
 
 def run(source=None, port=None, browse=False):
-    """run local web server to preview generated website"""
+    """Preview generated website."""
     conf.load(source)
     helpers.check_build(conf.get('build_path'))
     original_cwd = os.getcwd()
@@ -63,7 +66,7 @@ def run(source=None, port=None, browse=False):
 
 
 def deploy(source=None):
-    """deploy generated website to the remote web server"""
+    """Deploy generated website to the remote web server."""
     conf.load(source)
     helpers.check_build(conf.get('build_path'))
     logger.info('deploying website...')
@@ -75,7 +78,7 @@ def deploy(source=None):
 
 
 def clean(source=None):
-    """delete all generated content"""
+    """Delete all generated content."""
     conf.load(source)
     logger.info('cleaning output...')
     helpers.drop_build(conf.get('build_path'))
@@ -83,7 +86,7 @@ def clean(source=None):
 
 
 def page(source=None, name=None, force=False, edit=False):
-    """create new page"""
+    """Create new page."""
     conf.load(source)
     try:
         path = source.PageSource.create(name, force)
@@ -96,7 +99,7 @@ def page(source=None, name=None, force=False, edit=False):
 
 
 def post(source=None, name=None, force=False, edit=False):
-    """create new post"""
+    """Create new post."""
     conf.load(source)
     path = source.PostSource.create(name, force)
     logger.info('post created: ' + path)
@@ -105,7 +108,7 @@ def post(source=None, name=None, force=False, edit=False):
 
 
 def update(source=None):
-    """update templates to the latest version"""
+    """Update templates to the latest version."""
     conf.load(source)
     site_dir = conf.site_dir()
 
@@ -123,13 +126,59 @@ def update(source=None):
     logger.info('done')
 
 
+def _image_id():
+    pattern = re.compile(r"^(\d+).*")
+    last_id = 0
+    path = conf.get('images_path')
+    for file_name in glob.glob(os.path.join(path, "*_*.*")):
+        match = pattern.match(os.path.basename(file_name))
+        if match:
+            try:
+                last_id = max(last_id, int(match.group(1)))
+            except:
+                pass
+    return last_id + 1
+
+
+def _normalize_image_ext(file_name):
+    _, ext = os.path.splitext(os.path.basename(file_name))
+    return ext.lower()
+
+
 def image_add(source, file_name, id=None):
-    # create image directory if not exists
-    # generate id (last existing + 1)
-    # save original to images as YYYYMMDD_ID_WxH.ext
-    # scale image
-    # save scaled to images as id.<ext>
-    pass
+    """Add new image to site sources."""
+    conf.load(source)
+    if not os.path.exists(file_name):
+        logger.error('image not exists')
+        return
+
+    images_path = conf.get('images_path')
+    if not os.path.isdir(images_path):
+        helpers.makedirs(images_path)
+
+    image = PIL.Image.open(file_name)
+    width, height = image.size
+    parts = {
+        'id': _image_id(),
+        'width': width,
+        'height': height,
+        'ext': _normalize_image_ext(file_name),
+    }
+    original = "{id}_{width}x{height}{ext}".format(**parts)
+    dest = os.path.join(images_path, original)
+    logger.info("adding image: %s" % original)
+    shutil.copyfile(file_name, dest)
+
+    max_width = conf.get('image_max_width') or width
+    max_height = conf.get('image_max_height') or height
+    ratio = min(max_width/width, max_height/height)
+    if ratio < 1:
+        size = (int(width * ratio), int(height * ratio))
+        image.thumbnail(size, PIL.Image.ANTIALIAS)
+        scaled = "{id}_{width}x{height}-preview{ext}".format(**parts)
+        dest = os.path.join(images_path, original)
+        logger.info("saving scaled image: %s" % scaled)
+        image.save(dest)
 
 
 def image_rm(source):

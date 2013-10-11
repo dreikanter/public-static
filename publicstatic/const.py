@@ -91,6 +91,9 @@ EXPORTS = [
     'disqus_short_name',
     'addthis_id',
     'pluso_enabled',
+    'images_path',
+    'image_max_width',
+    'image_max_height',
 ]
 
 # configuration parameters
@@ -311,5 +314,13 @@ DEFAULTS = {
     'pluso_enabled': {
         'value': False,
         'desc': 'Enable pluso.ru sharing buttons',
+    },
+    'image_max_width': {
+        'value': 600,
+        'desc': 'Maximum horizontal image size for previews (0 for no limit)',
+    },
+    'image_max_height': {
+        'value': 0,
+        'desc': 'Maximum vrtical image size for previews (0 for no limit)',
     },
 }

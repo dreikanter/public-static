@@ -4,8 +4,6 @@ from publicstatic import cli
 from publicstatic import logger
 from publicstatic import source
 
-from pprint import pprint
-
 USER_ERRORS = (
     conf.NotFoundException,
     conf.DirectoryExistsException,
@@ -51,11 +49,15 @@ def dispatch(args):
     elif command == 'image':
         subcommand = args.get('subcommand')
         if subcommand == 'add':
-            pass
+            file_name = args.get('filename')
+            image_id = args.get('id', None)
+            publicstatic.image_add(source, file_name, image_id)
         elif subcommand == 'rm':
-            pass
+            image_id = args.get('id', None)
+            publicstatic.image_rm(source, image_id)
         elif subcommand == 'ls':
-            pass
+            number = args.get('number', None)
+            publicstatic.image_ls(source, number)
 
 
 def main():
