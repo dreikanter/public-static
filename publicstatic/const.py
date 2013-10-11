@@ -35,8 +35,6 @@ ASSET_TYPE = 'asset'
 POST_TYPE = 'post'
 PAGE_TYPE = 'page'
 
-BROWSER_DELAY = 2.0
-
 # default post name
 UNTITLED_POST = 'untitled-post'
 

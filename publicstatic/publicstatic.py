@@ -2,9 +2,14 @@
 
 """public-static - static website builder."""
 
-from multiprocessing import Process
+import http.server
+# from multiprocessing import Process
 import os
 import shutil
+import socketserver
+import subprocess
+import threading
+import webbrowser
 from publicstatic import conf
 from publicstatic import const
 from publicstatic import builders
@@ -35,49 +40,37 @@ def build(source=None):
         builder(cache)
 
 
+def _serve(path, port):
+    print("running HTTP server on port %d..." % port)
+    print('use Ctrl-Break to stop webserver')
+    os.chdir(path)
+    handler = http.server.SimpleHTTPRequestHandler
+    server = socketserver.TCPServer(('', port), handler)
+    server.serve_forever()
+
+
 def run(source=None, port=None, browse=False):
     """run local web server to preview generated website"""
     conf.load(source)
     helpers.check_build(conf.get('build_path'))
     original_cwd = os.getcwd()
     port = port or conf.get('port')
-    logger.info("running HTTP server on port %d..." % port)
-    from http.server import SimpleHTTPRequestHandler
-    from socketserver import TCPServer
-    handler = SimpleHTTPRequestHandler
-    httpd = TCPServer(('', port), handler)
-
-    try:
-        if browse:
-            url = "http://localhost:%d/" % port
-            logger.info("opening browser in %g seconds" % const.BROWSER_DELAY)
-            p = Process(target=helpers.browse, args=(url, const.BROWSER_DELAY))
-            p.start()
-
-        logger.info('use Ctrl-Break to stop webserver')
-        os.chdir(conf.get('build_path'))
-        httpd.serve_forever()
-
-    except KeyboardInterrupt:
-        logger.info('server was stopped by user')
-    finally:
-        os.chdir(original_cwd)
+    args = [conf.get('build_path'), port]
+    threading.Thread(target=_serve, args=args).start()
+    if browse:
+        url = "http://localhost:%d/" % port
+        webbrowser.open_new(url)
 
 
 def deploy(source=None):
     """deploy generated website to the remote web server"""
     conf.load(source)
     helpers.check_build(conf.get('build_path'))
-
+    logger.info('deploying website...')
     if not conf.get('deploy_cmd'):
         raise Exception('deploy command is not defined')
-
-    logger.info('deploying website...')
     cmd = conf.get('deploy_cmd').format(build_path=conf.get('build_path'))
-
-    from subprocess import call
-    call(cmd)
-
+    subprocess.call(cmd)
     logger.info('done')
 
 
@@ -131,12 +124,21 @@ def update(source=None):
 
 
 def image_add(source, file_name, id=None):
+    # create image directory if not exists
+    # generate id (last existing + 1)
+    # save original to images as YYYYMMDD_ID_WxH.ext
+    # scale image
+    # save scaled to images as id.<ext>
     pass
 
 
 def image_rm(source):
+    # glob *_id_*
+    # remove if exists (both, original and scaled)
     pass
 
 
 def image_ls(source):
+    # glob and order by utime
+    # show last N
     pass
