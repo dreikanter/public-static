@@ -5,7 +5,6 @@
 from multiprocessing import Process
 import os
 import shutil
-from argh import ArghParser, arg
 from publicstatic import conf
 from publicstatic import const
 from publicstatic import builders
@@ -16,26 +15,10 @@ from publicstatic.cache import Cache
 from publicstatic.formatter import CustomFormatter
 from publicstatic.version import get_version
 
-# Common command line arguments
 
-source_arg = arg('-s', '--source',
-                 default=None,
-                 metavar='DIR',
-                 help='website source path (default is the current directory)')
-
-force_arg = arg('-f', '--force',
-                default=False,
-                help='overwrite existing file')
-
-edit_arg = arg('-e', '--edit',
-               default=False,
-               help='open with preconfigured editor')
-
-
-@source_arg
-def init(args):
+def init(source=None):
     """create new website"""
-    conf.generate(args.source)
+    conf.generate(source)
     try:
         helpers.copydir(conf.generic_dir(), conf.site_dir())
         logger.info('website created successfully, have fun!')
@@ -44,24 +27,20 @@ def init(args):
         print(str(ex))
 
 
-@source_arg
-def build(args):
+def build(source=None):
     """generate web content from source"""
-    conf.load(args.source)
+    conf.load(source)
     cache = Cache()
     for builder in builders.order():
         builder(cache)
 
 
-@source_arg
-@arg('-p', '--port', default=None, type=int, help='port for local HTTP server')
-@arg('-b', '--browse', default=False, help='open in default browser')
-def run(args):
+def run(source=None, port=None, browse=False):
     """run local web server to preview generated website"""
-    conf.load(args.source)
+    conf.load(source)
     helpers.check_build(conf.get('build_path'))
     original_cwd = os.getcwd()
-    port = args.port or conf.get('port')
+    port = port or conf.get('port')
     logger.info("running HTTP server on port %d..." % port)
     from http.server import SimpleHTTPRequestHandler
     from socketserver import TCPServer
@@ -69,7 +48,7 @@ def run(args):
     httpd = TCPServer(('', port), handler)
 
     try:
-        if args.browse:
+        if browse:
             url = "http://localhost:%d/" % port
             logger.info("opening browser in %g seconds" % const.BROWSER_DELAY)
             p = Process(target=helpers.browse, args=(url, const.BROWSER_DELAY))
@@ -85,10 +64,9 @@ def run(args):
         os.chdir(original_cwd)
 
 
-@source_arg
-def deploy(args):
+def deploy(source=None):
     """deploy generated website to the remote web server"""
-    conf.load(args.source)
+    conf.load(source)
     helpers.check_build(conf.get('build_path'))
 
     if not conf.get('deploy_cmd'):
@@ -103,49 +81,39 @@ def deploy(args):
     logger.info('done')
 
 
-@source_arg
-def clean(args):
+def clean(source=None):
     """delete all generated content"""
-    conf.load(args.source)
+    conf.load(source)
     logger.info('cleaning output...')
     helpers.drop_build(conf.get('build_path'))
     logger.info('done')
 
 
-@arg('name', help='page name (may include path)')
-@source_arg
-@force_arg
-@edit_arg
-def page(args):
+def page(source=None, name=None, force=False, edit=False):
     """create new page"""
-    conf.load(args.source)
+    conf.load(source)
     try:
-        path = source.PageSource.create(args.name, args.force)
+        path = source.PageSource.create(name, force)
     except source.PageExistsException:
         logger.error('page already exists, use -f to overwrite')
         return
     logger.info('page created: ' + path)
-    if args.edit:
+    if edit:
         helpers.execute(conf.get('editor_cmd'), path)
 
 
-@arg('name', help='post name and optional feed name')
-@source_arg
-@force_arg
-@edit_arg
-def post(args):
+def post(source=None, name=None, force=False, edit=False):
     """create new post"""
-    conf.load(args.source)
-    path = source.PostSource.create(args.name, args.force)
+    conf.load(source)
+    path = source.PostSource.create(name, force)
     logger.info('post created: ' + path)
-    if args.edit:
+    if edit:
         helpers.execute(conf.get('editor_cmd'), path)
 
 
-@source_arg
-def update(args):
+def update(source=None):
     """update templates to the latest version"""
-    conf.load(args.source)
+    conf.load(source)
     site_dir = conf.site_dir()
 
     def replace(subject, dir_name):
@@ -162,77 +130,13 @@ def update(args):
     logger.info('done')
 
 
-@arg('file', 'image file name')
-@arg('id', 'image name')
-@source_arg
-def images(args):
-    print('image')
-    # """update templates to the latest version"""
-    # conf.load(args.source)
-    # site_dir = conf.site_dir()
-
-    # def replace(subject, dir_name):
-    #     tmp = dir_name + '_'
-    #     if os.path.isdir(dir_name):
-    #         os.rename(dir_name, tmp)
-    #     path = lambda dirname: os.path.join(dirname, subject)
-    #     helpers.copydir(path(conf.generic_dir()), path(site_dir))
-    #     if os.path.exists(tmp):
-    #         shutil.rmtree(tmp)
-
-    # logger.info('updating templates')
-    # replace(const.TEMPLATES_DIR, conf.get('tpl_path'))
-    # logger.info('done')
+def image_add(source, file_name, id=None):
+    pass
 
 
-def version(args):
-    """show version"""
-    return get_version()
+def image_rm(source):
+    pass
 
 
-USER_ERRORS = (
-    conf.NotFoundException,
-    conf.DirectoryExistsException,
-    source.PageExistsException
-)
-
-CRITICAL_ERRORS = (
-    conf.ParsingError,
-    conf.NotInitializedException,
-    source.NotImplementedException,
-    Exception
-)
-
-COMMANDS = [
-    init,
-    build,
-    run,
-    deploy,
-    clean,
-    page,
-    post,
-    update,
-    version
-]
-
-
-def main():
-    try:
-        prog = 'pub'
-        p = ArghParser(prog=prog,
-                       usage='%s <command> [options]' % prog,
-                       formatter_class=CustomFormatter)
-        subparsers = p.add_subparsers(metavar='<command>',
-                                      help='one from the following')
-        p.add_commands(COMMANDS)
-
-        # image_parser = subparsers.add_parser('image')
-        # image_parser.set_defaults(function=image_list)
-        # image_parser = foo_subparsers.add_parser('bar')
-        # subparsers.set_defaults(function=bar)
-
-        p.dispatch()
-    except USER_ERRORS as e:
-        logger.error(e)
-    except CRITICAL_ERRORS:
-        logger.crash()
+def image_ls(source):
+    pass

@@ -45,7 +45,6 @@ setup(
     packages=find_packages(),
     package_data={'publicstatic': get_data_files('publicstatic')},
     install_requires=[
-        'argh',
         'beautifulsoup4',
         'misaka',
         'jinja2',

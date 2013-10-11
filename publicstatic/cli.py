@@ -1,23 +1,28 @@
 import argparse
 from publicstatic import conf
 from publicstatic import const
+from publicstatic import publicstatic
 from publicstatic.version import get_version
 
+from pprint import pprint
 
 def parse(args):
-    parser = argparse.ArgumentParser(prog=const.PROG)
-    parser.add_argument('-v', '--verbose',
-                        action='store_true',
-                        help='verbose output')
-    version = '%(prog)s {version}'.format(version=get_version())
-    parser.add_argument('-V', '--version',
+    epilog = ("See '%s <command> --help' for more details "
+              "on a specific command usage.") % const.PROG
+    parser = argparse.ArgumentParser(prog=const.PROG,
+                                     epilog=epilog)
+    version = '%s v%s' % (const.GENERATOR, get_version())
+    parser.add_argument('-v', '--version',
                         action='version',
                         version=version,
                         help='print version number and exit')
+
     parser.add_argument('-s', '--source',
                         default=None,
                         metavar='DIR',
+                        dest='source',
                         help='website source path (default is the cwd)')
+
     subparsers = parser.add_subparsers(metavar='<command>',
                                        dest='command',
                                        help='')
@@ -40,10 +45,12 @@ def parse(args):
     subparser.add_argument('-p', '--port',
                            default=None,
                            type=int,
+                           dest='port',
                            help='port for local HTTP server')
     subparser.add_argument('-b', '--browse',
                            action='store_true',
                            default=False,
+                           dest='browse',
                            help='open in default browser')
 
     # deploy command parser
@@ -60,10 +67,12 @@ def parse(args):
     subparser.add_argument('-f', '--force',
                            action='store_true',
                            default=False,
+                           dest='force',
                            help='overwrite existing file')
     subparser.add_argument('-e', '--edit',
                            action='store_true',
                            default=False,
+                           dest='edit',
                            help='open with text editor')
 
     # post command parser
@@ -72,10 +81,12 @@ def parse(args):
     subparser.add_argument('-f', '--force',
                            action='store_true',
                            default=False,
+                           dest='force',
                            help='overwrite existing file')
     subparser.add_argument('-e', '--edit',
                            action='store_true',
                            default=False,
+                           dest='edit',
                            help='open with text editor')
 
     # update command parser
@@ -84,24 +95,43 @@ def parse(args):
 
     # image command parser
     help = 'image management commands group'
-    subparser = subparsers.add_parser('image', help=help)
-    subsubparsers = subparser.add_subparsers(metavar='<subcommand>',
-                                             dest='subcommand',
-                                             help='')
+    image_subparser = subparsers.add_parser('image', help=help)
+    subsubparsers = image_subparser.add_subparsers(metavar='<subcommand>',
+                                                   dest='subcommand',
+                                                   help='')
 
     # image.add command parser
-    subparser = subsubparsers.add_parser('add', help='add new image')
+    help = 'add new image with optional id'
+    subparser = subsubparsers.add_parser('add', help=help)
+    subparser.add_argument('filename', help='image file name')
+    subparser.add_argument('id',
+                           default=None,
+                           help='image identifier')
 
     # image.rm command parser
     subparser = subsubparsers.add_parser('rm', help='remove image')
-
-    # image.sync command parser
-    subparser = subsubparsers.add_parser('sync', help='sync images')
-
-    # image.index command parser
-    subparser = subsubparsers.add_parser('index', help='reindex image base')
+    subparser.add_argument('id',
+                           default=None,
+                           help='image identifier')
 
     # image.list command parser
-    subparser = subsubparsers.add_parser('list', help='list images')
+    subparser = subsubparsers.add_parser('ls', help='list images')
+    default = 10
+    help = 'output the last N lines, instead of the last %d' % default
+    subparser.add_argument('-n', '--lines',
+                           default=default,
+                           type=int,
+                           dest='number',
+                           metavar='N',
+                           help=help)
 
-    return vars(parser.parse_args(args))
+    result = vars(parser.parse_args(args))
+    command = result.get('command', None)
+    subcommand = result.get('subcommand', None)
+
+    if command is None:
+        parser.print_help()
+    elif command == 'image' and subcommand is None:
+        image_subparser.print_help()
+
+    return result
