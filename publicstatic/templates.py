@@ -57,7 +57,7 @@ def filter_image(id):
         return "[image not found: %s]" % str(id)
     else:
         html = "<img src=\"{url}\" width=\"{width}\" " \
-               "height=\"{height}\" alt=\"{alt}\">"
+               "height=\"{height}\" alt=\"\">"
         return html.format(**image)
 
 

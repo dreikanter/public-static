@@ -92,6 +92,7 @@ EXPORTS = [
     'addthis_id',
     'pluso_enabled',
     'images_path',
+    'images_location',
     'image_max_width',
     'image_max_height',
 ]
