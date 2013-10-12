@@ -17,6 +17,7 @@ import webbrowser
 from publicstatic import conf
 from publicstatic import const
 from publicstatic import builders
+from publicstatic import images
 from publicstatic import logger
 from publicstatic import helpers
 from publicstatic.cache import Cache
@@ -194,21 +195,6 @@ def image_rm(source, id):
 
 def image_ls(source, number):
     conf.load(source)
-    images = {}
-    pattern = re.compile(r"^(\d+)_.*")
-    path = conf.get('images_path')
-    wildcard = "*_*.*"
-
-    for file_name in glob.glob(os.path.join(path, wildcard)):
-        file_name = os.path.basename(file_name)
-        match = pattern.match(file_name)
-        if match:
-            image_id = int(match.groups(1)[0])
-            if image_id in images:
-                images[image_id].append(file_name)
-            else:
-                images[image_id] = [file_name]
-
-    for image_id in heapq.nlargest(5, images.keys()):
-        files = ', '.join(images[image_id])
-        print("%d -> %s" % (image_id, files))
+    tail = heapq.nlargest(number, images.all(), key=lambda image: image[0])
+    for image in tail:
+        print("%d -> %s" % (image[0], image[1]))
