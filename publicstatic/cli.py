@@ -158,18 +158,18 @@ def parse(args):
     # image.list command parser
     subparser = subsubparsers.add_parser('ls', help='list images')
     default = 10
-    help = 'output the last N lines, instead of the last %d' % default
+    help = 'output the last N lines (default is %d)' % default
+    subparser.add_argument('number',
+                           default=10,
+                           nargs='?',
+                           type=int,
+                           metavar='N',
+                           help=help)
     subparser.add_argument('-d', '--dir',
                            default=None,
                            metavar='DIR',
                            dest='directory',
                            help='website source directory (default is cwd)')
-    subparser.add_argument('-n', '--lines',
-                           dest='number',
-                           default=default,
-                           type=int,
-                           metavar='N',
-                           help=help)
 
     result = vars(parser.parse_args(args))
     command = result.get('command', None)
