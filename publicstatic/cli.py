@@ -1,9 +1,11 @@
 import argparse
-from publicstatic import conf
 from publicstatic import const
-from publicstatic import publicstatic
 from publicstatic.version import get_version
 
+
+# A note related to arguments definition: certainly I remember about DRY
+# principle, but the plain code structure here seem to be more important
+# than don't-repeating thyself. This is actual for init module also.
 
 def parse(args):
     epilog = ("See '%s <command> --help' for more details "
@@ -15,32 +17,35 @@ def parse(args):
                         action='version',
                         version=version,
                         help='print version number and exit')
-
-    parser.add_argument('-s', '--source',
-                        default=None,
-                        metavar='DIR',
-                        dest='source',
-                        help='website source path (default is the cwd)')
-
     subparsers = parser.add_subparsers(metavar='<command>',
                                        dest='command',
                                        help='')
 
-    # a note related to arguments definition: certainly I remember about DRY
-    # principle, but the plain code structure here seem to be more important
-    # than don't-repeating thyself
-
     # init command parser
     help = 'initialize new website'
     subparser = subparsers.add_parser('init', help=help)
+    subparser.add_argument('directory',
+                           nargs='?',
+                           default=None,
+                           help='path to the new site (default is cwd)')
 
     # build command parser
     help = 'generate web content from source'
     subparser = subparsers.add_parser('build', help=help)
+    subparser.add_argument('-d', '--dir',
+                           default=None,
+                           metavar='DIR',
+                           dest='directory',
+                           help='website source directory (default is cwd)')
 
     # run command parser
     help = 'run local web server to preview generated website'
     subparser = subparsers.add_parser('run', help=help)
+    subparser.add_argument('-d', '--dir',
+                           default=None,
+                           metavar='DIR',
+                           dest='directory',
+                           help='website source directory (default is cwd)')
     subparser.add_argument('-p', '--port',
                            default=None,
                            type=int,
@@ -55,14 +60,29 @@ def parse(args):
     # deploy command parser
     help = 'deploy generated website to the remote web server'
     subparser = subparsers.add_parser('deploy', help=help)
+    subparser.add_argument('-d', '--dir',
+                           default=None,
+                           metavar='DIR',
+                           dest='directory',
+                           help='website source directory (default is cwd)')
 
     # clean command parser
     help = 'delete all generated content'
     subparser = subparsers.add_parser('clean', help=help)
+    subparser.add_argument('-d', '--dir',
+                           default=None,
+                           metavar='DIR',
+                           dest='directory',
+                           help='website source directory (default is cwd)')
 
     # page command parser
     subparser = subparsers.add_parser('page', help='create new page')
     subparser.add_argument('name', help='page name (may include path)')
+    subparser.add_argument('-d', '--dir',
+                           default=None,
+                           metavar='DIR',
+                           dest='directory',
+                           help='website source directory (default is cwd)')
     subparser.add_argument('-f', '--force',
                            action='store_true',
                            default=False,
@@ -77,6 +97,11 @@ def parse(args):
     # post command parser
     subparser = subparsers.add_parser('post', help='create new post')
     subparser.add_argument('name', help='page name (may include path)')
+    subparser.add_argument('-d', '--dir',
+                           default=None,
+                           metavar='DIR',
+                           dest='directory',
+                           help='website source directory (default is cwd)')
     subparser.add_argument('-f', '--force',
                            action='store_true',
                            default=False,
@@ -91,6 +116,11 @@ def parse(args):
     # update command parser
     help = 'update templates to the latest version'
     subparser = subparsers.add_parser('update', help=help)
+    subparser.add_argument('-d', '--dir',
+                           default=None,
+                           metavar='DIR',
+                           dest='directory',
+                           help='website source directory (default is cwd)')
 
     # image command parser
     help = 'image management commands group'
@@ -108,17 +138,32 @@ def parse(args):
                            nargs='?',
                            default=None,
                            help='image identifier')
+    subparser.add_argument('-d', '--dir',
+                           default=None,
+                           metavar='DIR',
+                           dest='directory',
+                           help='website source directory (default is cwd)')
 
     # image.rm command parser
     subparser = subsubparsers.add_parser('rm', help='remove image')
     subparser.add_argument('id',
                            default=None,
                            help='image identifier')
+    subparser.add_argument('-d', '--dir',
+                           default=None,
+                           metavar='DIR',
+                           dest='directory',
+                           help='website source directory (default is cwd)')
 
     # image.list command parser
     subparser = subsubparsers.add_parser('ls', help='list images')
     default = 10
     help = 'output the last N lines, instead of the last %d' % default
+    subparser.add_argument('-d', '--dir',
+                           default=None,
+                           metavar='DIR',
+                           dest='directory',
+                           help='website source directory (default is cwd)')
     subparser.add_argument('-n', '--lines',
                            dest='number',
                            default=default,

@@ -2,6 +2,7 @@ import sys
 from publicstatic import conf
 from publicstatic import cli
 from publicstatic import logger
+from publicstatic import publicstatic
 from publicstatic import source
 
 USER_ERRORS = (
@@ -20,44 +21,44 @@ CRITICAL_ERRORS = (
 
 def dispatch(args):
     command = args.get('command')
-    source = args.get('source', None)
+    directory = args.get('directory', None)
 
     if command == 'init':
-        publicstatic.init(source)
+        publicstatic.init(directory)
     elif command == 'build':
-        publicstatic.build(source)
+        publicstatic.build(directory)
     elif command == 'run':
         port = args.get('port', None)
         browse = args.get('browse', False)
-        publicstatic.run(source, port=port, browse=browse)
+        publicstatic.run(directory, port=port, browse=browse)
     elif command == 'deploy':
-        publicstatic.deploy(source)
+        publicstatic.deploy(directory)
     elif command == 'clean':
-        publicstatic.clean(source)
+        publicstatic.clean(directory)
     elif command == 'page':
         name = args.get('name')
         force = args.get('force', False)
         edit = args.get('edit', False)
-        publicstatic.page(source, name=name, force=force, edit=edit)
+        publicstatic.page(directory, name=name, force=force, edit=edit)
     elif command == 'post':
         name = args.get('name')
         force = args.get('force', False)
         edit = args.get('edit', False)
-        publicstatic.post(source, name=name, force=force, edit=edit)
+        publicstatic.post(directory, name=name, force=force, edit=edit)
     elif command == 'update':
-        publicstatic.update(source)
+        publicstatic.update(directory)
     elif command == 'image':
         subcommand = args.get('subcommand')
         if subcommand == 'add':
             file_name = args.get('filename')
             image_id = args.get('id', None)
-            publicstatic.image_add(source, file_name, image_id)
+            publicstatic.image_add(directory, file_name, image_id)
         elif subcommand == 'rm':
             image_id = args.get('id', None)
-            publicstatic.image_rm(source, image_id)
+            publicstatic.image_rm(directory, image_id)
         elif subcommand == 'ls':
             number = args.get('number', None)
-            publicstatic.image_ls(source, number)
+            publicstatic.image_ls(directory, number)
 
 
 def main():
