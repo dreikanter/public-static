@@ -22,13 +22,13 @@
 		{%- endif -%}
 		<li>
 		<a href='{{ item.rel_url }}'>{{ item.title }}</a><br>
-		<small class="text-muted">Created at {{ item.created|strftime(commons.date_format) }}{%- if item.tags %} • Tags: {{ macros.tags_list(item.tags, inline=True) }}{%- endif %} • Words: {{ item.content|wordcount }}</small>
+		<small class="text-muted">Created at {{ item.created|strftime(commons.date_format) }}{%- if item.tags %} • Tags: {{ tags_list(item.tags, inline=True) }}{%- endif %} • Words: {{ item.content|wordcount }}</small>
 		</li>
 	{%- endfor -%}
 	</ul>
 
 	{% if page.tags -%}
 		<h3>Tags</h3>
-		{{ macros.tags_list(page.tags, inline=False, count=True) }}
+		{{ tags_list(page.tags, inline=False, count=True) }}
 	{%- endif %}
 {% endblock %}

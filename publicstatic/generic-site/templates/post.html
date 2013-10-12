@@ -3,7 +3,7 @@
 {% block title %}
 	<div class="header">
 		<h1>{{ page.title }}</h1>
-		<span class="text-muted small"><time pubdate datetime="{{ page.created|isoformat }}"><a href="{{ page.url }}">{{ page.created|strftime(commons.date_format) }}</a></time> • Tags: {{ macros.tags_list(page.tags, inline=True) }}{%- if page.source_url %} • <a href="{{ page.source_url }}">Source</a>{% endif -%}</span>
+		<span class="text-muted small"><time pubdate datetime="{{ page.created|isoformat }}"><a href="{{ page.url }}">{{ page.created|strftime(commons.date_format) }}</a></time> • Tags: {{ tags_list(page.tags, inline=True) }}{%- if page.source_url %} • <a href="{{ page.source_url }}">Source</a>{% endif -%}</span>
 	</div>
 {% endblock %}
 
@@ -16,7 +16,7 @@
 	  </div>
 	  <div class="col-md-4 center">
 			{%- if commons.pluso_enabled -%}
-	  		{{- macros.pluso(page.url) -}}
+	  		{{- pluso(page.url) -}}
 			{%- endif -%}
 	  </div>
 	  <div class="col-md-4 right">
@@ -29,6 +29,6 @@
 
 {% block comments %}
 	{%- if commons.disqus_short_name -%}
-		{{- macros.disqus_comments(commons.disqus_short_name) -}}
+		{{- disqus_comments(commons.disqus_short_name) -}}
 	{%- endif -%}
 {% endblock %}
