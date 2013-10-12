@@ -3,6 +3,7 @@
 """public-static - static website builder."""
 
 import glob
+import heapq
 import http.server
 import os
 import PIL
@@ -11,16 +12,14 @@ import shutil
 import socketserver
 import subprocess
 import threading
+import traceback
 import webbrowser
 from publicstatic import conf
 from publicstatic import const
 from publicstatic import builders
 from publicstatic import logger
 from publicstatic import helpers
-from publicstatic import source
 from publicstatic.cache import Cache
-from publicstatic.formatter import CustomFormatter
-from publicstatic.version import get_version
 
 
 def init(source=None):
@@ -56,7 +55,6 @@ def run(source=None, port=None, browse=False):
     """Preview generated website."""
     conf.load(source)
     helpers.check_build(conf.get('build_path'))
-    original_cwd = os.getcwd()
     port = port or conf.get('port')
     args = [conf.get('build_path'), port]
     threading.Thread(target=_serve, args=args).start()
@@ -169,25 +167,48 @@ def image_add(source, file_name, id=None):
     logger.info("adding image: %s" % original)
     shutil.copyfile(file_name, dest)
 
-    max_width = conf.get('image_max_width') or width
-    max_height = conf.get('image_max_height') or height
-    ratio = min(max_width/width, max_height/height)
-    if ratio < 1:
-        size = (int(width * ratio), int(height * ratio))
-        image.thumbnail(size, PIL.Image.ANTIALIAS)
-        scaled = "{id}_{width}x{height}-preview{ext}".format(**parts)
-        dest = os.path.join(images_path, original)
-        logger.info("saving scaled image: %s" % scaled)
-        image.save(dest)
+    # max_width = conf.get('image_max_width') or width
+    # max_height = conf.get('image_max_height') or height
+    # ratio = min(max_width/width, max_height/height)
+    # if ratio < 1:
+    #     size = (int(width * ratio), int(height * ratio))
+    #     image.thumbnail(size, PIL.Image.ANTIALIAS)
+    #     scaled = "{id}_{width}x{height}-preview{ext}".format(**parts)
+    #     dest = os.path.join(images_path, original)
+    #     logger.info("saving scaled image: %s (%0.2f)" % (scaled, ratio))
+    #     image.save(dest)
 
 
-def image_rm(source):
-    # glob *_id_*
-    # remove if exists (both, original and scaled)
-    pass
+def image_rm(source, id):
+    conf.load(source)
+    path = conf.get('images_path')
+    wildcard = "%s_*.*" % str(id)
+    for file_name in glob.glob(os.path.join(path, wildcard)):
+        try:
+            logger.info("deleting %s" % file_name)
+            os.remove(file_name)
+        except Exception as e:
+            logger.error(str(e))
+            logger.debug(traceback.format_exc())
 
 
-def image_ls(source):
-    # glob and order by utime
-    # show last N
-    pass
+def image_ls(source, number):
+    conf.load(source)
+    images = {}
+    pattern = re.compile(r"^(\d+)_.*")
+    path = conf.get('images_path')
+    wildcard = "*_*.*"
+
+    for file_name in glob.glob(os.path.join(path, wildcard)):
+        file_name = os.path.basename(file_name)
+        match = pattern.match(file_name)
+        if match:
+            image_id = int(match.groups(1)[0])
+            if image_id in images:
+                images[image_id].append(file_name)
+            else:
+                images[image_id] = [file_name]
+
+    for image_id in heapq.nlargest(5, images.keys()):
+        files = ', '.join(images[image_id])
+        print("%d -> %s" % (image_id, files))
