@@ -17,6 +17,7 @@ POST_NAME_FORMAT = "{year}{month}{day}-{name}.md"
 # regular expression to extract {name} from a base name of post source file
 RE_POST_NAME = re.compile(r"^[\d_-]*([^\.]*)", re.U)
 
+
 def order():
     """Source files processing order."""
     return [
@@ -47,7 +48,7 @@ class Source:
 
         source_dir = source_dir or self.source_dir()
         self._path = os.path.join(source_dir, file_name)
-        self._rel_path = file_name
+        self._rel_path = os.path.relpath(file_name, source_dir)
         self._ext = os.path.splitext(file_name)[1].lower()
         self._ctime = datetime.fromtimestamp(os.path.getctime(self._path))
         self._utime = datetime.fromtimestamp(os.path.getmtime(self._path))
