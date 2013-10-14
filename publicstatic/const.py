@@ -66,7 +66,7 @@ SITEMAP = 'sitemap.xml'
 IMAGES_INDEX = 'images.yaml'
 
 # standard name for template content block
-MAIN_BLOCK = 'main'
+CONTENT_BLOCK = 'content'
 
 # parameters sequence for the configuration file
 EXPORTS = [

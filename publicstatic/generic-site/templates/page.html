@@ -45,7 +45,7 @@
 	</head>
 
 	<body>
-    {% block nav %}
+		{% block nav %}
 			<div class="navbar navbar-default navbar-static-top">
 				<div class="container">
 					<div class="navbar-header">
@@ -87,23 +87,25 @@
 			{%- endblock -%}
 
 			{%- block main -%}
-	      {{ page.content }}
-	    {%- endblock -%}
+				{%- block content -%}
+					{{ page.content }}
+				{%- endblock -%}
+			{%- endblock -%}
 
 			{%- block middle -%}
-	    {%- endblock -%}
+			{%- endblock -%}
 
-	    {%- block comments -%}
-	    {%- endblock-%}
+			{%- block comments -%}
+			{%- endblock-%}
 		</div>
 
-    {%- block footer -%}
+		{%- block footer -%}
 			<div class="container text-muted center footer">
 				<hr>
 				<a href="http://drafts.cc/">drafts.cc</a> • Created by <a href="{{ commons.author_url }}">{{ commons.author }}</a>, {{ commons.time.year }} • Licensed under <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/deed.en_US">CC BY-NC-SA 3.0</a><br>
 				Content sources <a href="{{ commons.source_url }}">at GitHub</a> • Generated with <a href="{{ commons.generator_url }}">{{ commons.generator }}</a> {{ commons.generator_version }}
 			</div>
-    {%- endblock -%}
+		{%- endblock -%}
 
 		<script src="//code.jquery.com/jquery-latest.min.js"></script>
 		<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
