@@ -1,4 +1,4 @@
 User-agent: *
-Disallow: {{ commons.archive_rel_url }}
-Disallow: {{ commons.tags_rel_url }}
-Sitemap: {{ commons.sitemap_url }}
+Disallow: /archive/index.html
+Disallow: /tags/
+Sitemap: /sitemap.xml

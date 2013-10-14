@@ -1,13 +1,13 @@
 /* TEAM */
 
-Creator: {{ commons.author }}
-Site: {{ commons.author_url }}
-Twitter: {{ commons.author_twitter }}
-Location: {{ commons.author_location }}
+Creator: Alex Musayev
+Site: http://alex.musayev.com
+Twitter: 
+Location: 
 
 /* SITE */
 
-Last update: {{ commons.last_updated|strftime(commons.datetime_format) }}
-Language: {{ commons.language }}
-Doctype: {{ commons.doctype }}
-IDE: {{ commons.ide }}
+Last update: October 14, 2013 16:05
+Language: English
+Doctype: HTML5
+IDE: Netscape Composer 7

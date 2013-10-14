@@ -2,8 +2,9 @@
 
 """Jinja2 helpers."""
 
-import jinja2
 import codecs
+import jinja2
+import os
 from urllib.parse import urlparse
 from publicstatic import conf
 from publicstatic import const
@@ -21,7 +22,13 @@ JINJA_EXTENSIONS = [
 def env():
     global _env
     if _env is None:
-        loader = jinja2.FileSystemLoader(searchpath=conf.get('tpl_path'))
+        if conf.get('default_templates'):
+            # use tdefault emplates from the package
+            path = os.path.join(conf.generic_dir(), const.TEMPLATES_DIR)
+        else:
+            # use user templates from wensite source files
+            path = conf.get('tpl_path')
+        loader = jinja2.FileSystemLoader(searchpath=path)
         _env = jinja2.Environment(loader=loader, extensions=JINJA_EXTENSIONS)
         _env.filters.update(custom_filters())
     return _env

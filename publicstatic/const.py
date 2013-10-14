@@ -27,7 +27,10 @@ GENERIC_DIR = 'generic-site'
 # crash log file name
 DUMP_FILE = 'crash.log'
 
-# templates directory name
+# default assets directory name
+ASSETS_DIR = 'assets'
+
+# default templates directory name
 TEMPLATES_DIR = 'templates'
 
 # source file types
@@ -95,6 +98,7 @@ EXPORTS = [
     'images_location',
     'image_max_width',
     'image_max_height',
+    'default_templates',
 ]
 
 # configuration parameters
@@ -140,7 +144,7 @@ DEFAULTS = {
         'desc': 'Post files path inside website source dir',
     },
     'assets_path': {
-        'value': 'assets',
+        'value': ASSETS_DIR,
         'desc': 'Web assets path inside website source dir (*.js, *.css, etc)',
     },
     'tpl_path': {
@@ -324,4 +328,8 @@ DEFAULTS = {
         'value': 0,
         'desc': 'Maximum vrtical image size for previews (0 for no limit)',
     },
+    'default_templates': {
+        'value': False,
+        'desc': 'Use default templates for all pages.'
+    }
 }

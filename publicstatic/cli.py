@@ -24,7 +24,7 @@ def parse(args):
     # init command parser
     help = 'initialize new website'
     subparser = subparsers.add_parser('init', help=help)
-    subparser.add_argument('directory',
+    subparser.add_argument('src_dir',
                            nargs='?',
                            default=None,
                            help='path to the new site (default is cwd)')
@@ -35,8 +35,14 @@ def parse(args):
     subparser.add_argument('-d', '--dir',
                            default=None,
                            metavar='DIR',
-                           dest='directory',
+                           dest='src_dir',
                            help='website source directory (default is cwd)')
+    help = 'use default templates (override default_templates parameter to True)'
+    subparser.add_argument('-t', '--default-templates',
+                           action='store_true',
+                           default=False,
+                           dest='def_tpl',
+                           help=help)
 
     # run command parser
     help = 'run local web server to preview generated website'
@@ -44,7 +50,7 @@ def parse(args):
     subparser.add_argument('-d', '--dir',
                            default=None,
                            metavar='DIR',
-                           dest='directory',
+                           dest='src_dir',
                            help='website source directory (default is cwd)')
     subparser.add_argument('-p', '--port',
                            default=None,
@@ -63,7 +69,7 @@ def parse(args):
     subparser.add_argument('-d', '--dir',
                            default=None,
                            metavar='DIR',
-                           dest='directory',
+                           dest='src_dir',
                            help='website source directory (default is cwd)')
 
     # clean command parser
@@ -72,7 +78,7 @@ def parse(args):
     subparser.add_argument('-d', '--dir',
                            default=None,
                            metavar='DIR',
-                           dest='directory',
+                           dest='src_dir',
                            help='website source directory (default is cwd)')
 
     # page command parser
@@ -81,7 +87,7 @@ def parse(args):
     subparser.add_argument('-d', '--dir',
                            default=None,
                            metavar='DIR',
-                           dest='directory',
+                           dest='src_dir',
                            help='website source directory (default is cwd)')
     subparser.add_argument('-f', '--force',
                            action='store_true',
@@ -100,7 +106,7 @@ def parse(args):
     subparser.add_argument('-d', '--dir',
                            default=None,
                            metavar='DIR',
-                           dest='directory',
+                           dest='src_dir',
                            help='website source directory (default is cwd)')
     subparser.add_argument('-f', '--force',
                            action='store_true',
@@ -112,15 +118,6 @@ def parse(args):
                            default=False,
                            dest='edit',
                            help='open with text editor')
-
-    # update command parser
-    help = 'update templates to the latest version'
-    subparser = subparsers.add_parser('update', help=help)
-    subparser.add_argument('-d', '--dir',
-                           default=None,
-                           metavar='DIR',
-                           dest='directory',
-                           help='website source directory (default is cwd)')
 
     # image command parser
     help = 'image management commands group'
@@ -141,7 +138,7 @@ def parse(args):
     subparser.add_argument('-d', '--dir',
                            default=None,
                            metavar='DIR',
-                           dest='directory',
+                           dest='src_dir',
                            help='website source directory (default is cwd)')
 
     # image.rm command parser
@@ -152,8 +149,8 @@ def parse(args):
     subparser.add_argument('-d', '--dir',
                            default=None,
                            metavar='DIR',
-                           dest='directory',
-                           help='website source directory (default is cwd)')
+                           dest='src_dir',
+                           help='website source src_dir (default is cwd)')
 
     # image.list command parser
     subparser = subsubparsers.add_parser('ls', help='list images')
@@ -168,7 +165,7 @@ def parse(args):
     subparser.add_argument('-d', '--dir',
                            default=None,
                            metavar='DIR',
-                           dest='directory',
+                           dest='src_dir',
                            help='website source directory (default is cwd)')
 
     result = vars(parser.parse_args(args))

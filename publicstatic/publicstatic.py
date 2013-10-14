@@ -23,9 +23,9 @@ from publicstatic import helpers
 from publicstatic.cache import Cache
 
 
-def init(source=None):
+def init(src_dir=None):
     """Create new website."""
-    conf.generate(source)
+    conf.generate(src_dir)
     try:
         helpers.copydir(conf.generic_dir(), conf.site_dir())
         logger.info('website created successfully, have fun!')
@@ -34,9 +34,11 @@ def init(source=None):
         print(str(ex))
 
 
-def build(source=None):
+def build(src_dir=None, def_tpl=False):
     """Generate web content from source."""
-    conf.load(source)
+    conf.load(src_dir)
+    if def_tpl:
+        conf.set('default_templates', True)  # overriding parameter
     cache = Cache()
     for builder in builders.order():
         builder(cache)
@@ -52,9 +54,9 @@ def _serve(path, port):
     server.serve_forever()
 
 
-def run(source=None, port=None, browse=False):
+def run(src_dir=None, port=None, browse=False):
     """Preview generated website."""
-    conf.load(source)
+    conf.load(src_dir)
     helpers.check_build(conf.get('build_path'))
     port = port or conf.get('port')
     args = [conf.get('build_path'), port]
@@ -64,9 +66,9 @@ def run(source=None, port=None, browse=False):
         webbrowser.open_new(url)
 
 
-def deploy(source=None):
+def deploy(src_dir=None):
     """Deploy generated website to the remote web server."""
-    conf.load(source)
+    conf.load(src_dir)
     helpers.check_build(conf.get('build_path'))
     logger.info('deploying website...')
     if not conf.get('deploy_cmd'):
@@ -76,17 +78,17 @@ def deploy(source=None):
     logger.info('done')
 
 
-def clean(source=None):
+def clean(src_dir=None):
     """Delete all generated content."""
-    conf.load(source)
+    conf.load(src_dir)
     logger.info('cleaning output...')
     helpers.drop_build(conf.get('build_path'))
     logger.info('done')
 
 
-def page(source=None, name=None, force=False, edit=False):
+def page(src_dir=None, name=None, force=False, edit=False):
     """Create new page."""
-    conf.load(source)
+    conf.load(src_dir)
     try:
         path = source.PageSource.create(name, force)
     except source.PageExistsException:
@@ -97,32 +99,13 @@ def page(source=None, name=None, force=False, edit=False):
         helpers.execute(conf.get('editor_cmd'), path)
 
 
-def post(source=None, name=None, force=False, edit=False):
+def post(src_dir=None, name=None, force=False, edit=False):
     """Create new post."""
-    conf.load(source)
+    conf.load(src_dir)
     path = source.PostSource.create(name, force)
     logger.info('post created: ' + path)
     if edit:
         helpers.execute(conf.get('editor_cmd'), path)
-
-
-def update(source=None):
-    """Update templates to the latest version."""
-    conf.load(source)
-    site_dir = conf.site_dir()
-
-    def replace(subject, dir_name):
-        tmp = dir_name + '_'
-        if os.path.isdir(dir_name):
-            os.rename(dir_name, tmp)
-        path = lambda dirname: os.path.join(dirname, subject)
-        helpers.copydir(path(conf.generic_dir()), path(site_dir))
-        if os.path.exists(tmp):
-            shutil.rmtree(tmp)
-
-    logger.info('updating templates')
-    replace(const.TEMPLATES_DIR, conf.get('tpl_path'))
-    logger.info('done')
 
 
 def _image_id():
@@ -144,9 +127,9 @@ def _normalize_image_ext(file_name):
     return ext.lower()
 
 
-def image_add(source, file_name, id=None):
+def image_add(src_dir, file_name, id=None):
     """Add new image to site sources."""
-    conf.load(source)
+    conf.load(src_dir)
     if not os.path.exists(file_name):
         logger.error('image not exists')
         return
@@ -180,8 +163,8 @@ def image_add(source, file_name, id=None):
     #     image.save(dest)
 
 
-def image_rm(source, id):
-    conf.load(source)
+def image_rm(src_dir, id):
+    conf.load(src_dir)
     path = conf.get('images_path')
     wildcard = "%s_*.*" % str(id)
     for file_name in glob.glob(os.path.join(path, wildcard)):
@@ -193,8 +176,8 @@ def image_rm(source, id):
             logger.debug(traceback.format_exc())
 
 
-def image_ls(source, number):
-    conf.load(source)
+def image_ls(src_dir, number):
+    conf.load(src_dir)
     tail = heapq.nlargest(number, images.all(), key=lambda image: image[0])
     for image in tail:
         print("%d -> %s" % (image[0], image[1]))

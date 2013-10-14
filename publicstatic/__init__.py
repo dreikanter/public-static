@@ -21,44 +21,43 @@ CRITICAL_ERRORS = (
 
 def dispatch(args):
     command = args.get('command')
-    directory = args.get('directory', None)
+    src_dir = args.get('src_dir', None)
 
     if command == 'init':
-        publicstatic.init(directory)
+        publicstatic.init(src_dir)
     elif command == 'build':
-        publicstatic.build(directory)
+        def_tpl = args.get('def_tpl', False)
+        publicstatic.build(src_dir, def_tpl=def_tpl)
     elif command == 'run':
         port = args.get('port', None)
         browse = args.get('browse', False)
-        publicstatic.run(directory, port=port, browse=browse)
+        publicstatic.run(src_dir, port=port, browse=browse)
     elif command == 'deploy':
-        publicstatic.deploy(directory)
+        publicstatic.deploy(src_dir)
     elif command == 'clean':
-        publicstatic.clean(directory)
+        publicstatic.clean(src_dir)
     elif command == 'page':
         name = args.get('name')
         force = args.get('force', False)
         edit = args.get('edit', False)
-        publicstatic.page(directory, name=name, force=force, edit=edit)
+        publicstatic.page(src_dir, name=name, force=force, edit=edit)
     elif command == 'post':
         name = args.get('name')
         force = args.get('force', False)
         edit = args.get('edit', False)
-        publicstatic.post(directory, name=name, force=force, edit=edit)
-    elif command == 'update':
-        publicstatic.update(directory)
+        publicstatic.post(src_dir, name=name, force=force, edit=edit)
     elif command == 'image':
         subcommand = args.get('subcommand')
         if subcommand == 'add':
             file_name = args.get('filename')
             image_id = args.get('id', None)
-            publicstatic.image_add(directory, file_name, image_id)
+            publicstatic.image_add(src_dir, file_name, image_id)
         elif subcommand == 'rm':
             image_id = args.get('id', None)
-            publicstatic.image_rm(directory, image_id)
+            publicstatic.image_rm(src_dir, image_id)
         elif subcommand == 'ls':
             number = args.get('number', None)
-            publicstatic.image_ls(directory, number)
+            publicstatic.image_ls(src_dir, number)
 
 
 def main():

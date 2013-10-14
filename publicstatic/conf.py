@@ -104,6 +104,11 @@ def get(param, default=None):
         raise NotInitializedException()
 
 
+def set(param, value):
+    """Set or override configuration parameter."""
+    _params[param] = value
+
+
 def conf_file():
     _check(_path)
     return _path

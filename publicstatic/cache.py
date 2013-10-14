@@ -2,6 +2,7 @@
 
 import os
 from publicstatic import conf
+from publicstatic import const
 from publicstatic import helpers
 from publicstatic import source
 
@@ -11,10 +12,25 @@ class Cache():
 
     def __init__(self):
         self._cache = []
-        for source_type in source.order():
-            def add(root, rel):
-                self._cache.append(source_type(os.path.join(root, rel)))
-            helpers.walk(source_type.source_dir(), add)
+        gen_assets = os.path.join(conf.generic_dir(), const.ASSETS_DIR)
+        def_tpl = conf.get('default_templates')
+
+        def add_src(src_type, path, rel):
+            full_path = os.path.join(path, rel)
+            # if this asset present in generic assets, skip it
+            is_asset = src_type == source.AssetSource
+            if def_tpl and is_asset:
+                if os.path.isfile(os.path.join(gen_assets, rel)):
+                    return
+            self._cache.append(src_type(full_path, source_dir=path))
+
+        for src_type in source.order():
+            def add(path, rel):
+                add_src(src_type, path, rel)
+            helpers.walk(src_type.source_dir(), add)
+
+        if conf.get('default_templates'):  # add generic assets
+            helpers.walk(gen_assets, add)
 
     def cond(self,
              source_type=None,

@@ -38,9 +38,16 @@ class PageExistsException(errors.BasicException):
 
 class Source:
     """Basic abstraction used for static files to be copied w/o processing."""
-    def __init__(self, file_name):
-        self._path = os.path.join(self.source_dir(), file_name)
-        self._rel_path = os.path.relpath(self._path, self.source_dir())
+    def __init__(self, file_name, source_dir=None):
+        """Initialize Source object.
+
+        Arguments:
+        @file_name - path to a source file name, relative to source_dir.
+        @source_dir - optional argument to override source_dir() value."""
+
+        source_dir = source_dir or self.source_dir()
+        self._path = os.path.join(source_dir, file_name)
+        self._rel_path = file_name
         self._ext = os.path.splitext(file_name)[1].lower()
         self._ctime = datetime.fromtimestamp(os.path.getctime(self._path))
         self._utime = datetime.fromtimestamp(os.path.getmtime(self._path))
@@ -117,8 +124,8 @@ class ParseableSource(Source):
     # parse '<key>: <value>' string to (str, str) tuple
     _re_param = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", re.U)
 
-    def __init__(self, file_name):
-        super().__init__(file_name)
+    def __init__(self, file_name, source_dir=None):
+        super().__init__(file_name, source_dir)
         self._data = self._parse()
         self._tag_names = list([tag['name'] for tag in self._data['tags']])
 
