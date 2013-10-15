@@ -21,7 +21,7 @@ JINJA_EXTENSIONS = [
 def env():
     global _env
     if _env is None:
-        loader = jinja2.FileSystemLoader(searchpath=conf.get('tpl_path'))
+        loader = jinja2.FileSystemLoader(searchpath=conf.theme_templates_dir())
         _env = jinja2.Environment(loader=loader, extensions=JINJA_EXTENSIONS)
         _env.filters.update(custom_filters())
     return _env

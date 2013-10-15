@@ -114,16 +114,32 @@ def conf_file():
     return _path
 
 
-def site_dir():
+def site_dir(append=None):
     """Returns site source directory."""
     _check(_path)
-    return os.path.dirname(_path)
+    return opt_append(os.path.dirname(_path), append)
 
 
-def generic_dir():
+def generic_dir(append=None):
     """Returns full path to the generic directory."""
     path = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(path, const.GENERIC_DIR)
+    return opt_append(os.path.join(path, const.GENERIC_DIR), append)
+
+
+def opt_append(path, append):
+    return path if append is None else os.path.join(path, append)
+
+
+def theme_dir(append=None):
+    return (generic_dir if get('default_templates') else site_dir)(append)
+
+
+def theme_assets_dir():
+    return theme_dir('theme/assets')
+
+
+def theme_templates_dir():
+    return theme_dir('theme/templates')
 
 
 def commons():

@@ -18,15 +18,6 @@ POST_NAME_FORMAT = "{year}{month}{day}-{name}.md"
 RE_POST_NAME = re.compile(r"^[\d_-]*([^\.]*)", re.U)
 
 
-def order():
-    """Source files processing order."""
-    return [
-        AssetSource,
-        PostSource,
-        PageSource,
-    ]
-
-
 class NotImplementedException(errors.BasicException):
     """required functionality is not implemented"""
     pass
@@ -39,16 +30,15 @@ class PageExistsException(errors.BasicException):
 
 class Source:
     """Basic abstraction used for static files to be copied w/o processing."""
-    def __init__(self, file_name, source_dir=None):
+    def __init__(self, file_name, base_dir):
         """Initialize Source object.
 
         Arguments:
-        @file_name - path to a source file name, relative to source_dir.
-        @source_dir - optional argument to override source_dir() value."""
+        @file_name - path to a source file name, relative to base_dir.
+        @base_dir - root directory for source files of this kind."""
 
-        source_dir = source_dir or self.source_dir()
-        self._path = os.path.join(source_dir, file_name)
-        self._rel_path = os.path.relpath(file_name, source_dir)
+        self._path = os.path.join(base_dir, file_name)
+        self._rel_path = os.path.relpath(file_name, base_dir)
         self._ext = os.path.splitext(file_name)[1].lower()
         self._ctime = datetime.fromtimestamp(os.path.getctime(self._path))
         self._utime = datetime.fromtimestamp(os.path.getmtime(self._path))
@@ -62,11 +52,6 @@ class Source:
             ('created', self.created().isoformat()),
             ('updated', self.updated().isoformat()),
         ]])
-
-    @staticmethod
-    def source_dir():
-        """Source file directory path."""
-        raise errors.NotImplementedException()
 
     @staticmethod
     def create():
@@ -125,8 +110,8 @@ class ParseableSource(Source):
     # parse '<key>: <value>' string to (str, str) tuple
     _re_param = re.compile(r"^\s*([\w\d_-]+)\s*[:=]{1}(.*)", re.U)
 
-    def __init__(self, file_name, source_dir=None):
-        super().__init__(file_name, source_dir)
+    def __init__(self, file_name, base_dir):
+        super().__init__(file_name, base_dir)
         self._data = self._parse()
         self._tag_names = list([tag['name'] for tag in self._data['tags']])
 
@@ -222,19 +207,11 @@ class AssetSource(Source):
         ext = '.css' if self.ext() == '.less' else self.ext()
         return os.path.splitext(self._rel_path)[0] + ext
 
-    @staticmethod
-    def source_dir():
-        return conf.get('assets_path')
-
 
 class PageSource(ParseableSource):
     def rel_dest(self):
         ext = '.html' if self.ext() in ['.md', '.markdown'] else self.ext()
         return os.path.splitext(self._rel_path)[0] + ext
-
-    @staticmethod
-    def source_dir():
-        return conf.get('pages_path')
 
     @staticmethod
     def create(name, force=False):
@@ -265,10 +242,6 @@ class PostSource(ParseableSource):
         name = os.path.basename(self._rel_path).lstrip('0123456789-_')
         name = os.path.splitext(name)[0]
         return PostSource._ymd(conf.get('post_location'), self.created(), name)
-
-    @staticmethod
-    def source_dir():
-        return conf.get('posts_path')
 
     @staticmethod
     def create(name, force=False):

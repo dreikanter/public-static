@@ -11,26 +11,17 @@ class Cache():
     """Website contents cache."""
 
     def __init__(self):
+        """Populate cache with source files."""
         self._cache = []
-        gen_assets = os.path.join(conf.generic_dir(), const.ASSETS_DIR)
-        def_tpl = conf.get('default_templates')
-
-        def add_src(src_type, path, rel):
-            full_path = os.path.join(path, rel)
-            # if this asset present in generic assets, skip it
-            is_asset = src_type == source.AssetSource
-            if def_tpl and is_asset:
-                if os.path.isfile(os.path.join(gen_assets, rel)):
-                    return
-            self._cache.append(src_type(full_path, source_dir=path))
-
-        for src_type in source.order():
-            def add(path, rel):
-                add_src(src_type, path, rel)
-            helpers.walk(src_type.source_dir(), add)
-
-        if conf.get('default_templates'):  # add generic assets
-            helpers.walk(gen_assets, add)
+        proc_queue = [
+            (source.AssetSource, conf.theme_assets_dir()),
+            (source.AssetSource, conf.get('assets_path')),
+            (source.PageSource, conf.get('pages_path')),
+            (source.PostSource, conf.get('posts_path')),
+        ]
+        for src_type, dir_path in proc_queue:
+            helpers.walk(dir_path, lambda root, rel: \
+                self._cache.append(src_type(os.path.join(root, rel), root)))
 
     def cond(self,
              source_type=None,
@@ -62,7 +53,7 @@ class Cache():
             conditions.append(lambda source: dest == source.rel_dest())
 
         if tag is not None:
-            tagged = lambda source: isinstance(source, ParseableSource)
+            tagged = lambda source: isinstance(source, source.ParseableSource)
             hastag = lambda source: tagged(source) and source.has_tag(tag)
             conditions.append(lambda source: hastag(source))
 
@@ -77,9 +68,9 @@ class Cache():
                basename=None):
         """Get assets."""
         condition = self.cond(source.AssetSource,
-                                   ext=ext,
-                                   processed=processed,
-                                   basename=basename)
+                              ext=ext,
+                              processed=processed,
+                              basename=basename)
         return filter(condition, self._cache)
 
     def pages(self, dest=None):
