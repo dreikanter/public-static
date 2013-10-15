@@ -15,6 +15,7 @@ import threading
 import traceback
 import webbrowser
 from publicstatic import conf
+from publicstatic import const
 from publicstatic import builders
 from publicstatic import images
 from publicstatic import logger
@@ -173,8 +174,9 @@ def image_rm(src_dir, id):
             logger.debug(traceback.format_exc())
 
 
-def image_ls(src_dir, number):
+def image_ls(src_dir, number=None):
     conf.load(src_dir)
+    number = number or const.LS_NUM
     tail = heapq.nlargest(number, images.all(), key=lambda image: image[0])
     for image in tail:
         print("%d -> %s" % (image[0], image[1]))

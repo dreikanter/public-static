@@ -8,56 +8,42 @@ from publicstatic import source
 USER_ERRORS = (
     conf.NotFoundException,
     conf.DirectoryExistsException,
-    source.PageExistsException
+    source.PageExistsException,
 )
 
 CRITICAL_ERRORS = (
     conf.ParsingError,
     conf.NotInitializedException,
     source.NotImplementedException,
-    Exception
+    Exception,
 )
 
 
 def dispatch(args):
     command = args.get('command')
-    src_dir = args.get('src_dir', None)
-
+    path = args['path']
     if command == 'init':
-        publicstatic.init(src_dir)
+        publicstatic.init(path)
     elif command == 'build':
-        def_tpl = args.get('def_tpl', False)
-        publicstatic.build(src_dir, def_tpl=def_tpl)
+        publicstatic.build(path, args['def_tpl'])
     elif command == 'run':
-        port = args.get('port', None)
-        browse = args.get('browse', False)
-        publicstatic.run(src_dir, port=port, browse=browse)
+        publicstatic.run(path, args['port'], args['browse'])
     elif command == 'deploy':
-        publicstatic.deploy(src_dir)
+        publicstatic.deploy(path)
     elif command == 'clean':
-        publicstatic.clean(src_dir)
+        publicstatic.clean(path)
     elif command == 'page':
-        name = args.get('name')
-        force = args.get('force', False)
-        edit = args.get('edit', False)
-        publicstatic.page(src_dir, name=name, force=force, edit=edit)
+        publicstatic.page(path, args['name'], args['force'], args['edit'])
     elif command == 'post':
-        name = args.get('name')
-        force = args.get('force', False)
-        edit = args.get('edit', False)
-        publicstatic.post(src_dir, name=name, force=force, edit=edit)
+        publicstatic.post(path, args['name'], args['force'], args['edit'])
     elif command == 'image':
         subcommand = args.get('subcommand')
         if subcommand == 'add':
-            file_name = args.get('filename')
-            image_id = args.get('id', None)
-            publicstatic.image_add(src_dir, file_name, image_id)
+            publicstatic.image_add(path, args['filename'], args['id'])
         elif subcommand == 'rm':
-            image_id = args.get('id', None)
-            publicstatic.image_rm(src_dir, image_id)
+            publicstatic.image_rm(path, args['id'])
         elif subcommand == 'ls':
-            number = args.get('number', None)
-            publicstatic.image_ls(src_dir, number)
+            publicstatic.image_ls(path, args['number'])
 
 
 def main():

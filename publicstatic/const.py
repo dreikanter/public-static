@@ -9,6 +9,9 @@ CONF_HEADER = 'public-static configuration file'
 # standard name for template content block
 CONTENT_BLOCK = 'content'
 
+# default image number limitation for 'image ls' command output
+LS_NUM = 10
+
 # environment variable name to override 'verbose' configuration parameter
 ENV_VERBOSE = 'ps_verbose'
 

@@ -2,179 +2,204 @@ import argparse
 from publicstatic import const
 from publicstatic.version import get_version
 
+# global arguments list (default value is a must for optionals!)
+ARGS = {
+    '--version': (
+        ['-v', '--version'],
+        {
+            'action': 'version',
+            'version': '%s v%s' % (const.GENERATOR, get_version()),
+            'help': 'print version number and exit',
+        }
+    ),
+    '--dir': (
+        ['-d', '--dir'],
+        {
+            'default': None,
+            'metavar': 'DIR',
+            'dest': 'path',
+            'help': 'website source directory',
+        }
+    ),
+    '--port': (
+        ['-p', '--port'],
+        {
+            'default': None,
+            'type': int,
+            'dest': 'port',
+            'help': 'port for local HTTP server',
+        }
+    ),
+    '--browse': (
+        ['-b', '--browse'],
+        {
+            'action': 'store_true',
+            'default': False,
+            'dest': 'browse',
+            'help': 'open in default browser',
+        }
+    ),
+    '--force': (
+        ['-f', '--force'],
+        {
+            'action': 'store_true',
+            'default': False,
+            'dest': 'force',
+            'help': 'overwrite existing file',
+        }
+    ),
+    '--edit': (
+        ['-e', '--edit'],
+        {
+            'action': 'store_true',
+            'default': False,
+            'dest': 'edit',
+            'help': 'open with text editor',
+        }
+    ),
+    '--def-tpl': (
+        ['-t', '--def-tpl'],
+        {
+            'action': 'store_true',
+            'default': False,
+            'dest': 'def_tpl',
+            'help': 'use default templates',
+        }
+    ),
+    'path': (
+        ['path'],
+        {
+            'nargs': '?',
+            'default': None,
+            'help': 'path to the new site directory (default is cwd)',
+        },
+    ),
+    'name': (
+        ['name'],
+        {
+            'help': 'new entry title'
+        },
+    ),
+    'filename': (
+        ['filename'],
+        {
+            'help': 'image file name',
+        },
+    ),
+    'id?': (
+        ['id'],
+        {
+            'nargs': '?',
+            'default': None,
+            'help': 'image identifier',
+        },
+    ),
+    'id': (
+        ['id'],
+        {
+            'default': None,
+            'help': 'image identifier',
+        },
+    ),
+    'number': (
+        ['number'],
+        {
+            'default': const.LS_NUM,
+            'nargs': '?',
+            'type': int,
+            'metavar': 'N',
+            'help': 'output last N lines (default is %d)' % const.LS_NUM,
+        },
+    ),
+}
 
-# A note related to arguments definition: certainly I remember about DRY
-# principle, but the plain code structure here seem to be more important
-# than don't-repeating thyself. This is actual for init module also.
+# parser configuration
+CONF = {
+    'args': ['--version'],
+    'subparsers': [
+        {
+            'name': 'init',
+            'args': ['path'],
+            'help': 'initialize new website',
+        },
+        {
+            'name': 'build',
+            'args': ['--dir', '--def-tpl'],
+            'help': 'generate web content from source',
+        },
+        {
+            'name': 'run',
+            'args': ['--dir', '--port', '--browse'],
+            'help': 'run local web server to preview generated website',
+        },
+        {
+            'name': 'deploy',
+            'args': ['--dir'],
+            'help': 'deploy generated website to the remote web server',
+        },
+        {
+            'name': 'clean',
+            'args': ['--dir'],
+            'help': 'delete all generated content',
+        },
+        {
+            'name': 'page',
+            'args': ['name', '--dir', '--force', '--edit'],
+            'help': 'create new page',
+        },
+        {
+            'name': 'post',
+            'args': ['name', '--dir', '--force', '--edit'],
+            'help': 'create new post',
+        },
+        {
+            'name': 'image',
+            'args': [],
+            'help': 'image management commands group',
+            'subparsers': [
+                {
+                    'name': 'add',
+                    'args': ['filename', 'id?', '--dir'],
+                    'help': 'add new image with optional id'
+                },
+                {
+                    'name': 'rm',
+                    'args': ['id', '--dir'],
+                    'help': 'remove image'
+                },
+                {
+                    'name': 'ls',
+                    'args': ['number', '--dir'],
+                    'help': 'list images'
+                },
+            ],
+        },
+    ],
+}
+
+# common subparser configuration
+SUBPARSER_CONF = {
+    'metavar': '<command>',
+    'dest': 'command',
+    'help': '',
+}
+
+
+def configure_parser(parser, conf, arguments):
+    for arg_name in conf.get('args', []):
+        args, kwargs = arguments[arg_name]
+        parser.add_argument(*args, **kwargs)
+
+    if 'subparsers' in conf:
+        subparsers = parser.add_subparsers(**SUBPARSER_CONF)
+        for sp in conf['subparsers']:
+            subparser = subparsers.add_parser(sp['name'], help=sp['help'])
+            configure_parser(subparser, sp, arguments)
+
 
 def parse(args):
     epilog = ("See '%s <command> --help' for more details "
               "on a specific command usage.") % const.PROG
-    parser = argparse.ArgumentParser(prog=const.PROG,
-                                     epilog=epilog)
-    version = '%s v%s' % (const.GENERATOR, get_version())
-    parser.add_argument('-v', '--version',
-                        action='version',
-                        version=version,
-                        help='print version number and exit')
-    subparsers = parser.add_subparsers(metavar='<command>',
-                                       dest='command',
-                                       help='')
-
-    # init command parser
-    help = 'initialize new website'
-    subparser = subparsers.add_parser('init', help=help)
-    subparser.add_argument('src_dir',
-                           nargs='?',
-                           default=None,
-                           help='path to the new site (default is cwd)')
-
-    # build command parser
-    help = 'generate web content from source'
-    subparser = subparsers.add_parser('build', help=help)
-    subparser.add_argument('-d', '--dir',
-                           default=None,
-                           metavar='DIR',
-                           dest='src_dir',
-                           help='website source directory (default is cwd)')
-    help = 'use default templates (override default_templates parameter to True)'
-    subparser.add_argument('-t', '--default-templates',
-                           action='store_true',
-                           default=False,
-                           dest='def_tpl',
-                           help=help)
-
-    # run command parser
-    help = 'run local web server to preview generated website'
-    subparser = subparsers.add_parser('run', help=help)
-    subparser.add_argument('-d', '--dir',
-                           default=None,
-                           metavar='DIR',
-                           dest='src_dir',
-                           help='website source directory (default is cwd)')
-    subparser.add_argument('-p', '--port',
-                           default=None,
-                           type=int,
-                           dest='port',
-                           help='port for local HTTP server')
-    subparser.add_argument('-b', '--browse',
-                           action='store_true',
-                           default=False,
-                           dest='browse',
-                           help='open in default browser')
-
-    # deploy command parser
-    help = 'deploy generated website to the remote web server'
-    subparser = subparsers.add_parser('deploy', help=help)
-    subparser.add_argument('-d', '--dir',
-                           default=None,
-                           metavar='DIR',
-                           dest='src_dir',
-                           help='website source directory (default is cwd)')
-
-    # clean command parser
-    help = 'delete all generated content'
-    subparser = subparsers.add_parser('clean', help=help)
-    subparser.add_argument('-d', '--dir',
-                           default=None,
-                           metavar='DIR',
-                           dest='src_dir',
-                           help='website source directory (default is cwd)')
-
-    # page command parser
-    subparser = subparsers.add_parser('page', help='create new page')
-    subparser.add_argument('name', help='page name (may include path)')
-    subparser.add_argument('-d', '--dir',
-                           default=None,
-                           metavar='DIR',
-                           dest='src_dir',
-                           help='website source directory (default is cwd)')
-    subparser.add_argument('-f', '--force',
-                           action='store_true',
-                           default=False,
-                           dest='force',
-                           help='overwrite existing file')
-    subparser.add_argument('-e', '--edit',
-                           action='store_true',
-                           default=False,
-                           dest='edit',
-                           help='open with text editor')
-
-    # post command parser
-    subparser = subparsers.add_parser('post', help='create new post')
-    subparser.add_argument('name', help='page name (may include path)')
-    subparser.add_argument('-d', '--dir',
-                           default=None,
-                           metavar='DIR',
-                           dest='src_dir',
-                           help='website source directory (default is cwd)')
-    subparser.add_argument('-f', '--force',
-                           action='store_true',
-                           default=False,
-                           dest='force',
-                           help='overwrite existing file')
-    subparser.add_argument('-e', '--edit',
-                           action='store_true',
-                           default=False,
-                           dest='edit',
-                           help='open with text editor')
-
-    # image command parser
-    help = 'image management commands group'
-    image_subparser = subparsers.add_parser('image', help=help)
-    subsubparsers = image_subparser.add_subparsers(metavar='<subcommand>',
-                                                   dest='subcommand',
-                                                   help='')
-
-    # image.add command parser
-    help = 'add new image with optional id'
-    subparser = subsubparsers.add_parser('add', help=help)
-    subparser.add_argument('filename',
-                           help='image file name')
-    subparser.add_argument('id',
-                           nargs='?',
-                           default=None,
-                           help='image identifier')
-    subparser.add_argument('-d', '--dir',
-                           default=None,
-                           metavar='DIR',
-                           dest='src_dir',
-                           help='website source directory (default is cwd)')
-
-    # image.rm command parser
-    subparser = subsubparsers.add_parser('rm', help='remove image')
-    subparser.add_argument('id',
-                           default=None,
-                           help='image identifier')
-    subparser.add_argument('-d', '--dir',
-                           default=None,
-                           metavar='DIR',
-                           dest='src_dir',
-                           help='website source src_dir (default is cwd)')
-
-    # image.list command parser
-    subparser = subsubparsers.add_parser('ls', help='list images')
-    default = 10
-    help = 'output the last N lines (default is %d)' % default
-    subparser.add_argument('number',
-                           default=10,
-                           nargs='?',
-                           type=int,
-                           metavar='N',
-                           help=help)
-    subparser.add_argument('-d', '--dir',
-                           default=None,
-                           metavar='DIR',
-                           dest='src_dir',
-                           help='website source directory (default is cwd)')
-
-    result = vars(parser.parse_args(args))
-    command = result.get('command', None)
-    subcommand = result.get('subcommand', None)
-
-    if command is None:
-        parser.print_help()
-    elif command == 'image' and subcommand is None:
-        image_subparser.print_help()
-
-    return result
+    parser = argparse.ArgumentParser(prog=const.PROG, epilog=epilog)
+    configure_parser(parser, CONF, ARGS)
+    return vars(parser.parse_args(args))
