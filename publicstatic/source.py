@@ -155,7 +155,6 @@ class ParseableSource(Source):
         """Helper function to return 'type' part for source_url()."""
         raise errors.NotImplementedException()
 
-
     def has_tag(self, tag):
         """Check if source file has specified tag."""
         return tag in self._tag_names

@@ -6,7 +6,6 @@ import codecs
 from datetime import datetime
 import os
 import yaml
-from publicstatic import authoring
 from publicstatic import const
 from publicstatic import errors
 from publicstatic import version
@@ -120,10 +119,10 @@ def site_dir(append=None):
     return opt_append(os.path.dirname(_path), append)
 
 
-def generic_dir(append=None):
+def proto_dir(append=None):
     """Returns full path to the generic directory."""
     path = os.path.dirname(os.path.abspath(__file__))
-    return opt_append(os.path.join(path, const.GENERIC_DIR), append)
+    return opt_append(os.path.join(path, const.PROTO_DIR), append)
 
 
 def opt_append(path, append):
@@ -131,7 +130,7 @@ def opt_append(path, append):
 
 
 def theme_dir(append=None):
-    return (generic_dir if get('default_templates') else site_dir)(append)
+    return (proto_dir if get('default_templates') else site_dir)(append)
 
 
 def theme_assets_dir():
@@ -140,6 +139,10 @@ def theme_assets_dir():
 
 def theme_templates_dir():
     return theme_dir('theme/templates')
+
+
+def tags_rel_url():
+    return os.path.dirname(get('rel_root_url') + get('tag_location')) + '/'
 
 
 def commons():
@@ -160,8 +163,7 @@ def commons():
         'enable_search_form': get('enable_search_form'),
         'atom_url': get('root_url') + get('atom_location'),
         'archive_rel_url': get('rel_root_url') + get('archive_location'),
-        'tags_rel_url':
-            os.path.dirname(get('rel_root_url') + get('tag_location')) + '/',
+        'tags_rel_url': tags_rel_url(),
         'sitemap_url': get('rel_root_url') + 'sitemap.xml',
         'author_twitter': get('humans_author_twitter'),
         'author_location': get('humans_author_location'),
@@ -169,10 +171,10 @@ def commons():
         'doctype': get('humans_doctype'),
         'ide': get('humans_ide'),
         'last_updated': datetime.now(),
-        'disqus_short_name': get('disqus_short_name'),
-        'addthis_id': get('addthis_id'),
+        'id_disqus': get('id_disqus'),
+        'id_addthis': get('id_addthis'),
         'pluso_enabled': get('pluso_enabled'),
-        'google_analytics_tracking_id': get('google_analytics_tracking_id'),
+        'id_google_analytics': get('id_google_analytics'),
         'datetime_format': get('datetime_format'),
         'date_format': get('date_format'),
     }
@@ -200,7 +202,6 @@ def _purify(params):
         'posts_path',
         'assets_path',
         'build_path',
-        'tpl_path',
         'images_path',
         'log_file',
     ]

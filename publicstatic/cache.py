@@ -2,7 +2,6 @@
 
 import os
 from publicstatic import conf
-from publicstatic import const
 from publicstatic import helpers
 from publicstatic import source
 
@@ -13,15 +12,18 @@ class Cache():
     def __init__(self):
         """Populate cache with source files."""
         self._cache = []
+
         proc_queue = [
             (source.AssetSource, conf.theme_assets_dir()),
             (source.AssetSource, conf.get('assets_path')),
             (source.PageSource, conf.get('pages_path')),
             (source.PostSource, conf.get('posts_path')),
         ]
+
         for src_type, dir_path in proc_queue:
-            helpers.walk(dir_path, lambda root, rel: \
-                self._cache.append(src_type(os.path.join(root, rel), root)))
+            def add_source(root, rel):
+                self._cache.append(src_type(os.path.join(root, rel), root))
+            helpers.walk(dir_path, add_source)
 
     def cond(self,
              source_type=None,

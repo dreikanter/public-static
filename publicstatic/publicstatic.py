@@ -15,11 +15,11 @@ import threading
 import traceback
 import webbrowser
 from publicstatic import conf
-from publicstatic import const
 from publicstatic import builders
 from publicstatic import images
 from publicstatic import logger
 from publicstatic import helpers
+from publicstatic import source
 from publicstatic.cache import Cache
 
 
@@ -27,7 +27,7 @@ def init(src_dir=None):
     """Create new website."""
     conf.generate(src_dir)
     try:
-        helpers.copydir(conf.generic_dir(), conf.site_dir())
+        helpers.copydir(conf.proto_dir(), conf.site_dir())
         logger.info('website created successfully, have fun!')
     except Exception as ex:
         logger.error('initialization failed: ' + str(ex))
@@ -122,11 +122,6 @@ def _image_id():
     return last_id + 1
 
 
-def _normalize_image_ext(file_name):
-    _, ext = os.path.splitext(os.path.basename(file_name))
-    return ext.lower()
-
-
 def image_add(src_dir, file_name, id=None):
     """Add new image to site sources."""
     conf.load(src_dir)
@@ -140,11 +135,13 @@ def image_add(src_dir, file_name, id=None):
 
     image = PIL.Image.open(file_name)
     width, height = image.size
+    _, ext = os.path.splitext(os.path.basename(file_name))
+
     parts = {
         'id': _image_id(),
         'width': width,
         'height': height,
-        'ext': _normalize_image_ext(file_name),
+        'ext': ext.lower(),
     }
     original = "{id}_{width}x{height}{ext}".format(**parts)
     dest = os.path.join(images_path, original)

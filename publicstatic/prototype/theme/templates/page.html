@@ -117,12 +117,12 @@
 			}(window.jQuery);
 		</script>
 
-		{%- if commons.google_analytics_tracking_id -%}
-			{{- google_analytics(commons.google_analytics_tracking_id) -}}
+		{%- if commons.id_google_analytics -%}
+			{{- google_analytics(commons.id_google_analytics) -}}
 		{%- endif -%}
 
-		{%- if commons.addthis_id -%}
-			{{- addthis(commons.addthis_id, page.url) -}}
+		{%- if commons.id_addthis -%}
+			{{- addthis(commons.id_addthis, page.url) -}}
 		{%- endif -%}
 
 	</body>

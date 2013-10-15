@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 from publicstatic import conf
 from publicstatic import const
 from publicstatic import images
+from publicstatic import logger
 from publicstatic import helpers
 from publicstatic import minify
 
@@ -21,6 +22,7 @@ JINJA_EXTENSIONS = [
 def env():
     global _env
     if _env is None:
+        logger.info("templates search path: %s" % conf.theme_templates_dir())
         loader = jinja2.FileSystemLoader(searchpath=conf.theme_templates_dir())
         _env = jinja2.Environment(loader=loader, extensions=JINJA_EXTENSIONS)
         _env.filters.update(custom_filters())

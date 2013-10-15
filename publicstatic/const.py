@@ -1,48 +1,34 @@
 # coding: utf-8
 
-# program name for CLI
-PROG = 'pub'
-
 # Site configuration file name
 CONF_NAME = 'conf.yaml'
 
 # Configuration file header
-CONF_HEADER = """public-static configuration file"""
+CONF_HEADER = 'public-static configuration file'
+
+# standard name for template content block
+CONTENT_BLOCK = 'content'
+
+# environment variable name to override 'verbose' configuration parameter
+ENV_VERBOSE = 'ps_verbose'
 
 # Program name and version info
-GENERATOR = "public-static"
+GENERATOR = 'public-static'
 
 # Program home page
 GENERATOR_URL = 'http://github.com/dreikanter/public-static'
 
-# Logger message format
-LOG_FORMAT = "%(asctime)s %(levelname)s: %(message)s"
-
 # Logger message timestamp format
 LOG_DATE_FORMAT = "%Y/%m/%d %H:%M:%S"
 
-# generic site directory name within the package directory
-GENERIC_DIR = 'generic-site'
+# Logger message format
+LOG_FORMAT = "%(asctime)s %(levelname)s: %(message)s"
 
-# crash log file name
-DUMP_FILE = 'crash.log'
+# program name for CLI
+PROG = 'pub'
 
-# default assets directory name
-ASSETS_DIR = 'assets'
-
-# default templates directory name
-TEMPLATES_DIR = 'templates'
-
-# source file types
-ASSET_TYPE = 'asset'
-POST_TYPE = 'post'
-PAGE_TYPE = 'page'
-
-# default post name
-UNTITLED_POST = 'untitled-post'
-
-# environment variable name to override 'verbose' configuration parameter
-ENV_VERBOSE = 'ps_verbose'
+# prototype for the site source directory, located within the package directory
+PROTO_DIR = 'prototype'
 
 # page prototype
 PROTO_PAGE = """title: {title}
@@ -62,54 +48,55 @@ This is a new blog post."""
 # sitemap file name
 SITEMAP = 'sitemap.xml'
 
-# images metadata file
-IMAGES_INDEX = 'images.yaml'
-
-# standard name for template content block
-CONTENT_BLOCK = 'content'
+# default post name
+UNTITLED_POST = 'untitled-post'
 
 # parameters sequence for the configuration file
 EXPORTS = [
-    'title',
-    'subtitle',
     'author',
     'author_url',
+    'default_tags',
+    'default_templates',
+    'deploy_cmd',
+    'id_disqus',
+    'editor_cmd',
+    'enable_search_form',
+    'id_addthis',
+    'id_google_analytics',
+    'image_max_height',
+    'image_max_width',
+    'images_location',
+    'images_path',
+    'less_cmd',
+    'menu',
+    'min_css',
+    'min_css_cmd',
+    'min_html',
+    'min_js',
+    'min_js_cmd',
+    'pluso_enabled',
+    'port',
+    'post_location',
     'root_url',
     'source_url',
-    'post_location',
-    'port',
-    'min_js',
-    'min_css',
-    'min_html',
-    'min_js_cmd',
-    'min_css_cmd',
-    'less_cmd',
-    'deploy_cmd',
-    'editor_cmd',
-    'default_tags',
+    'subtitle',
+    'title',
     'verbose',
-    'menu',
-    'enable_search_form',
-    'google_analytics_tracking_id',
-    'disqus_short_name',
-    'addthis_id',
-    'pluso_enabled',
-    'images_path',
-    'images_location',
-    'image_max_width',
-    'image_max_height',
-    'default_templates',
 ]
 
 # configuration parameters
 DEFAULTS = {
-    'title': {
-        'value': 'Untitled Blog',
-        'desc': 'Site title',
+    'archive_location': {
+        'value': 'archive/index.html',
+        'desc': 'Blog archive page location',
     },
-    'subtitle': {
-        'value': '',
-        'desc': 'Site sublitle',
+    'assets_path': {
+        'value': 'assets',
+        'desc': 'Web assets path inside website source dir (*.js, *.css, etc)',
+    },
+    'atom_location': {
+        'value': 'atom.xml',
+        'desc': 'Atom feed file name',
     },
     'author': {
         'value': 'Anonymous',
@@ -119,86 +106,25 @@ DEFAULTS = {
         'value': 'http://example.net',
         'desc': 'Author home page',
     },
-    'root_url': {
-        'value': 'http://example.com/',
-        'desc': 'Root website URL',
-    },
-    'rel_root_url': {
-        'value': '/',
-        'desc': 'Relative root website URL',
-    },
-    'source_url': {
-        'value': 'http://github.com/username/example.com',
-        'desc': 'Website source URL',
-    },
     'build_path': {
         'value': 'build',
         'desc': 'Build path for web content generator output',
     },
-    'pages_path': {
-        'value': 'pages',
-        'desc': 'Page files path inside website source dir',
+    'default_tags': {
+        'value': ['misc'],
+        'desc': 'A list of default tags to be added to a new post',
     },
-    'posts_path': {
-        'value': 'posts',
-        'desc': 'Post files path inside website source dir',
-    },
-    'assets_path': {
-        'value': ASSETS_DIR,
-        'desc': 'Web assets path inside website source dir (*.js, *.css, etc)',
-    },
-    'tpl_path': {
-        'value': TEMPLATES_DIR,
-        'desc': 'Relative path to the templates directory inside '
-                'website source dir',
-    },
-    'images_path': {
-        'value': 'images',
-        'desc': 'Image files path inside website source dir',
-    },
-    'post_location': {
-        'value': '{year}/{month}/{day}/{name}.html',
-        'desc': 'Post destination path pattern',
-    },
-    'post_source_name': {
-        'value': '{year}{month}{day}-{name}.md',
-        'desc': 'Post source file name pattern',
-    },
-    'port': {
-        'value': 8000,
-        'desc': 'Port number for the local web server',
-    },
-    'page_tpl': {
-        'value': 'page',
-        'desc': 'Template name for pages',
-    },
-    'post_tpl': {
-        'value': 'post',
-        'desc': 'Template name for blog posts',
-    },
-    'min_js': {
+    'default_templates': {
         'value': False,
-        'desc': 'Enable JavaScript minification',
+        'desc': 'Use default templates for all pages',
     },
-    'min_css': {
-        'value': False,
-        'desc': 'Enable CSS minification',
+    'date_format': {
+        'value': "%B %d, %Y",
+        'desc': 'Page/post short date format for generated HTML',
     },
-    'min_html': {
-        'value': False,
-        'desc': 'Remove extra whitespace from HTML.',
-    },
-    'min_js_cmd': {
-        'value': "yuicompressor --type js --nomunge -o {dest} {source}",
-        'desc': 'Shell command for JavaScript minification',
-    },
-    'min_css_cmd': {
-        'value': "yuicompressor --type css -o {dest} {source}",
-        'desc': 'Shell command for CSS minification',
-    },
-    'less_cmd': {
-        'value': "lessc --yui-compress {source} > {dest}",
-        'desc': 'Shell command for LESS compillation',
+    'datetime_format': {
+        'value': "%B %d, %Y %H:%M",
+        'desc': 'Page/post full date and time format for generated HTML',
     },
     'deploy_cmd': {
         'value': '',
@@ -207,71 +133,58 @@ DEFAULTS = {
     'editor_cmd': {
         'value': "$EDITOR \"\"{source}\"\"",
         'desc': 'Shell command to open files in text editor. {source} will '
-                'be replaced with a file path to open.',
-    },
-    'index_page': {
-        'value': 'index.html',
-        'desc': 'File name for an index page',
-    },
-    'atom_location': {
-        'value': 'atom.xml',
-        'desc': 'Atom feed file name.',
-    },
-    'post_at_root_url': {
-        'value': True,
-        'desc': 'Put a copy of the latest post to the website root',
-    },
-    'default_tags': {
-        'value': ['misc'],
-        'desc': 'A list of default tags to be added to a new post',
-    },
-    'log_file': {
-        'value': 'pub.log',
-        'desc': 'Log file name',
-    },
-    'log_max_size': {
-        'value': 1024 * 1024,
-        'desc': 'Maximum file size for log rotation (in bytes)',
-    },
-    'log_backup_cnt': {
-        'value': 3,
-        'desc': 'Amount of log files to keep',
-    },
-    'verbose': {
-        'value': True,
-        'desc': 'Enable verbose logging',
-    },
-    'time_format': {
-        'value': ['%Y/%m/%d %H:%M:%S', '%Y/%m/%d %H:%M', '%Y/%m/%d'],
-        'desc': 'A list of possible date/time formats for the '
-                'post and page header fields',
-    },
-    'datetime_format': {
-        'value': '%B %d, %Y %H:%M',
-        'desc': 'Page/post full date and time format for generated HTML',
-    },
-    'date_format': {
-        'value': '%B %d, %Y',
-        'desc': 'Page/post short date format for generated HTML',
-    },
-    'iso_datetime_format': {
-        'value': '%B %d, %Y',
-        'desc': 'Page/post short date format for generated HTML',
-    },
-    'menu': {
-        'value': [
-            {'title': 'About', 'href': '/about.html'},
-            {'title': 'Archive', 'href': '/archive/'},
-        ],
-        'desc': 'Navigation menu items',
+                'be replaced with a file path to open',
     },
     'enable_search_form': {
         'value': True,
         'desc': 'Enable Google search form',
     },
-    'humans_language': {
-        'value': 'English',
-        'desc': 'Site Language for humans.txt',
+    'id_addthis': {
+        'value': '',
+        'desc': 'AddThis.com identifier, e.g. ra-1234567890123456 (sharing '
+                'buttons code will be included if the value is not empty)',
+    },
+    'id_disqus': {
+        'value': '',
+        'desc': 'Site short name for Disqus comments (comments code '
+                'will be included if the value is not empty)',
+    },
+    'id_google_analytics': {
+        'value': '',
+        'desc': 'Google Analytics tracking ID, e.g. UA-12345678-9 (tracking '
+                'code will be included if the value is not empty)',
+    },
+    'image_max_height': {
+        'value': 0,
+        'desc': 'Maximum vrtical image size for previews (0 for no limit)',
+    },
+    'image_max_width': {
+        'value': 600,
+        'desc': 'Maximum horizontal image size for previews (0 for no limit)',
+    },
+    'images_location': {
+        'value': 'img',
+        'desc': 'Path to image files inside build directory',
+    },
+    'images_path': {
+        'value': 'images',
+        'desc': 'Image files path inside website source dir',
+    },
+    'index_page': {
+        'value': 'index.html',
+        'desc': 'File name for an index page',
+    },
+    'iso_datetime_format': {
+        'value': "%B %d, %Y",
+        'desc': 'Page/post short date format for generated HTML',
+    },
+    'humans_author_location': {
+        'value': '',
+        'desc': 'Site author location for humans.txt',
+    },
+    'humans_author_twitter': {
+        'value': '',
+        'desc': 'Site author twitter account for humans.txt',
     },
     'humans_doctype': {
         'value': 'HTML5',
@@ -281,55 +194,120 @@ DEFAULTS = {
         'value': 'Netscape Composer 7',
         'desc': 'IDE value for humans.txt',
     },
-    'humans_author_twitter': {
-        'value': '',
-        'desc': 'Site author twitter account for humans.txt',
+    'humans_language': {
+        'value': 'English',
+        'desc': 'Site Language for humans.txt',
     },
-    'humans_author_location': {
-        'value': '',
-        'desc': 'Site author location for humans.txt',
+    'less_cmd': {
+        'value': "lessc --yui-compress {source} > {dest}",
+        'desc': 'Shell command for LESS compillation',
     },
-    'tag_location': {
-        'value': 'tags/{tag}.html',
-        'desc': 'Tag file name pattern for tag page and URL generation',
+    'log_backup_cnt': {
+        'value': 3,
+        'desc': 'Amount of log files to keep',
     },
-    'archive_location': {
-        'value': 'archive/index.html',
-        'desc': 'Blog archive page location.',
+    'log_file': {
+        'value': 'pub.log',
+        'desc': 'Log file name',
     },
-    'google_analytics_tracking_id': {
-        'value': '',
-        'desc': 'Google Analytics tracking ID, e.g. UA-12345678-9 (tracking '
-                'code will be included if the value is not empty)',
+    'log_max_size': {
+        'value': 1024 * 1024,
+        'desc': 'Maximum file size for log rotation (in bytes)',
     },
-    'disqus_short_name': {
-        'value': '',
-        'desc': 'Site short name for Disqus comments (comments code '
-                'will be included if the value is not empty)',
+    'menu': {
+        'value': [
+            {'title': 'About', 'href': '/about.html'},
+            {'title': 'Archive', 'href': '/archive/'},
+        ],
+        'desc': 'Navigation menu items',
     },
-    'addthis_id': {
-        'value': '',
-        'desc': 'AddThis.com identifier, e.g. ra-1234567890123456 (sharing '
-                'buttons code will be included if the value is not empty)',
+    'min_css': {
+        'value': False,
+        'desc': 'Enable CSS minification',
     },
-    'images_location': {
-        'value': 'img',
-        'desc': 'Path to image files inside build directory',
+    'min_css_cmd': {
+        'value': "yuicompressor --type css -o {dest} {source}",
+        'desc': 'Shell command for CSS minification',
+    },
+    'min_html': {
+        'value': False,
+        'desc': 'Remove extra whitespace from HTML',
+    },
+    'min_js': {
+        'value': False,
+        'desc': 'Enable JavaScript minification',
+    },
+    'min_js_cmd': {
+        'value': "yuicompressor --type js --nomunge -o {dest} {source}",
+        'desc': 'Shell command for JavaScript minification',
+    },
+    'page_tpl': {
+        'value': 'page',
+        'desc': 'Template name for pages',
+    },
+    'pages_path': {
+        'value': 'pages',
+        'desc': 'Page files path inside website source dir',
     },
     'pluso_enabled': {
         'value': False,
         'desc': 'Enable pluso.ru sharing buttons',
     },
-    'image_max_width': {
-        'value': 600,
-        'desc': 'Maximum horizontal image size for previews (0 for no limit)',
+    'port': {
+        'value': 8000,
+        'desc': 'Port number for the local web server',
     },
-    'image_max_height': {
-        'value': 0,
-        'desc': 'Maximum vrtical image size for previews (0 for no limit)',
+    'post_at_root_url': {
+        'value': True,
+        'desc': 'Put a copy of the latest post to the website root',
     },
-    'default_templates': {
-        'value': False,
-        'desc': 'Use default templates for all pages.'
-    }
+    'post_location': {
+        'value': '{year}/{month}/{day}/{name}.html',
+        'desc': 'Post destination path pattern',
+    },
+    'post_source_name': {
+        'value': '{year}{month}{day}-{name}.md',
+        'desc': 'Post source file name pattern',
+    },
+    'post_tpl': {
+        'value': 'post',
+        'desc': 'Template name for blog posts',
+    },
+    'posts_path': {
+        'value': 'posts',
+        'desc': 'Post files path inside website source dir',
+    },
+    'rel_root_url': {
+        'value': '/',
+        'desc': 'Relative root website URL',
+    },
+    'root_url': {
+        'value': 'http://example.com/',
+        'desc': 'Root website URL',
+    },
+    'source_url': {
+        'value': 'http://github.com/username/example.com',
+        'desc': 'Website source URL',
+    },
+    'subtitle': {
+        'value': '',
+        'desc': 'Site sublitle',
+    },
+    'tag_location': {
+        'value': 'tags/{tag}.html',
+        'desc': 'Tag file name pattern for tag page and URL generation',
+    },
+    'time_format': {
+        'value': ["%Y/%m/%d %H:%M:%S", "%Y/%m/%d %H:%M", "%Y/%m/%d"],
+        'desc': 'A list of possible date/time formats for the '
+                'post and page header fields',
+    },
+    'title': {
+        'value': 'Brand New Blog',
+        'desc': 'Site title',
+    },
+    'verbose': {
+        'value': True,
+        'desc': 'Enable verbose logging',
+    },
 }
