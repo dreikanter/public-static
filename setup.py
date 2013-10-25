@@ -2,8 +2,6 @@
 
 import os
 import codecs
-import publicstatic.authoring
-from publicstatic.version import get_version
 from setuptools import setup, find_packages
 import subprocess as sp
 
@@ -35,11 +33,11 @@ def get_desc(file_name):
 setup(
     name='publicstatic',
     description='Yet another static website builder. A good one.',
-    version=get_version(),
-    license=publicstatic.authoring.__license__,
-    author=publicstatic.authoring.__author__,
-    author_email=publicstatic.authoring.__email__,
-    url=publicstatic.authoring.__url__,
+    version='0.7.5',
+    license='MIT',
+    author='Alex Musayev',
+    author_email='alex.musayev@gmail.com',
+    url='http://github.com/dreikanter/public-static',
     long_description=get_desc('README.md'),
     platforms=['any'],
     packages=find_packages(),
