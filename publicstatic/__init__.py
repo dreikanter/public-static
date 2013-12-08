@@ -36,14 +36,14 @@ def dispatch(args):
         publicstatic.page(path, args['name'], args['force'], args['edit'])
     elif command == 'post':
         publicstatic.post(path, args['name'], args['force'], args['edit'])
-    elif command == 'image':
-        subcommand = args.get('subcommand')
-        if subcommand == 'add':
-            publicstatic.image_add(path, args['filename'], args['id'])
-        elif subcommand == 'rm':
-            publicstatic.image_rm(path, args['id'])
-        elif subcommand == 'ls':
-            publicstatic.image_ls(path, args['number'])
+    # elif command == 'image':
+    #     subcommand = args.get('subcommand')
+    #     if subcommand == 'add':
+    #         publicstatic.image_add(path, args['filename'], args['id'])
+    #     elif subcommand == 'rm':
+    #         publicstatic.image_rm(path, args['id'])
+    #     elif subcommand == 'ls':
+    #         publicstatic.image_ls(path, args['number'])
 
 
 def main():

@@ -6,7 +6,6 @@ import glob
 import heapq
 import http.server
 import os
-# import PIL
 import re
 import shutil
 import socketserver
@@ -125,30 +124,30 @@ def _image_id():
 
 def image_add(src_dir, file_name, id=None):
     """Add new image to site sources."""
-    conf.load(src_dir)
-    if not os.path.exists(file_name):
-        logger.error('image not exists')
-        return
+    # conf.load(src_dir)
+    # if not os.path.exists(file_name):
+    #     logger.error('image not exists')
+    #     return
 
-    images_path = conf.get('images_path')
-    if not os.path.isdir(images_path):
-        helpers.makedirs(images_path)
+    # images_path = conf.get('images_path')
+    # if not os.path.isdir(images_path):
+    #     helpers.makedirs(images_path)
 
-    # image = PIL.Image.open(file_name)
-    # width, height = image.size
-    width, height = 0, 0
-    _, ext = os.path.splitext(os.path.basename(file_name))
+    # # image = PIL.Image.open(file_name)
+    # # width, height = image.size
+    # width, height = 0, 0
+    # _, ext = os.path.splitext(os.path.basename(file_name))
 
-    parts = {
-        'id': _image_id(),
-        'width': width,
-        'height': height,
-        'ext': ext.lower(),
-    }
-    original = "{id}_{width}x{height}{ext}".format(**parts)
-    dest = os.path.join(images_path, original)
-    logger.info("adding image: %s" % original)
-    shutil.copyfile(file_name, dest)
+    # parts = {
+    #     'id': _image_id(),
+    #     'width': width,
+    #     'height': height,
+    #     'ext': ext.lower(),
+    # }
+    # original = "{id}_{width}x{height}{ext}".format(**parts)
+    # dest = os.path.join(images_path, original)
+    # logger.info("adding image: %s" % original)
+    # shutil.copyfile(file_name, dest)
 
     # max_width = conf.get('image_max_width') or width
     # max_height = conf.get('image_max_height') or height
