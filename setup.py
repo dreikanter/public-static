@@ -24,7 +24,7 @@ def get_desc(file_name):
     try:
         with sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE) as process:
             return process.stdout.read().decode('utf-8')
-    except FileNotFoundError:
+    except:
         print('pandoc not installed, using readme contents as is')
         with codecs.open(file_name, mode='r', encoding='utf-8') as f:
             return f.read()
@@ -44,8 +44,11 @@ setup(
     package_data={'publicstatic': get_data_files('publicstatic')},
     install_requires=[
         'beautifulsoup4',
-        'misaka',
         'jinja2',
+        'markdown',
+        'mdx_smartypants',
+        'mdx_grid',
+        'pygments',
         'pyyaml',
         'yuicompressor',
     ],
@@ -68,5 +71,9 @@ setup(
         'Topic :: Text Processing :: General',
         'Topic :: Text Processing :: Markup',
         'Topic :: Text Processing :: Markup :: HTML',
+    ],
+    dependency_links=[
+        'https://github.com/dreikanter/markdown-grid/'
+        'tarball/master#egg=mdx_grid'
     ],
 )

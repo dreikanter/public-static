@@ -152,28 +152,28 @@ CONF = {
             'args': ['name', '--dir', '--force', '--edit'],
             'help': 'create new post',
         },
-        {
-            'name': 'image',
-            'args': [],
-            'help': 'image management commands group',
-            'subparsers': [
-                {
-                    'name': 'add',
-                    'args': ['filename', 'id?', '--dir'],
-                    'help': 'add new image with optional id'
-                },
-                {
-                    'name': 'rm',
-                    'args': ['id', '--dir'],
-                    'help': 'remove image'
-                },
-                {
-                    'name': 'ls',
-                    'args': ['number', '--dir'],
-                    'help': 'list images'
-                },
-            ],
-        },
+        # {
+        #     'name': 'image',
+        #     'args': [],
+        #     'help': 'image management commands group',
+        #     'subparsers': [
+        #         {
+        #             'name': 'add',
+        #             'args': ['filename', 'id?', '--dir'],
+        #             'help': 'add new image with optional id'
+        #         },
+        #         {
+        #             'name': 'rm',
+        #             'args': ['id', '--dir'],
+        #             'help': 'remove image'
+        #         },
+        #         {
+        #             'name': 'ls',
+        #             'args': ['number', '--dir'],
+        #             'help': 'list images'
+        #         },
+        #     ],
+        # },
     ],
 }
 
