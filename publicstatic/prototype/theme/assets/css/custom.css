@@ -31,6 +31,14 @@ body {
   text-align: center;
 }
 
+.left {
+  text-align: left;
+}
+
+.right {
+  text-align: right;
+}
+
 .header {
   margin-bottom: 20px;
 }
@@ -251,7 +259,7 @@ pre.prettyprint {
 }
 
 pre.prettyprint {
-  font-size: inherit;
+  font-size: 13px;
 }
 
 /*
