@@ -6,7 +6,7 @@ import glob
 import heapq
 import http.server
 import os
-import PIL
+# import PIL
 import re
 import shutil
 import socketserver
@@ -134,8 +134,9 @@ def image_add(src_dir, file_name, id=None):
     if not os.path.isdir(images_path):
         helpers.makedirs(images_path)
 
-    image = PIL.Image.open(file_name)
-    width, height = image.size
+    # image = PIL.Image.open(file_name)
+    # width, height = image.size
+    width, height = 0, 0
     _, ext = os.path.splitext(os.path.basename(file_name))
 
     parts = {

@@ -5,7 +5,7 @@
 import glob
 import os
 import re
-from PIL import Image
+# from PIL import Image
 from publicstatic import conf
 
 
@@ -16,7 +16,8 @@ def read_image(file_name):
     if match:
         width, height = match.groups(1), match.group(2)
     else:
-        width, height = Image.open(file_name, mode='r').size
+    #     width, height = Image.open(file_name, mode='r').size
+        width, height = 0, 0
     base_url = conf.get('rel_root_url') + conf.get('images_location')
     return {
         'url': "%s/%s" % (base_url, os.path.basename(file_name)),

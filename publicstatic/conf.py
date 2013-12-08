@@ -83,7 +83,8 @@ def find_conf(conf_path):
     """Walks from the specified directory path up to the root until
     configuration file will be found. Returns full configuration file path
     or None if there are no one."""
-    path = os.path.abspath(conf_path).rstrip(os.path.sep + os.path.altsep)
+    seps = os.path.sep + (os.path.altsep or '')
+    path = os.path.abspath(conf_path).rstrip(seps)
     last = True
 
     while last:
@@ -249,7 +250,8 @@ def _expand(rel_path):
     if not os.path.isabs(path):
         base = os.path.dirname(os.path.abspath(_path))
         path = os.path.join(base, path)
-    return path.rstrip(os.sep + os.altsep)
+    seps = os.path.sep + (os.path.altsep or '')
+    return path.rstrip(seps)
 
 
 def _trsl(url):

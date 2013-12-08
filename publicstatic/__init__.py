@@ -21,7 +21,7 @@ CRITICAL_ERRORS = (
 
 def dispatch(args):
     command = args.get('command')
-    path = args['path']
+    path = args.get('path', '.')
     if command == 'init':
         publicstatic.init(path)
     elif command == 'build':
