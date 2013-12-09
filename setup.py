@@ -33,7 +33,7 @@ def get_desc(file_name):
 setup(
     name='publicstatic',
     description='Yet another static website builder. A good one.',
-    version='0.7.5',
+    version='0.7.6',
     license='MIT',
     author='Alex Musayev',
     author_email='alex.musayev@gmail.com',
