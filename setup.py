@@ -45,6 +45,7 @@ setup(
     install_requires=[
         'beautifulsoup4',
         'jinja2',
+        'livereload',
         'markdown',
         'mdx_smartypants',
         'mdx_grid',
