@@ -7,7 +7,6 @@ import heapq
 import http.server
 import os
 import re
-import shutil
 import socketserver
 import subprocess
 import threading
@@ -74,8 +73,13 @@ def deploy(src_dir=None):
     if not conf.get('deploy_cmd'):
         raise Exception('deploy command is not defined')
     cmd = conf.get('deploy_cmd').format(build_path=conf.get('build_path'))
-    subprocess.call(cmd)
-    logger.info('done')
+    try:
+        output = subprocess.check_output(cmd.split())
+        logger.debug("Command output:\n%s" % output.decode('utf-8'))
+        logger.info('done')
+    except subprocess.CalledProcessError as e:
+        logger.error(e)
+        logger.debug("Command output:\n%s" % e.output.decode('utf-8'))
 
 
 def clean(src_dir=None):

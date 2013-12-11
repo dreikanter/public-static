@@ -3,7 +3,7 @@
 import os
 import codecs
 from setuptools import setup, find_packages
-import subprocess as sp
+import subprocess
 
 
 def get_data_files(path):
@@ -20,20 +20,24 @@ def get_data_files(path):
 
 def get_desc(file_name):
     """Get long description by converting README file to reStructuredText."""
-    cmd = "pandoc --from=markdown --to=rst %s" % file_name
     try:
-        with sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE) as process:
-            return process.stdout.read().decode('utf-8')
-    except:
+        cmd = "pandoc --from=markdown --to=rst %s" % file_name
+        output = subprocess.check_output(cmd, shell=True,
+                                         stderr=subprocess.STDOUT)
+        return output.decode('utf-8')
+    except subprocess.CalledProcessError:
         print('pandoc not installed, using readme contents as is')
         with codecs.open(file_name, mode='r', encoding='utf-8') as f:
             return f.read()
+    except Exception as e:
+        print("error reading readme file: %s" % str(e))
+        exit()
 
 
 setup(
     name='publicstatic',
     description='Yet another static website builder. A good one.',
-    version='0.7.6',
+    version='0.7.6-p1',
     license='MIT',
     author='Alex Musayev',
     author_email='alex.musayev@gmail.com',
