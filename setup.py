@@ -5,6 +5,9 @@ import os
 from setuptools import setup, find_packages
 import subprocess
 
+PACKAGE_NAME = 'publicstatic'
+LOCAL_PATH = os.path.dirname(os.path.abspath(__file__))
+
 
 def get_data_files(path):
     """Get package data files."""
@@ -18,9 +21,10 @@ def get_data_files(path):
     return files
 
 
-def get_desc(file_name):
+def get_desc():
     """Get long description by converting README file to reStructuredText."""
     try:
+        file_name = os.path.join(LOCAL_PATH, 'README.md')
         cmd = "pandoc --from=markdown --to=rst %s" % file_name
         output = subprocess.check_output(cmd, shell=True,
                                          stderr=subprocess.STDOUT)
@@ -35,23 +39,22 @@ def get_desc(file_name):
 
 
 def get_version():
-    path = os.path.dirname(os.path.abspath(__file__))
-    version_file = os.path.join(path, 'publicstatic/version.txt')
-    return open(version_file).read().strip()
+    ver_file = os.path.join(PACKAGE_NAME, 'version.txt')
+    return open(os.path.join(LOCAL_PATH, ver_file)).read().strip()
 
 
 setup(
-    name='publicstatic',
+    name=PACKAGE_NAME,
     description='Yet another static website builder. A good one.',
     version=get_version(),
     license='MIT',
     author='Alex Musayev',
     author_email='alex.musayev@gmail.com',
     url='http://github.com/dreikanter/public-static',
-    long_description=get_desc('README.md'),
+    long_description=get_desc(),
     platforms=['any'],
     packages=find_packages(),
-    package_data={'publicstatic': get_data_files('publicstatic')},
+    package_data={PACKAGE_NAME: get_data_files(PACKAGE_NAME)},
     install_requires=[
         'beautifulsoup4',
         'jinja2',
@@ -63,7 +66,7 @@ setup(
         'pyyaml',
         'yuicompressor',
     ],
-    entry_points=dict(console_scripts=['pub=publicstatic:main']),
+    entry_points=dict(console_scripts=['pub=%s:main' % PACKAGE_NAME]),
     include_package_data=True,
     zip_safe=False,
     classifiers=[
