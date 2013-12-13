@@ -22,7 +22,8 @@ JINJA_EXTENSIONS = [
 def env():
     global _env
     if _env is None:
-        logger.info("templates search path: %s" % conf.theme_templates_dir())
+        rel_path = conf.theme_templates_dir(relative=True)
+        logger.info("templates search path: %s" % rel_path)
         loader = jinja2.FileSystemLoader(searchpath=conf.theme_templates_dir())
         _env = jinja2.Environment(loader=loader, extensions=JINJA_EXTENSIONS)
         _env.filters.update(custom_filters())

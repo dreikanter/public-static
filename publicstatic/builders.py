@@ -156,7 +156,7 @@ def posts(cache):
 def archive(cache):
     """Build blog archive page."""
     dest = os.path.join(conf.get('build_path'), conf.get('archive_location'))
-    logger.info('archive: ' + dest)
+    logger.info('archive: ' + conf.get('archive_location'))
     helpers.makedirs(os.path.dirname(dest))
     page_data = {'title': 'Archive', 'tags': cache.tags()}
     data = _complement(page_data, index=cache.index())
@@ -210,6 +210,11 @@ def _complement(page_data=None, index=None):
     }
 
 
+def _rel(path):
+    build_path = conf.get('build_path')
+    use_rel = path.startswith(build_path)
+    return os.path.relpath(path, build_path) if use_rel else path
+
 def _to(subj, a, b=None):
-    message = ("%s -> %s" % (a, b)) if b is not None else a
+    message = ("%s -> %s" % (a, _rel(b))) if b is not None else _rel(a)
     return "%s: %s" % (subj, message)

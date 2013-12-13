@@ -138,8 +138,10 @@ def theme_assets_dir():
     return theme_dir('theme/assets')
 
 
-def theme_templates_dir():
-    return theme_dir('theme/templates')
+def theme_templates_dir(relative=False):
+    result = theme_dir('theme/templates')
+    use_rel = relative and result.startswith(site_dir())
+    return os.path.relpath(result, site_dir()) if use_rel else result
 
 
 def tags_rel_url():
@@ -246,7 +248,7 @@ def _purify(params):
 def _expand(rel_path):
     """Expands relative path using configuration file location as base
     directory. Absolute pathes will be returned as is."""
-    path = rel_path
+    path = os.path.expandvars(os.path.expanduser(rel_path))
     if not os.path.isabs(path):
         base = os.path.dirname(os.path.abspath(_path))
         path = os.path.join(base, path)

@@ -39,6 +39,7 @@ def build(src_dir=None, def_tpl=False):
     if def_tpl:
         conf.set('default_templates', True)  # overriding parameter
     cache = Cache()
+    logger.info('build directory: ' + conf.get('build_path'))
     for builder in builders.order():
         builder(cache)
 
