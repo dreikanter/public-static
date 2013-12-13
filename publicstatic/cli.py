@@ -1,6 +1,6 @@
 import argparse
 from publicstatic import const
-from publicstatic.version import get_version
+from publicstatic.version import __version__
 
 # global arguments list (default value is a must for optionals!)
 ARGS = {
@@ -8,7 +8,7 @@ ARGS = {
         ['-v', '--version'],
         {
             'action': 'version',
-            'version': '%s v%s' % (const.GENERATOR, get_version()),
+            'version': '%s v%s' % (const.GENERATOR, __version__),
             'help': 'print version number and exit',
         }
     ),

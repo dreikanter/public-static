@@ -1,7 +1,7 @@
 # encoding: utf-8
 
-import os
 import codecs
+import os
 from setuptools import setup, find_packages
 import subprocess
 
@@ -34,10 +34,16 @@ def get_desc(file_name):
         exit()
 
 
+def get_version():
+    path = os.path.dirname(os.path.abspath(__file__))
+    version_file = os.path.join(path, 'publicstatic/version.txt')
+    return open(version_file).read().strip()
+
+
 setup(
     name='publicstatic',
     description='Yet another static website builder. A good one.',
-    version='0.7.6-p1',
+    version=get_version(),
     license='MIT',
     author='Alex Musayev',
     author_email='alex.musayev@gmail.com',

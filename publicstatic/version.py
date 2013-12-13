@@ -1,8 +1,4 @@
-# coding: utf-8
+from os.path import abspath, dirname, join
 
-__version_info__ = (0, 7, 6)
-__version__ = '.'.join(map(str, __version_info__))
-
-
-def get_version():
-    return __version__
+version_file = join(dirname(abspath(__file__)), 'version.txt')
+__version__ = open(version_file).read().strip()

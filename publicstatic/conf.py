@@ -8,7 +8,7 @@ import os
 import yaml
 from publicstatic import const
 from publicstatic import errors
-from publicstatic import version
+from publicstatic.version import __version__
 
 _params = {}  # Configuration parameters
 _path = ''  # Configuration file absolute path
@@ -159,7 +159,7 @@ def commons():
         'author_url': get('author_url'),
         'generator': const.GENERATOR,
         'generator_url': const.GENERATOR_URL,
-        'generator_version': version.get_version(),
+        'generator_version': __version__,
         'source_url': get('source_url'),
         'enable_search_form': get('enable_search_form'),
         'atom_url': get('root_url') + get('atom_location'),
