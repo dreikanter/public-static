@@ -4,11 +4,12 @@ import markdown
 
 
 EXTENSIONS = [
-    'nl2br',
-    'grid',
-    'smartypants',
-    'fenced_code',
     'codehilite',
+    'def_list',
+    'fenced_code',
+    'grid',
+    'nl2br',
+    'smartypants',
 ]
 
 
