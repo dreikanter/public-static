@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import os
 from livereload.task import Task
-import functools
 
 WATCH_PATHES = [
     'pages',
@@ -11,10 +10,15 @@ WATCH_PATHES = [
 ]
 
 
-@functools.partial
-def rebuild():
+def rebuild_function():
+  def rebuild():
     os.system('pub build')
+  return rebuild
+
+
+def rebuild():
+  os.system('pub build')
 
 
 for path in WATCH_PATHES:
-    Task.add(path, rebuild)
+    Task.add(path, rebuild_function())
