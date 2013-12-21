@@ -10,6 +10,7 @@ import shutil
 import sys
 import time
 from publicstatic import conf
+from publicstatic.urlify import urlify
 
 RE_H1 = re.compile(r"^\s*#\s*(.*)\s*", re.I | re.M | re.U)
 
@@ -95,12 +96,13 @@ def walk(path, operation):
 
 def tag_url(tag):
     """Returns relative URL to the specified tag page."""
-    return conf.get('rel_root_url') + conf.get('tag_location').format(tag=tag)
+    tag_location = conf.get('tag_location').format(tag=urlify(tag))
+    return conf.get('rel_root_url') + tag_location
 
 
 def tag_path(tag):
     """Returns full path to the specified tag page."""
-    file_name = conf.get('tag_location').format(tag=tag)
+    file_name = conf.get('tag_location').format(tag=urlify(tag))
     return os.path.join(conf.get('build_path'), file_name)
 
 
