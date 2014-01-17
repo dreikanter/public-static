@@ -72,6 +72,13 @@ code {
   background-color: transparent;
 }
 
+blockquote, blockquote p {
+  font-family: "PT Serif", Georgia, "Times New Roman", serif;
+  font-size: 20px;
+  line-height: 1.6;
+  font-style: italic;
+}
+
 /*
   Tomorrow theme for prettify.js
   https://github.com/chriskempson/tomorrow-theme
