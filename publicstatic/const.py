@@ -1,7 +1,7 @@
 # coding: utf-8
 
 # Site configuration file name
-CONF_NAME = 'conf.yaml'
+CONF_NAME = 'conf.yml'
 
 # Configuration file header
 CONF_HEADER = 'public-static configuration file'

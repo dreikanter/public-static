@@ -1,4 +1,4 @@
 *.log
 *.bak
 build
-images.yaml
+images.yml
