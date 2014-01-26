@@ -202,4 +202,6 @@ def parse(args):
               "on a specific command usage.") % const.PROG
     parser = argparse.ArgumentParser(prog=const.PROG, epilog=epilog)
     configure_parser(parser, CONF, ARGS)
+    if not args:
+        parser.print_help()
     return vars(parser.parse_args(args))
