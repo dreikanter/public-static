@@ -144,6 +144,10 @@ def theme_templates_dir(relative=False):
     return os.path.relpath(result, site_dir()) if use_rel else result
 
 
+def data_dir(append=False):
+    return site_dir(os.path.join('data', append or ''))
+
+
 def tags_rel_url():
     return os.path.dirname(get('rel_root_url') + get('tag_location')) + '/'
 

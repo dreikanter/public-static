@@ -2,9 +2,10 @@
 
 """Jinja2 helpers."""
 
-import jinja2
 import codecs
+import jinja2
 from urllib.parse import urlparse
+import yaml
 from publicstatic import conf
 from publicstatic import const
 from publicstatic import images
@@ -90,6 +91,15 @@ def render_page(page_data, dest_path):
     values = (base_template + '.html', const.CONTENT_BLOCK, content)
     template = helpers.unindent(template) % values
     _save(env().from_string(template).render(page_data), dest_path)
+
+
+def render_data(data_file, template):
+    data_file = conf.data_dir(data_file)
+    with codecs.open(data_file, mode='r', encoding='utf-8') as f:
+        data = yaml.load(f)
+    template_file = "_data_%s.html" % template
+    result = env().get_template(template_file).render({'data': data})
+    return ("<b>[%s, %s]</b>" % (data_file, template)) + result
 
 
 def _save(text, dest_path):
