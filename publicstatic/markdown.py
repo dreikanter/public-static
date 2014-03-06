@@ -3,15 +3,6 @@
 import csv
 import markdown
 import re
-
-
-PREFIX = r"^---\s*data:\s*(.*)$"
-
-m = re.match(PREFIX, '--- data: "movies.yml", "movies"\n')
-print(m.groups(0))
-
-
-exit()
 from publicstatic import templates
 
 
@@ -24,8 +15,7 @@ class DataPreprocessor(markdown.preprocessors.Preprocessor):
         for line in lines:
             if line.startswith(PREFIX):
                 data_file, template = self._parse_args(line)
-                html = templates.render_data(data_file, template)
-                new_lines.append(html)
+                new_lines.append(templates.render_data(data_file, template))
             else:
                 new_lines.append(line)
         return new_lines

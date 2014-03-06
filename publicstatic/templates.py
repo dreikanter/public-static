@@ -99,7 +99,7 @@ def render_data(data_file, template):
         data = yaml.load(f)
     template_file = "_data_%s.html" % template
     result = env().get_template(template_file).render({'data': data})
-    return ("<b>[%s, %s]</b>" % (data_file, template)) + result
+    return result
 
 
 def _save(text, dest_path):
