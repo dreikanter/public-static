@@ -7,7 +7,7 @@ from publicstatic import source
 
 USER_ERRORS = (
     conf.NotFoundException,
-    conf.DirectoryExistsException,
+    conf.ConfigurationExistsException,
     source.PageExistsException,
 )
 
@@ -23,7 +23,7 @@ def dispatch(args):
     command = args.get('command')
     path = args.get('path', '.')
     if command == 'init':
-        publicstatic.init(path)
+        publicstatic.init(path, args['force'])
     elif command == 'build':
         publicstatic.build(path, args['def_tpl'])
     elif command == 'run':

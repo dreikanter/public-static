@@ -24,8 +24,8 @@ class ParsingError(errors.BasicException):
     pass
 
 
-class DirectoryExistsException(errors.BasicException):
-    """directory already exists"""
+class ConfigurationExistsException(errors.BasicException):
+    """configuration file already exists; use --force to overwrite"""
     pass
 
 
@@ -59,14 +59,15 @@ def load(conf_path):
     _params = _purify(_params)
 
 
-def generate(conf_path):
+def generate(conf_path, force):
     """Generates new configuration file using defaults."""
     global _path
     _path = os.path.join(os.path.abspath(conf_path), const.CONF_NAME)
 
-    if os.path.isdir(site_dir()):
-        raise DirectoryExistsException(path=site_dir())
-    else:
+    if not force and os.path.exists(_path):
+        raise ConfigurationExistsException(path=_path)
+
+    if not os.path.isdir(site_dir()):
         os.makedirs(site_dir())
 
     header = "# %s\n\n" % const.CONF_HEADER

@@ -119,7 +119,7 @@ CONF = {
     'subparsers': [
         {
             'name': 'init',
-            'args': ['path'],
+            'args': ['path', '--force'],
             'help': 'initialize new website',
         },
         {

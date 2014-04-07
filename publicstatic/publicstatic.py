@@ -22,11 +22,18 @@ from publicstatic import source
 from publicstatic.cache import Cache
 
 
-def init(src_dir=None):
+def init(src_dir=None, force=False):
     """Create new website."""
-    conf.generate(src_dir)
+    conf.generate(src_dir, force)
     try:
-        helpers.copydir(conf.proto_dir(), conf.site_dir())
+        src = conf.proto_dir()
+        dest = conf.site_dir()
+        existing = helpers.copydir(src, dest, force=force)
+        if len(existing):
+            message = "some existing files were overwritten" if force else \
+                "some existing files were NOT overwritten (use --force " \
+                "to overwrite)"
+            logger.warn("%s\n- %s" % (message, '\n- '.join(existing)))
         logger.info('website created successfully, have fun!')
     except Exception as ex:
         logger.error('initialization failed: ' + str(ex))

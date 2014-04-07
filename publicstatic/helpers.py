@@ -65,18 +65,29 @@ def get_h1(text):
     return matches.group(1) if matches else ''
 
 
-def copydir(source, dest, indent=0):
+def copydir(source, dest, force=False):
     """Copy a directory structure overwriting existing files."""
+    existing = []
     for root, dirs, files in os.walk(source):
         if not os.path.isdir(root):
             os.makedirs(root)
+
         for each_file in files:
             rel_path = root.replace(source, '').lstrip(os.sep)
             dest_dir = os.path.join(dest, rel_path)
             dest_path = os.path.join(dest_dir, each_file)
+
             if not os.path.isdir(dest_dir):
                 os.makedirs(dest_dir)
+
+            if os.path.exists(dest_path):
+                existing.append(dest_path)
+                if not force:
+                    continue
+
             shutil.copyfile(os.path.join(root, each_file), dest_path)
+
+    return existing
 
 
 def walk(path, operation):
