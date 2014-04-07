@@ -41,7 +41,7 @@ EXTENSIONS = [
     'fenced_code',
     'grid',
     'nl2br',
-    'smartypants',
+    'smarty',
     DataExtension(),
 ]
 

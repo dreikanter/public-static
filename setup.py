@@ -39,8 +39,13 @@ def get_desc():
 
 
 def get_version():
-    ver_file = os.path.join(PACKAGE_NAME, 'version.txt')
-    return open(os.path.join(LOCAL_PATH, ver_file)).read().strip()
+    with open(os.path.join(LOCAL_PATH, PACKAGE_NAME, 'version.py')) as f:
+        variables = {}
+        exec(f.read(), variables)
+        version = variables.get('__version__')
+        if not version:
+            raise RuntimeError('version definition not found')
+        return version
 
 
 setup(
@@ -58,9 +63,7 @@ setup(
     install_requires=[
         'beautifulsoup4',
         'jinja2',
-        'livereload',
         'markdown',
-        'mdx_smartypants',
         'mdx_grid',
         'pygments',
         'pyyaml',
@@ -76,10 +79,9 @@ setup(
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Site Management',
         'Topic :: Text Processing :: General',
