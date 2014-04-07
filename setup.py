@@ -49,7 +49,7 @@ setup(
     install_requires=[
         'beautifulsoup4',
         'jinja2',
-        'markdown',
+        'markdown >= 2.4',
         'mdx_grid',
         'pygments',
         'pyyaml',
