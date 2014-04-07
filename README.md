@@ -89,6 +89,16 @@ Public-static configuration resides in a yaml-formatted file `pub.conf` in the r
 
 There is a great tool to export Wordpress data to public-static-compatible files: [wp2md](https://github.com/dreikanter/wp2md).
 
+## Troubleshooting
+
+- `pub` command is not available after installation.  
+
+  If [pyenv](https://github.com/yyuu/pyenv) is used for Python version management, run `pyenv rehash` after calling pip install.
+
+- pip fails to install package dependencies on Windows, saying "The process cannot access the file because it is being used by another process".
+
+  There are two possible solutions. 1. This behavior is specific to 64-bit version of Python. So try to replace it with x86 one. 2. If you still need 64-bit version of Python, try to install the problematic package manually (e.g. 'pip install markdown'), and then repeat 'pip install publicstatic' command.
+
 ## Licensing
 
 Copyright &copy; 2013 by [Alex Musayev](http://alex.musayev.com). License: [MIT](https://github.com/dreikanter/public-static/blob/master/LICENSE.md).
