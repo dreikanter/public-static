@@ -55,8 +55,12 @@ setup(
         'pyyaml',
         'yuicompressor',
     ],
-    entry_points=dict(console_scripts=['pub=%s:main' % PACKAGE_NAME]),
-    include_package_data=True,
+    entry_points={
+        'console_scripts': [
+            'pub = %s:main' % PACKAGE_NAME
+        ]
+    },
+    # include_package_data=True,
     zip_safe=False,
     classifiers=[
         'Development Status :: 4 - Beta',
