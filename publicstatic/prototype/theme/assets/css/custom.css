@@ -60,6 +60,10 @@ body {
   margin-bottom: 10px;
 }
 
+.small {
+  font-size: 14px;
+}
+
 h2.list-year {
   color: #ccc;
 }
