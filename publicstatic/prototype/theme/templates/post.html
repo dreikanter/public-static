@@ -28,7 +28,7 @@
 {% endblock %}
 
 {% block comments %}
-	{%- if commons.id_disqus -%}
-		{{- disqus_comments(commons.id_disqus) -}}
+	{%- if commons.disqus_id -%}
+		{{- disqus_comments(commons.disqus_id) -}}
 	{%- endif -%}
 {% endblock %}

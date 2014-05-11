@@ -179,10 +179,10 @@ def commons():
         'doctype': get('humans_doctype'),
         'ide': get('humans_ide'),
         'last_updated': datetime.now(),
-        'id_disqus': get('id_disqus'),
-        'id_addthis': get('id_addthis'),
+        'disqus_id': get('disqus_id'),
+        'addthis_id': get('addthis_id'),
         'pluso_enabled': get('pluso_enabled'),
-        'id_google_analytics': get('id_google_analytics'),
+        'google_analytics_id': get('google_analytics_id'),
         'datetime_format': get('datetime_format'),
         'date_format': get('date_format'),
     }

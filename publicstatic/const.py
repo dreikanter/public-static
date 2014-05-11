@@ -61,11 +61,11 @@ EXPORTS = [
     'default_tags',
     'default_templates',
     'deploy_cmd',
-    'id_disqus',
+    'disqus_id',
     'editor_cmd',
     'enable_search_form',
-    'id_addthis',
-    'id_google_analytics',
+    'addthis_id',
+    'google_analytics_id',
     'image_max_height',
     'image_max_width',
     'images_location',
@@ -122,11 +122,11 @@ DEFAULTS = {
         'desc': 'Use default templates for all pages',
     },
     'date_format': {
-        'value': "%B %d, %Y",
+        'value': "%d %B %Y",
         'desc': 'Page/post short date format for generated HTML',
     },
     'datetime_format': {
-        'value': "%B %d, %Y %H:%M",
+        'value': "%d %B %Y %H:%M",
         'desc': 'Page/post full date and time format for generated HTML',
     },
     'deploy_cmd': {
@@ -142,17 +142,17 @@ DEFAULTS = {
         'value': True,
         'desc': 'Enable Google search form',
     },
-    'id_addthis': {
+    'addthis_id': {
         'value': '',
         'desc': 'AddThis.com identifier, e.g. ra-1234567890123456 (sharing '
                 'buttons code will be included if the value is not empty)',
     },
-    'id_disqus': {
+    'disqus_id': {
         'value': '',
         'desc': 'Site short name for Disqus comments (comments code '
                 'will be included if the value is not empty)',
     },
-    'id_google_analytics': {
+    'google_analytics_id': {
         'value': '',
         'desc': 'Google Analytics tracking ID, e.g. UA-12345678-9 (tracking '
                 'code will be included if the value is not empty)',
@@ -178,7 +178,7 @@ DEFAULTS = {
         'desc': 'File name for an index page',
     },
     'iso_datetime_format': {
-        'value': "%B %d, %Y",
+        'value': "%d %B %Y",
         'desc': 'Page/post short date format for generated HTML',
     },
     'humans_author_location': {
