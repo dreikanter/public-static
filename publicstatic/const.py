@@ -51,6 +51,15 @@ This is a new blog post."""
 # sitemap file name
 SITEMAP = 'sitemap.xml'
 
+# relative path to theme assets inside site source directory
+THEME_ASSETS_DIR = 'theme/assets'
+
+# relative path to theme templates inside site source directory
+TEMPLATES_DIR = 'theme/templates'
+
+# relative path to custom templates inside site source directory
+CUSTOM_TEMPLATES_DIR = 'theme/custom-templates'
+
 # default post name
 UNTITLED_POST = 'untitled-post'
 

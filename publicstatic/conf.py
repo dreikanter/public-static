@@ -132,13 +132,18 @@ def opt_append(path, append):
 
 
 def theme_assets_dir():
-    return site_dir('theme/assets')
+    """Absolute path to theme assets inside site source directory."""
+    return site_dir(const.THEME_ASSETS_DIR)
 
 
-def theme_templates_dir(relative=False):
-    result = site_dir('theme/templates')
-    use_rel = relative and result.startswith(site_dir())
-    return os.path.relpath(result, site_dir()) if use_rel else result
+def templates_dir():
+    """Absolute path to theme templates inside site source directory."""
+    return site_dir(const.TEMPLATES_DIR)
+
+
+def custom_templates_dir():
+    """Absolute path to custom templates inside site source directory."""
+    return site_dir(const.CUSTOM_TEMPLATES_DIR)
 
 
 def data_dir(append=False):

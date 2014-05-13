@@ -115,7 +115,7 @@ CONF = {
         },
         {
             'name': 'build',
-            'args': ['--dir', '--def-tpl'],
+            'args': ['--dir'],
             'help': 'generate web content from source',
         },
         {
