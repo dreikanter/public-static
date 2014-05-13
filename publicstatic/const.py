@@ -202,7 +202,7 @@ DEFAULTS = {
         'desc': 'Site Language for humans.txt',
     },
     'less_cmd': {
-        'value': "lessc --yui-compress {source} > {dest}",
+        'value': "lessc --compress {source} > {dest}",
         'desc': 'Shell command for LESS compillation',
     },
     'log_backup_cnt': {
