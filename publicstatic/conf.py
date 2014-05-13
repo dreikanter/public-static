@@ -131,16 +131,12 @@ def opt_append(path, append):
     return path if append is None else os.path.join(path, append)
 
 
-def theme_dir(append=None):
-    return (proto_dir if get('default_templates') else site_dir)(append)
-
-
 def theme_assets_dir():
-    return theme_dir('theme/assets')
+    return site_dir('theme/assets')
 
 
 def theme_templates_dir(relative=False):
-    result = theme_dir('theme/templates')
+    result = site_dir('theme/templates')
     use_rel = relative and result.startswith(site_dir())
     return os.path.relpath(result, site_dir()) if use_rel else result
 

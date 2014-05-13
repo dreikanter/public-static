@@ -57,15 +57,6 @@ ARGS = {
             'help': 'open with text editor',
         }
     ),
-    '--def-tpl': (
-        ['-t', '--def-tpl'],
-        {
-            'action': 'store_true',
-            'default': False,
-            'dest': 'def_tpl',
-            'help': 'use default templates',
-        }
-    ),
     'path': (
         ['path'],
         {

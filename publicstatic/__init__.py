@@ -25,7 +25,7 @@ def dispatch(args):
     if command == 'init':
         publicstatic.init(path, args['force'])
     elif command == 'build':
-        publicstatic.build(path, args['def_tpl'])
+        publicstatic.build(path)
     elif command == 'run':
         publicstatic.run(path, args['port'], args['browse'])
     elif command == 'deploy':

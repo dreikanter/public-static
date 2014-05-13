@@ -59,7 +59,6 @@ EXPORTS = [
     'author',
     'author_url',
     'default_tags',
-    'default_templates',
     'deploy_cmd',
     'disqus_id',
     'editor_cmd',
@@ -116,10 +115,6 @@ DEFAULTS = {
     'default_tags': {
         'value': ['misc'],
         'desc': 'A list of default tags to be added to a new post',
-    },
-    'default_templates': {
-        'value': False,
-        'desc': 'Use default templates for all pages',
     },
     'date_format': {
         'value': "%d %B %Y",
