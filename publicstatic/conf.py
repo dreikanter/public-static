@@ -143,11 +143,6 @@ def theme_assets_dir(suffix=None):
     return site_dir(append(const.THEME_ASSETS_DIR, suffix))
 
 
-def theme_assets_dir(suffix=None):
-    """Absolute path to theme assets inside site source directory."""
-    return site_dir(append(const.THEME_ASSETS_DIR, suffix))
-
-
 def templates_dir():
     """Absolute path to theme templates inside site source directory."""
     return site_dir(const.TEMPLATES_DIR)
@@ -160,7 +155,7 @@ def custom_templates_dir():
 
 def assets_dir(suffix=None):
     """Absolute path to theme assets inside site source directory."""
-    return site_dir(append(const.THEME_ASSETS_DIR, suffix))
+    return site_dir(append(const.ASSETS_DIR, suffix))
 
 
 def data_dir(suffix=None):

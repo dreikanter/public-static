@@ -4,6 +4,7 @@
 
 import codecs
 import jinja2
+import os.path
 from urllib.parse import urlparse
 import yaml
 from publicstatic import conf
@@ -29,7 +30,21 @@ def env():
         loader = jinja2.FileSystemLoader(searchpath=pathes)
         _env = jinja2.Environment(loader=loader, extensions=JINJA_EXTENSIONS)
         _env.filters.update(custom_filters())
+        _env.globals.update(custom_globals())
     return _env
+
+
+def custom_globals():
+    return {
+        'asset_exists': asset_exists,
+    }
+
+
+def asset_exists(file_name):
+    """Returns True if specified asset exists."""
+    user_asset = os.path.isfile(conf.assets_dir(file_name))
+    theme_asset = os.path.isfile(conf.theme_assets_dir(file_name))
+    return user_asset or theme_asset
 
 
 def custom_filters():

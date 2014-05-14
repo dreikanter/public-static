@@ -62,6 +62,9 @@ CUSTOM_TEMPLATES_DIR = 'theme/custom-templates'
 
 DATA_DIR = 'data'
 
+# relative path to theme assets inside site source directory
+ASSETS_DIR = 'assets'
+
 # default post name
 UNTITLED_POST = 'untitled-post'
 
