@@ -51,12 +51,10 @@ def check_build(path):
         sys.exit("web content directory not exists: '%s'" % path)
 
 
-def drop_build(path, create=False):
-    """Drops the build if it exists"""
+def rmdir(path):
+    """Drops the directory if it exists."""
     if os.path.isdir(path):
         shutil.rmtree(path, ignore_errors=True)
-    if create and not os.path.isdir(path):
-        os.makedirs(path)
 
 
 def get_h1(text):

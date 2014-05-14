@@ -7,6 +7,7 @@ import heapq
 import http.server
 import os
 import re
+import shutil
 import socketserver
 import subprocess
 import threading
@@ -92,7 +93,7 @@ def clean(src_dir=None):
     """Delete all generated content."""
     conf.load(src_dir)
     logger.info('cleaning output...')
-    helpers.drop_build(conf.get('build_path'))
+    helpers.rmdir(conf.get('build_path'))
     logger.info('done')
 
 
@@ -116,6 +117,33 @@ def post(src_dir=None, name=None, force=False, edit=False):
     logger.info('post created: ' + path)
     if edit:
         helpers.execute(conf.get('editor_cmd'), path)
+
+
+def theme_update(src_dir=None, safe=False):
+    conf.load(src_dir)
+
+    if safe:
+        logger.info('saving current theme')
+        assets_bak = "%s.bak" % conf.theme_assets_dir()
+        templates_bak = "%s.bak" % conf.templates_dir()
+        try:
+            for path in [templates_bak, assets_bak]:
+                if os.path.isdir(path):
+                    shutil.rmtree(path, ignore_errors=True)
+            shutil.move(conf.theme_assets_dir(), assets_bak)
+            shutil.move(conf.templates_dir(), templates_bak)
+        except Exception as e:
+            logger.error('error saving existing theme files: ' + str(e))
+            return
+
+    logger.info('updating theme files')
+    try:
+        src_dir = conf.proto_theme_assets_dir()
+        helpers.copydir(src_dir, conf.theme_assets_dir(), force=True)
+        src_dir = conf.proto_templates_dir()
+        helpers.copydir(src_dir, conf.templates_dir(), force=True)
+    except Exception as e:
+        logger.error('error updating theme: ' + str(e))
 
 
 def _image_id():

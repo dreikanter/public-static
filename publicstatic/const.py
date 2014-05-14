@@ -60,6 +60,8 @@ TEMPLATES_DIR = 'theme/templates'
 # relative path to custom templates inside site source directory
 CUSTOM_TEMPLATES_DIR = 'theme/custom-templates'
 
+DATA_DIR = 'data'
+
 # default post name
 UNTITLED_POST = 'untitled-post'
 

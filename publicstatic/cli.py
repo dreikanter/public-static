@@ -57,6 +57,15 @@ ARGS = {
             'help': 'open with text editor',
         }
     ),
+    '--safe': (
+        ['-s', '--safe'],
+        {
+            'action': 'store_true',
+            'default': False,
+            'dest': 'safe',
+            'help': 'backup previous version',
+        }
+    ),
     'path': (
         ['path'],
         {
@@ -143,6 +152,18 @@ CONF = {
             'args': ['name', '--dir', '--force', '--edit'],
             'help': 'create new post',
         },
+        {
+            'name': 'theme',
+            'args': [],
+            'help': 'theme maintenance operations',
+            'subparsers': [
+                {
+                    'name': 'update',
+                    'args': ['--dir', '--safe'],
+                    'help': 'update theme template and assets',
+                },
+            ],
+        }
         # {
         #     'name': 'image',
         #     'args': [],
@@ -168,30 +189,28 @@ CONF = {
     ],
 }
 
-# common subparser configuration
-SUBPARSER_CONF = {
-    'metavar': '<command>',
-    'dest': 'command',
-    'help': '',
-}
 
-
-def configure_parser(parser, conf, arguments):
+def configure_parser(parser, conf, arguments, depth=0):
     for arg_name in conf.get('args', []):
         args, kwargs = arguments[arg_name]
         parser.add_argument(*args, **kwargs)
 
     if 'subparsers' in conf:
-        subparsers = parser.add_subparsers(**SUBPARSER_CONF)
+        subparsers = parser.add_subparsers(**{
+            'metavar': '<command>',
+            'dest': "command%s" % ('' if depth < 1 else str(depth+1)),
+            'help': '',
+        })
         for sp in conf['subparsers']:
             subparser = subparsers.add_parser(sp['name'], help=sp['help'])
-            configure_parser(subparser, sp, arguments)
+            configure_parser(subparser, sp, arguments, depth+1)
 
 
 def parse(args):
     epilog = ("See '%s <command> --help' for more details "
               "on a specific command usage.") % const.PROG
     parser = argparse.ArgumentParser(prog=const.PROG, epilog=epilog)
+
     configure_parser(parser, CONF, ARGS)
     if not args:
         parser.print_help()

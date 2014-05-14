@@ -34,6 +34,11 @@ class NotInitializedException(errors.BasicException):
     pass
 
 
+def append(path, suffix):
+    """Append optional suffix to the path."""
+    return path if suffix is None else os.path.join(path, suffix)
+
+
 def defaults():
     """Returns default configuration."""
     return {key: value['value'] for key, value in const.DEFAULTS.items()}
@@ -110,30 +115,37 @@ def set(param, value):
     _params[param] = value
 
 
-def conf_file():
-    _check(_path)
-    return _path
-
-
-def site_dir(append=None):
+def site_dir(suffix=None):
     """Returns site source directory."""
-    _check(_path)
-    return opt_append(os.path.dirname(_path), append)
+    if not _path:
+        raise NotInitializedException()
+    return append(os.path.dirname(_path), suffix)
 
 
-def proto_dir(append=None):
+def proto_dir(suffix=None):
     """Returns full path to the generic directory."""
     path = os.path.dirname(os.path.abspath(__file__))
-    return opt_append(os.path.join(path, const.PROTO_DIR), append)
+    return append(os.path.join(path, const.PROTO_DIR), suffix)
 
 
-def opt_append(path, append):
-    return path if append is None else os.path.join(path, append)
+def proto_theme_assets_dir():
+    """Absolute path to theme assets inside prototype directory."""
+    return proto_dir(const.THEME_ASSETS_DIR)
 
 
-def theme_assets_dir():
+def proto_templates_dir():
+    """Absolute path to theme templates inside prototype directory."""
+    return proto_dir(const.TEMPLATES_DIR)
+
+
+def theme_assets_dir(suffix=None):
     """Absolute path to theme assets inside site source directory."""
-    return site_dir(const.THEME_ASSETS_DIR)
+    return site_dir(append(const.THEME_ASSETS_DIR, suffix))
+
+
+def theme_assets_dir(suffix=None):
+    """Absolute path to theme assets inside site source directory."""
+    return site_dir(append(const.THEME_ASSETS_DIR, suffix))
 
 
 def templates_dir():
@@ -146,8 +158,13 @@ def custom_templates_dir():
     return site_dir(const.CUSTOM_TEMPLATES_DIR)
 
 
-def data_dir(append=False):
-    return site_dir(os.path.join('data', append or ''))
+def assets_dir(suffix=None):
+    """Absolute path to theme assets inside site source directory."""
+    return site_dir(append(const.THEME_ASSETS_DIR, suffix))
+
+
+def data_dir(suffix=None):
+    return site_dir(append(const.DATA_DIR, suffix))
 
 
 def tags_rel_url():
@@ -196,11 +213,6 @@ def _dumpopt(opt_name):
     return desc + yaml.dump({
         opt_name: const.DEFAULTS[opt_name]['value']
     }, width=79, indent=2, default_flow_style=False)
-
-
-def _check(value):
-    if not value:
-        raise NotInitializedException()
 
 
 def _purify(params):

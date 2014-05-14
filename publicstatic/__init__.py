@@ -36,6 +36,10 @@ def dispatch(args):
         publicstatic.page(path, args['name'], args['force'], args['edit'])
     elif command == 'post':
         publicstatic.post(path, args['name'], args['force'], args['edit'])
+    elif command == 'theme':
+        subcommand = args.get('command2')
+        if subcommand == 'update':
+            publicstatic.theme_update(path, args['safe'])
     # elif command == 'image':
     #     subcommand = args.get('subcommand')
     #     if subcommand == 'add':
