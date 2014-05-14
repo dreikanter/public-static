@@ -10,14 +10,14 @@
 	{%- for item in index -%}
 		{%- if loop.first -%}
 			{%- set last_year = item.created.year -%}
-			<h2 class="list-year">{{ item.created.year }}</h2>
+			<h2 class="light">{{ item.created.year }}</h2>
 			<ul class="list">
 
 				{%- elif last_year != item.created.year -%}
 					{%- set last_year = item.created.year -%}
 
 			</ul>
-			<h2 class="list-year">{{ item.created.year }}</h2>
+			<h2 class="light">{{ item.created.year }}</h2>
 			<ul class="list">
 		{%- endif -%}
 		<li>

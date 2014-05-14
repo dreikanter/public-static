@@ -50,11 +50,13 @@
 {#
 	Inserts Disqus comments.
 #}
-{% macro disqus_comments(id) -%}
+{% macro disqus_comments(id, url) -%}
 
 	<div id="disqus_thread"></div>
 	<script type="text/javascript">
 	    var disqus_shortname = '{{ id }}';
+      var disqus_identifier = '{{ url }}';
+      var disqus_url = '{{ url }}';
 
 	    (function() {
 	        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
@@ -78,10 +80,12 @@
 		<a href="http://foo.com/bar.html#disqus_thread">Link</a>
 
 #}
-{% macro disqus_counter(id) -%}
+{% macro disqus_counter(id, url) -%}
 
 	<script type="text/javascript">
 		var disqus_shortname = '{{ id }}';
+    var disqus_identifier = '{{ url }}';
+    var disqus_url = '{{ url }}';
 
 		(function () {
 		    var s = document.createElement('script'); s.async = true;
