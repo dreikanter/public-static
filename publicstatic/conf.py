@@ -34,9 +34,10 @@ class NotInitializedException(errors.BasicException):
     pass
 
 
-def append(path, suffix):
-    """Append optional suffix to the path."""
-    return path if suffix is None else os.path.join(path, suffix)
+def path():
+    if not _path:
+        raise NotInitializedException()
+    return _path
 
 
 def defaults():
@@ -113,53 +114,6 @@ def get(param, default=None):
 def set(param, value):
     """Set or override configuration parameter."""
     _params[param] = value
-
-
-def site_dir(suffix=None):
-    """Returns site source directory."""
-    if not _path:
-        raise NotInitializedException()
-    return append(os.path.dirname(_path), suffix)
-
-
-def proto_dir(suffix=None):
-    """Returns full path to the generic directory."""
-    path = os.path.dirname(os.path.abspath(__file__))
-    return append(os.path.join(path, const.PROTO_DIR), suffix)
-
-
-def proto_theme_assets_dir():
-    """Absolute path to theme assets inside prototype directory."""
-    return proto_dir(const.THEME_ASSETS_DIR)
-
-
-def proto_templates_dir():
-    """Absolute path to theme templates inside prototype directory."""
-    return proto_dir(const.TEMPLATES_DIR)
-
-
-def theme_assets_dir(suffix=None):
-    """Absolute path to theme assets inside site source directory."""
-    return site_dir(append(const.THEME_ASSETS_DIR, suffix))
-
-
-def templates_dir():
-    """Absolute path to theme templates inside site source directory."""
-    return site_dir(const.TEMPLATES_DIR)
-
-
-def custom_templates_dir():
-    """Absolute path to custom templates inside site source directory."""
-    return site_dir(const.CUSTOM_TEMPLATES_DIR)
-
-
-def assets_dir(suffix=None):
-    """Absolute path to theme assets inside site source directory."""
-    return site_dir(append(const.ASSETS_DIR, suffix))
-
-
-def data_dir(suffix=None):
-    return site_dir(append(const.DATA_DIR, suffix))
 
 
 def tags_rel_url():

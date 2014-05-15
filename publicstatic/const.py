@@ -30,9 +30,6 @@ LOG_FORMAT = "%(asctime)s %(levelname)s: %(message)s"
 # program name for CLI
 PROG = 'pub'
 
-# prototype for the site source directory, located within the package directory
-PROTO_DIR = 'prototype'
-
 # page prototype
 PROTO_PAGE = """title: {title}
 created: {created}
@@ -52,18 +49,31 @@ This is a new blog post."""
 SITEMAP = 'sitemap.xml'
 
 # relative path to theme assets inside site source directory
-THEME_ASSETS_DIR = 'theme/assets'
-
-# relative path to theme templates inside site source directory
-TEMPLATES_DIR = 'theme/templates'
+ASSETS_DIR = 'assets'
 
 # relative path to custom templates inside site source directory
-CUSTOM_TEMPLATES_DIR = 'theme/custom-templates'
-
-DATA_DIR = 'data'
+TEMPLATES_DIR = 'templates'
 
 # relative path to theme assets inside site source directory
-ASSETS_DIR = 'assets'
+THEME_DIR = 'theme'
+
+# relative path to theme assets inside site source directory
+THEME_ASSETS_DIR = 'theme/' + ASSETS_DIR
+
+# relative path to theme templates inside package and site source directory
+THEME_TEMPLATES_DIR = 'theme/' + TEMPLATES_DIR
+
+# prototype for the site source directory, located within the package directory
+PROTO_DIR = 'prototype'
+
+#
+PAGES_DIR = 'pages'
+
+#
+POSTS_DIR = 'posts'
+
+# directory name for data files
+DATA_DIR = 'data'
 
 # default post name
 UNTITLED_POST = 'untitled-post'
