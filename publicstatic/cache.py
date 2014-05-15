@@ -3,6 +3,7 @@
 import os
 from publicstatic import conf
 from publicstatic import helpers
+from publicstatic import pathes
 from publicstatic import source
 
 
@@ -14,10 +15,10 @@ class Cache():
         self._cache = []
 
         proc_queue = [
-            (source.AssetSource, conf.theme_assets_dir()),
-            (source.AssetSource, conf.get('assets_path')),
-            (source.PageSource, conf.get('pages_path')),
-            (source.PostSource, conf.get('posts_path')),
+            (source.AssetSource, pathes.theme_assets()),
+            (source.AssetSource, pathes.assets()),
+            (source.PageSource, pathes.pages()),
+            (source.PostSource, pathes.posts()),
         ]
 
         for src_type, dir_path in proc_queue:

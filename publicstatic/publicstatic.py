@@ -19,6 +19,7 @@ from publicstatic import builders
 from publicstatic import images
 from publicstatic import logger
 from publicstatic import helpers
+from publicstatic import pathes
 from publicstatic import source
 from publicstatic.cache import Cache
 
@@ -27,8 +28,8 @@ def init(src_dir=None, force=False):
     """Create new website."""
     conf.generate(src_dir, force)
     try:
-        src = conf.proto_dir()
-        dest = conf.site_dir()
+        src = pathes.proto()
+        dest = conf.site()
         existing = helpers.copydir(src, dest, force=force)
         if len(existing):
             message = "some existing files were overwritten" if force else \
@@ -124,24 +125,24 @@ def theme_update(src_dir=None, safe=False):
 
     if safe:
         logger.info('saving current theme')
-        assets_bak = "%s.bak" % conf.theme_assets_dir()
-        templates_bak = "%s.bak" % conf.templates_dir()
+        assets_bak = "%s.bak" % pathes.theme_assets_installed()
+        templates_bak = "%s.bak" % pathes.theme_templates_installed()
         try:
             for path in [templates_bak, assets_bak]:
                 if os.path.isdir(path):
                     shutil.rmtree(path, ignore_errors=True)
-            shutil.move(conf.theme_assets_dir(), assets_bak)
-            shutil.move(conf.templates_dir(), templates_bak)
+            shutil.move(pathes.theme_assets_installed(), assets_bak)
+            shutil.move(pathes.theme_templates_installed(), templates_bak)
         except Exception as e:
             logger.error('error saving existing theme files: ' + str(e))
             return
 
     logger.info('updating theme files')
     try:
-        src_dir = conf.proto_theme_assets_dir()
-        helpers.copydir(src_dir, conf.theme_assets_dir(), force=True)
-        src_dir = conf.proto_templates_dir()
-        helpers.copydir(src_dir, conf.templates_dir(), force=True)
+        src_dir = pathes.theme_assets_source()
+        helpers.copydir(src_dir, pathes.theme_assets_installed())
+        src_dir = pathes.theme_templates_source()
+        helpers.copydir(src_dir, pathes.theme_templates_installed())
     except Exception as e:
         logger.error('error updating theme: ' + str(e))
 

@@ -5,8 +5,9 @@ from livereload.task import Task
 WATCH_PATHES = [
     'pages',
     'posts',
-    'theme',
     'assets',
+    'templates',
+    'theme',
 ]
 
 

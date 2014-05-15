@@ -13,6 +13,7 @@ from publicstatic import images
 from publicstatic import logger
 from publicstatic import helpers
 from publicstatic import minify
+from publicstatic import pathes
 
 _env = None
 
@@ -24,10 +25,9 @@ JINJA_EXTENSIONS = [
 def env():
     global _env
     if _env is None:
-        logger.info("templates search path: %s" % const.TEMPLATES_DIR)
-        logger.info("custom templates: %s" % const.CUSTOM_TEMPLATES_DIR)
-        pathes = [conf.custom_templates_dir(), conf.templates_dir()]
-        loader = jinja2.FileSystemLoader(searchpath=pathes)
+        search_pathes = [pathes.templates(), pathes.theme_templates()]
+        logger.info("templates pathes: [%s]" % ', '.join(search_pathes))
+        loader = jinja2.FileSystemLoader(searchpath=search_pathes)
         _env = jinja2.Environment(loader=loader, extensions=JINJA_EXTENSIONS)
         _env.filters.update(custom_filters())
         _env.globals.update(custom_globals())
@@ -42,9 +42,8 @@ def custom_globals():
 
 def asset_exists(file_name):
     """Returns True if specified asset exists."""
-    user_asset = os.path.isfile(conf.assets_dir(file_name))
-    theme_asset = os.path.isfile(conf.theme_assets_dir(file_name))
-    return user_asset or theme_asset
+    asset_exists = os.path.isfile(pathes.assets(file_name))
+    return asset_exists or os.path.isfile(pathes.theme_assets(file_name))
 
 
 def custom_filters():
@@ -110,7 +109,7 @@ def render_page(page_data, dest_path):
 
 
 def render_data(data_file, template):
-    data_file = conf.data_dir(data_file)
+    data_file = pathes.data(data_file)
     with codecs.open(data_file, mode='r', encoding='utf-8') as f:
         data = yaml.load(f)
     template_file = "_data_%s.html" % template
