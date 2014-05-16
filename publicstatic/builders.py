@@ -28,7 +28,7 @@ def order():
         tags,
         atom,
         sitemap,
-        graphics,
+        # graphics,
     ]
 
 
@@ -216,5 +216,6 @@ def _rel(path):
     return os.path.relpath(path, build_path) if use_rel else path
 
 def _to(subj, a, b=None):
+    """Generates a log message like '<something>: <from> -> <to>'."""
     message = ("%s -> %s" % (a, _rel(b))) if b is not None else _rel(a)
     return "%s: %s" % (subj, message)

@@ -221,7 +221,7 @@ class PageSource(ParseableSource):
             force -- True to overwrite existing file;
                 False to throw exception."""
         page_name = urlify(name, ext_map={ord(u'\\'): u'/'}) + '.md'
-        file_name = os.path.join(conf.get('pages_path'), page_name)
+        file_name = os.path.join(pathes.pages(), page_name)
         if os.path.exists(file_name) and not force:
             raise PageExistsException(path=file_name)
         created = datetime.now().strftime(conf.get('time_format')[0])
@@ -253,7 +253,7 @@ class PostSource(ParseableSource):
         created = datetime.now()
         post_name = urlify(name) or const.UNTITLED_POST
         file_name = PostSource._ymd(POST_NAME_FORMAT, created, post_name)
-        post_path = os.path.join(conf.get('posts_path'), file_name)
+        post_path = os.path.join(pathes.posts(), file_name)
 
         count = 0
         while True:

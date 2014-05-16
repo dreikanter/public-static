@@ -66,14 +66,17 @@ THEME_TEMPLATES_DIR = 'theme/' + TEMPLATES_DIR
 # prototype for the site source directory, located within the package directory
 PROTO_DIR = 'prototype'
 
-#
+# page files directory path inside website source dir
 PAGES_DIR = 'pages'
 
-#
+# post files directory path inside website source dir
 POSTS_DIR = 'posts'
 
 # directory name for data files
 DATA_DIR = 'data'
+
+# default build output directory path inside website source dir
+BUILD_DIR = 'build'
 
 # default post name
 UNTITLED_POST = 'untitled-post'
@@ -82,6 +85,7 @@ UNTITLED_POST = 'untitled-post'
 EXPORTS = [
     'author',
     'author_url',
+    'build_path',
     'default_tags',
     'deploy_cmd',
     'disqus_id',
@@ -92,7 +96,6 @@ EXPORTS = [
     'image_max_height',
     'image_max_width',
     'images_location',
-    'images_path',
     'less_cmd',
     'menu',
     'min_css',
@@ -116,10 +119,6 @@ DEFAULTS = {
         'value': 'archive/index.html',
         'desc': 'Blog archive page location',
     },
-    'assets_path': {
-        'value': 'assets',
-        'desc': 'Web assets path inside website source dir (*.js, *.css, etc)',
-    },
     'atom_location': {
         'value': 'atom.xml',
         'desc': 'Atom feed file name',
@@ -133,7 +132,7 @@ DEFAULTS = {
         'desc': 'Author home page',
     },
     'build_path': {
-        'value': 'build',
+        'value': BUILD_DIR,
         'desc': 'Build path for web content generator output',
     },
     'default_tags': {
@@ -187,10 +186,6 @@ DEFAULTS = {
     'images_location': {
         'value': 'img',
         'desc': 'Path to image files inside build directory',
-    },
-    'images_path': {
-        'value': 'images',
-        'desc': 'Image files path inside website source dir',
     },
     'index_page': {
         'value': 'index.html',
@@ -267,10 +262,6 @@ DEFAULTS = {
         'value': 'page',
         'desc': 'Template name for pages',
     },
-    'pages_path': {
-        'value': 'pages',
-        'desc': 'Page files path inside website source dir',
-    },
     'pluso_enabled': {
         'value': False,
         'desc': 'Enable pluso.ru sharing buttons',
@@ -294,10 +285,6 @@ DEFAULTS = {
     'post_tpl': {
         'value': 'post',
         'desc': 'Template name for blog posts',
-    },
-    'posts_path': {
-        'value': 'posts',
-        'desc': 'Post files path inside website source dir',
     },
     'rel_root_url': {
         'value': '/',

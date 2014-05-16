@@ -168,11 +168,7 @@ def _purify(params):
     """Preprocess configuration parameters."""
 
     expandables = [
-        'pages_path',
-        'posts_path',
-        'assets_path',
         'build_path',
-        'images_path',
         'log_file',
     ]
 
