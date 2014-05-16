@@ -9,9 +9,6 @@ CONF_HEADER = 'public-static configuration file'
 # standard name for template content block
 CONTENT_BLOCK = 'content'
 
-# default image number limitation for 'image ls' command output
-LS_NUM = 10
-
 # environment variable name to override 'verbose' configuration parameter
 ENV_VERBOSE = 'ps_verbose'
 
@@ -93,9 +90,6 @@ EXPORTS = [
     'enable_search_form',
     'addthis_id',
     'google_analytics_id',
-    'image_max_height',
-    'image_max_width',
-    'images_location',
     'less_cmd',
     'menu',
     'min_css',
@@ -174,18 +168,6 @@ DEFAULTS = {
         'value': '',
         'desc': 'Google Analytics tracking ID, e.g. UA-12345678-9 (tracking '
                 'code will be included if the value is not empty)',
-    },
-    'image_max_height': {
-        'value': 0,
-        'desc': 'Maximum vrtical image size for previews (0 for no limit)',
-    },
-    'image_max_width': {
-        'value': 600,
-        'desc': 'Maximum horizontal image size for previews (0 for no limit)',
-    },
-    'images_location': {
-        'value': 'img',
-        'desc': 'Path to image files inside build directory',
     },
     'index_page': {
         'value': 'index.html',

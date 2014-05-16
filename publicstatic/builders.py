@@ -7,7 +7,6 @@ import shutil
 import traceback
 from publicstatic import conf
 from publicstatic import const
-from publicstatic import images
 from publicstatic import logger
 from publicstatic import helpers
 from publicstatic import templates
@@ -28,7 +27,6 @@ def order():
         tags,
         atom,
         sitemap,
-        # graphics,
     ]
 
 
@@ -190,15 +188,6 @@ def sitemap(cache):
     logger.info(_to('sitemap', dest))
     helpers.makedirs(os.path.dirname(dest))
     templates.render(data, 'sitemap.xml', dest)
-
-
-def graphics(cache):
-    """Copy images."""
-    dest = os.path.join(conf.get('build_path'), conf.get('images_location'))
-    helpers.makedirs(dest)
-    for image in images.all():
-        _, base_name, full_name = image
-        shutil.copyfile(full_name, os.path.join(dest, base_name))
 
 
 def _complement(page_data=None, index=None):

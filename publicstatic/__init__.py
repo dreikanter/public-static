@@ -21,33 +21,25 @@ CRITICAL_ERRORS = (
 
 def dispatch(args):
     command = args.get('command')
-    path = args.get('path', '.')
+    source = args.get('source')
     if command == 'init':
-        publicstatic.init(path, args['force'])
+        publicstatic.init(source, args['force'])
     elif command == 'build':
-        publicstatic.build(path)
+        publicstatic.build(source, args['output'])
     elif command == 'run':
-        publicstatic.run(path, args['port'], args['browse'])
+        publicstatic.run(source, args['port'], args['browse'])
     elif command == 'deploy':
-        publicstatic.deploy(path)
+        publicstatic.deploy(source)
     elif command == 'clean':
-        publicstatic.clean(path)
+        publicstatic.clean(source)
     elif command == 'page':
-        publicstatic.page(path, args['name'], args['force'], args['edit'])
+        publicstatic.page(source, args['name'], args['force'], args['edit'])
     elif command == 'post':
-        publicstatic.post(path, args['name'], args['force'], args['edit'])
+        publicstatic.post(source, args['name'], args['force'], args['edit'])
     elif command == 'theme':
         subcommand = args.get('command2')
         if subcommand == 'update':
-            publicstatic.theme_update(path, args['safe'])
-    # elif command == 'image':
-    #     subcommand = args.get('subcommand')
-    #     if subcommand == 'add':
-    #         publicstatic.image_add(path, args['filename'], args['id'])
-    #     elif subcommand == 'rm':
-    #         publicstatic.image_rm(path, args['id'])
-    #     elif subcommand == 'ls':
-    #         publicstatic.image_ls(path, args['number'])
+            publicstatic.theme_update(source, args['safe'])
 
 
 def main():

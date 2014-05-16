@@ -2,13 +2,15 @@ title: New website created!
 
 # Hello!
 
-This is a new [public-static](http://publicstatic.org) website.
+This is a new website generated with [public-static](http://publicstatic.org).
 
 Directory structure:
 
 * pages — markdown-formatted web pages.
-* static — static web site assets including stylesheets, javascript and images.
-* templates — web page templates.
+* posts — blog posts.
+* assets — static web site assets including stylesheets, javascript and images.
+* data — data files.
+* templates — custom web page templates.
 
 Public-static links:
 

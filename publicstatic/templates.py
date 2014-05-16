@@ -9,7 +9,6 @@ from urllib.parse import urlparse
 import yaml
 from publicstatic import conf
 from publicstatic import const
-from publicstatic import images
 from publicstatic import logger
 from publicstatic import helpers
 from publicstatic import minify
@@ -52,7 +51,6 @@ def custom_filters():
         'trimurl': filter_trimurl,
         'strftime': filter_strftime,
         'isoformat': filter_isoformat,
-        'image': filter_image,
     }
 
 
@@ -70,14 +68,14 @@ def filter_trimurl(value):
     return url.netloc + url.path.rstrip('/')
 
 
-def filter_image(id):
-    image = images.get_image(id)
-    if image is None:
-        return "[image not found: %s]" % str(id)
-    else:
-        html = "<img src=\"{url}\" width=\"{width}\" " \
-               "height=\"{height}\" alt=\"\">"
-        return html.format(**image)
+# def image(id):
+#     image = images.get_image(id)
+#     if image is None:
+#         return "[image not found: %s]" % str(id)
+#     else:
+#         html = "<img src=\"{url}\" width=\"{width}\" " \
+#                "height=\"{height}\" alt=\"\">"
+#         return html.format(**image)
 
 
 def render(data, template, dest_path):
