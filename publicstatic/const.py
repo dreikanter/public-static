@@ -135,11 +135,11 @@ DEFAULTS = {
     },
     'date_format': {
         'value': "%d %B %Y",
-        'desc': 'Page/post short date format for generated HTML',
+        'desc': 'Short date format for generated HTML',
     },
     'datetime_format': {
         'value': "%d %B %Y %H:%M",
-        'desc': 'Page/post full date and time format for generated HTML',
+        'desc': 'Full date and time format for generated HTML',
     },
     'deploy_cmd': {
         'value': '',
@@ -175,7 +175,7 @@ DEFAULTS = {
     },
     'iso_datetime_format': {
         'value': "%d %B %Y",
-        'desc': 'Page/post short date format for generated HTML',
+        'desc': 'ISO date format for generated HTML',
     },
     'humans_author_location': {
         'value': '',

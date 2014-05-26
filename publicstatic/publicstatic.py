@@ -23,9 +23,9 @@ from publicstatic import source
 from publicstatic.cache import Cache
 
 
-def init(source=None, force=False):
+def init(path=None, force=False):
     """Create new website."""
-    conf.generate(source, force)
+    conf.generate(path, force)
     try:
         src = pathes.proto()
         dest = conf.site()
@@ -41,9 +41,9 @@ def init(source=None, force=False):
         print(str(ex))
 
 
-def build(source=None, output=None):
+def build(path=None, output=None):
     """Generate web content from source."""
-    conf.load(source)
+    conf.load(path)
     cache = Cache()
     if output:
         conf.set('build_path', output)
@@ -62,9 +62,9 @@ def _serve(path, port):
     server.serve_forever()
 
 
-def run(source=None, port=None, browse=False):
+def run(path=None, port=None, browse=False):
     """Preview generated website."""
-    conf.load(source)
+    conf.load(path)
     helpers.check_build(conf.get('build_path'))
     port = port or conf.get('port')
     args = [conf.get('build_path'), port]
@@ -74,9 +74,9 @@ def run(source=None, port=None, browse=False):
         webbrowser.open_new(url)
 
 
-def deploy(source=None):
+def deploy(path=None):
     """Deploy generated website to the remote web server."""
-    conf.load(source)
+    conf.load(path)
     helpers.check_build(conf.get('build_path'))
     logger.info('deploying website...')
     if not conf.get('deploy_cmd'):
@@ -91,17 +91,17 @@ def deploy(source=None):
         logger.debug("Command output:\n%s" % e.output.decode('utf-8'))
 
 
-def clean(source=None):
+def clean(path=None):
     """Delete all generated content."""
-    conf.load(source)
+    conf.load(path)
     logger.info('cleaning output...')
     helpers.rmdir(conf.get('build_path'))
     logger.info('done')
 
 
-def page(source=None, name=None, force=False, edit=False):
+def page(path=None, name=None, force=False, edit=False):
     """Create new page."""
-    conf.load(source)
+    conf.load(path)
     try:
         path = source.PageSource.create(name, force)
     except source.PageExistsException:
@@ -112,17 +112,17 @@ def page(source=None, name=None, force=False, edit=False):
         helpers.execute(conf.get('editor_cmd'), path)
 
 
-def post(source=None, name=None, force=False, edit=False):
+def post(path=None, name=None, force=False, edit=False):
     """Create new post."""
-    conf.load(source)
+    conf.load(path)
     path = source.PostSource.create(name, force)
     logger.info('post created: ' + path)
     if edit:
         helpers.execute(conf.get('editor_cmd'), path)
 
 
-def theme_update(source=None, safe=False):
-    conf.load(source)
+def theme_update(path=None, safe=False):
+    conf.load(path)
 
     if safe:
         logger.info('saving current theme')
@@ -140,9 +140,9 @@ def theme_update(source=None, safe=False):
 
     logger.info('updating theme files')
     try:
-        source = pathes.theme_assets_source()
-        helpers.copydir(source, pathes.theme_assets_installed())
-        source = pathes.theme_templates_source()
-        helpers.copydir(source, pathes.theme_templates_installed())
+        path = pathes.theme_assets_source()
+        helpers.copydir(path, pathes.theme_assets_installed())
+        path = pathes.theme_templates_source()
+        helpers.copydir(path, pathes.theme_templates_installed())
     except Exception as e:
         logger.error('error updating theme: ' + str(e))

@@ -8,6 +8,7 @@ from publicstatic import conf
 from publicstatic import const
 from publicstatic import helpers
 from publicstatic import errors
+from publicstatic import pathes
 from publicstatic.urlify import urlify
 from publicstatic.markdown import md
 
