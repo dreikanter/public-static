@@ -1,27 +1,35 @@
 {#
 	Generate a list of linked tag.
 #}
-{% macro tags_list(tags, inline=False, add_hash=False, count=False) -%}
+{% macro tags_list(tags, count=False) -%}
 
-	{%- if inline -%}
-		<span class="tags">
-	{%- else -%}
-		<div class="tags">
-	{%- endif -%}
-
+	<span class="tags">
 	{%- for tag in tags -%}
-		<a href="{{ tag.url }}">{% if add_hash %}#{% endif %}{{ tag.name }}</a>
+		<a href="{{ tag.url }}">{{ tag.name }}</a>
 		{%- if count -%}
 			<small class="text-muted">&nbsp;-&nbsp;{{ tag.count }}</small>
 		{%- endif -%}
 		{%- if not loop.last %}, {% endif %}
 	{%- endfor -%}
+	</span>
 
-	{% if inline -%}
-		</span>
-	{%- else -%}
-		</div>
-	{%- endif -%}
+{%- endmacro -%}
+
+
+{#
+	Tags list for archive page.
+#}
+{% macro all_tags(tags, count=False) -%}
+
+	<ul class="list-unstyled tags">
+	{%- for tag in tags -%}
+		<li class="col-xs-12 col-sm-6 col-md-4 col-lg-4"><a href="{{ tag.url }}">{%- if add_hash %}#{% endif %}{{ tag.name }}</a>
+		{%- if count -%}
+			<small class="text-muted">&nbsp;-&nbsp;{{ tag.count }}</small>
+		{%- endif -%}
+		</li>
+	{%- endfor -%}
+	</ul>
 
 {%- endmacro -%}
 
