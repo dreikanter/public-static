@@ -90,206 +90,18 @@ blockquote p {
 }
 
 pre {
+  background-color: #fffff7;
+  border-color: #eee;
   font-size: inherit;
 }
 
 code {
+  padding: 0;
   background-color: transparent;
-}
-
-/*
-  Tomorrow theme for prettify.js
-  https://github.com/chriskempson/tomorrow-theme
-*/
-
-/* plain text */
-.pln {
-  color: #4d4d4c;
-}
-
-@media screen {
-  /* string content */
-  .str {
-    color: #718c00;
-  }
-
-  /* a keyword */
-  .kwd {
-    color: #8959a8;
-  }
-
-  /* a comment */
-  .com {
-    color: #8e908c;
-  }
-
-  /* a type name */
-  .typ {
-    color: #4271ae;
-  }
-
-  /* a literal value */
-  .lit {
-    color: #f5871f;
-  }
-
-  /* punctuation */
-  .pun {
-    color: #4d4d4c;
-  }
-
-  /* lisp open bracket */
-  .opn {
-    color: #4d4d4c;
-  }
-
-  /* lisp close bracket */
-  .clo {
-    color: #4d4d4c;
-  }
-
-  /* a markup tag name */
-  .tag {
-    color: #c82829;
-  }
-
-  /* a markup attribute name */
-  .atn {
-    color: #f5871f;
-  }
-
-  /* a markup attribute value */
-  .atv {
-    color: #3e999f;
-  }
-
-  /* a declaration */
-  .dec {
-    color: #f5871f;
-  }
-
-  /* a variable name */
-  .var {
-    color: #c82829;
-  }
-
-  /* a function name */
-  .fun {
-    color: #4271ae;
-  }
-}
-
-/* Use higher contrast and text-weight for printable form. */
-@media print, projection {
-  .str {
-    color: #006600;
-  }
-
-  .kwd {
-    color: #006;
-    font-weight: bold;
-  }
-
-  .com {
-    color: #600;
-    font-style: italic;
-  }
-
-  .typ {
-    color: #404;
-    font-weight: bold;
-  }
-
-  .lit {
-    color: #004444;
-  }
-
-  .pun, .opn, .clo {
-    color: #444400;
-  }
-
-  .tag {
-    color: #006;
-    font-weight: bold;
-  }
-
-  .atn {
-    color: #440044;
-  }
-
-  .atv {
-    color: #006600;
-  }
-}
-
-/* Style */
-pre.prettyprint {
-  background: white;
   font-family: Menlo, "Bitstream Vera Sans Mono", "DejaVu Sans Mono", Monaco, Consolas, monospace;
-  font-size: 12px;
-  line-height: 1.5;
-  border: 1px solid #cccccc;
-  padding: 10px;
 }
 
-/* Specify class=linenums on a pre to get line numbering */
-ol.linenums {
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-/* IE indents via margin-left */
-li.L0,
-li.L1,
-li.L2,
-li.L3,
-li.L4,
-li.L5,
-li.L6,
-li.L7,
-li.L8,
-li.L9 {
-  /* */
-}
-
-/* Alternate shading for lines */
-li.L1,
-li.L3,
-li.L5,
-li.L7,
-li.L9 {
-  /* */
-}
-
-/*
-  Prettyprint customization
-*/
-
-.linenums li {
-  list-style-type: decimal;
-  color: #ccc;
-}
-
-pre.prettyprint {
-  border-color: #eee;
-  background-color: #fffeee;
-}
-
-.btn-search {
-  margin-left: -5px;
-  padding: 4px 10px;
-  font-size: 14px;
-  color: #999;
-  background-color: transparent;
-}
-
-pre.prettyprint {
-  font-size: 13px;
-}
-
-/*
-  Disqus customization
-*/
+/* Disqus customization */
 
 #disqus_thread {
   padding-top:37px;
@@ -309,3 +121,67 @@ pre.prettyprint {
 .text-muted strong {
   color: #222222;
 }
+
+/* Pygments theme */
+
+.hll { background-color: #ffffcc }
+.c { color: #999988; font-style: italic }
+.err { color: #a61717; background-color: #e3d2d2 }
+.k { color: #000000; font-weight: bold }
+.o { color: #000000; font-weight: bold }
+.cm { color: #999988; font-style: italic }
+.cp { color: #999999; font-weight: bold; font-style: italic }
+.c1 { color: #999988; font-style: italic }
+.cs { color: #999999; font-weight: bold; font-style: italic }
+.gd { color: #000000; background-color: #ffdddd }
+.ge { color: #000000; font-style: italic }
+.gr { color: #aa0000 }
+.gh { color: #999999 }
+.gi { color: #000000; background-color: #ddffdd }
+.go { color: #888888 }
+.gp { color: #555555 }
+.gs { font-weight: bold }
+.gu { color: #aaaaaa }
+.gt { color: #aa0000 }
+.kc { color: #000000; font-weight: bold }
+.kd { color: #000000; font-weight: bold }
+.kn { color: #000000; font-weight: bold }
+.kp { color: #000000; font-weight: bold }
+.kr { color: #000000; font-weight: bold }
+.kt { color: #445588; font-weight: bold }
+.m { color: #009999 }
+.s { color: #d01040 }
+.na { color: #008080 }
+.nb { color: #0086B3 }
+.nc { color: #445588; font-weight: bold }
+.no { color: #008080 }
+.nd { color: #3c5d5d; font-weight: bold }
+.ni { color: #800080 }
+.ne { color: #990000; font-weight: bold }
+.nf { color: #990000; font-weight: bold }
+.nl { color: #990000; font-weight: bold }
+.nn { color: #555555 }
+.nt { color: #000080 }
+.nv { color: #008080 }
+.ow { color: #000000; font-weight: bold }
+.w { color: #bbbbbb }
+.mf { color: #009999 }
+.mh { color: #009999 }
+.mi { color: #009999 }
+.mo { color: #009999 }
+.sb { color: #d01040 }
+.sc { color: #d01040 }
+.sd { color: #d01040 }
+.s2 { color: #d01040 }
+.se { color: #d01040 }
+.sh { color: #d01040 }
+.si { color: #d01040 }
+.sx { color: #d01040 }
+.sr { color: #009926 }
+.s1 { color: #d01040 }
+.ss { color: #990073 }
+.bp { color: #999999 }
+.vc { color: #008080 }
+.vg { color: #008080 }
+.vi { color: #008080 }
+.il { color: #009999 }
