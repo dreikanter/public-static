@@ -36,7 +36,6 @@ class DataExtension(markdown.Extension):
 
 
 EXTENSIONS = [
-    'codehilite',
     'def_list',
     'fenced_code',
     'grid',
