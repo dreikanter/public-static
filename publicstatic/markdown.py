@@ -5,6 +5,7 @@ import markdown
 import re
 from publicstatic import templates
 from publicstatic import data
+from publicstatic import urlize
 
 
 EXTENSIONS = [
@@ -15,6 +16,7 @@ EXTENSIONS = [
     'nl2br',
     'smarty',
     data.DataExtension(),
+    urlize.UrlizeExtension(),
 ]
 
 
