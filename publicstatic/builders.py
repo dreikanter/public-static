@@ -148,7 +148,10 @@ def posts(cache):
         logger.info(_to('root', last.rel_dest(), conf.get('index_page')))
         if any(cache.pages(dest=conf.get('index_page'))):
             logger.warn('root page will be overwritten by the latest post')
-        shutil.copyfile(last.dest(), path)
+        try:
+            shutil.copyfile(last.dest(), path)
+        except FileNotFoundError:
+            logger.error("latest post was not generated and can't be copied")
 
 
 def archive(cache):

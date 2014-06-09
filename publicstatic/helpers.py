@@ -164,8 +164,3 @@ def utime(path, value):
 def ext(file_name):
     """Returns a file name extension in lower case (with leading dot)."""
     return os.path.splitext(file_name)[1].lower()
-
-
-def unindent(text):
-    """Remove multiline text indentation."""
-    return '\n'.join(map(str.strip, (str(text) or '').split('\n')))

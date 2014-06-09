@@ -6,9 +6,6 @@ CONF_NAME = 'conf.yml'
 # Configuration file header
 CONF_HEADER = 'public-static configuration file'
 
-# standard name for template content block
-CONTENT_BLOCK = 'content'
-
 # environment variable name to override 'verbose' configuration parameter
 ENV_VERBOSE = 'ps_verbose'
 

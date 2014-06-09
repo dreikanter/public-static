@@ -68,16 +68,6 @@ def filter_trimurl(value):
     return url.netloc + url.path.rstrip('/')
 
 
-# def image(id):
-#     image = images.get_image(id)
-#     if image is None:
-#         return "[image not found: %s]" % str(id)
-#     else:
-#         html = "<img src=\"{url}\" width=\"{width}\" " \
-#                "height=\"{height}\" alt=\"\">"
-#         return html.format(**image)
-
-
 def render(data, template, dest_path):
     """Render data using a specified template to a file."""
     result = env().get_template(template).render(data)
@@ -95,15 +85,17 @@ def render_page(page_data, dest_path):
     """This one is tricky. It creates a dynamic template inherited from
     the base template, adds a 'main' block to this template with page content
     inside, and renders the result template to [dest_path]. Boom!"""
-    template = """{%% extends "%s" %%}
-                  {%% block %s %%}
-                  %s
-                  {%% endblock %%}"""
-    base_template = page_data['page']['template']
+    base_template = page_data['page']['template'] + '.html'
     content = page_data['page']['content']
-    values = (base_template + '.html', const.CONTENT_BLOCK, content)
-    template = helpers.unindent(template) % values
-    _save(env().from_string(template).render(page_data), dest_path)
+    template = """{%% extends "%s" %%}{%% block main %%}%s{%% endblock %%}"""
+    template = template % (base_template, content)
+    try:
+        template = env().from_string(template)
+        html = template.render(page_data)
+        _save(html, dest_path)
+    except jinja2.exceptions.TemplateNotFound as e:
+        message = "page generation failed because template was not found: %s"
+        logger.error(message % e)
 
 
 def render_data(data_file, template):
