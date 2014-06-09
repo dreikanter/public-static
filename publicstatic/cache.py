@@ -21,9 +21,15 @@ class Cache():
             (source.PostSource, pathes.posts()),
         ]
 
+        self._errors = []
         for src_type, dir_path in proc_queue:
             def add_source(root, rel):
-                self._cache.append(src_type(os.path.join(root, rel), root))
+                try:
+                    file_name = os.path.join(root, rel)
+                    self._cache.append(src_type(file_name, root))
+                except Exception as e:
+                    self._errors.append((rel, e))
+
             helpers.walk(dir_path, add_source)
 
     def cond(self,
@@ -108,6 +114,10 @@ class Cache():
     def updated(self):
         """Returns last update timestamp of all source files."""
         return max(source.updated() for source in self._cache)
+
+    def processing_errors(self):
+        """A list of non-digested source files."""
+        return self._errors
 
     def _get_posts(self):
         posts = list(filter(self.cond(source.PostSource), self._cache))

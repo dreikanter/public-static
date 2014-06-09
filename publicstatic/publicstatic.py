@@ -45,6 +45,10 @@ def build(path=None, output=None):
     """Generate web content from source."""
     conf.load(path)
     cache = Cache()
+    if cache.processing_errors():
+        for file_name, error in cache.processing_errors():
+            message = "error processing source file '%s' - %s"
+            logger.error(message % (file_name, error))
     if output:
         conf.set('build_path', output)
     logger.info('build directory: ' + conf.get('build_path'))
