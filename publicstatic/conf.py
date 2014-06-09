@@ -152,6 +152,7 @@ def commons():
         'google_analytics_id': get('google_analytics_id'),
         'datetime_format': get('datetime_format'),
         'date_format': get('date_format'),
+        'opengraph_enabled': get('opengraph_enabled'),
     }
 
 

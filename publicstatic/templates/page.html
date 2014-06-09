@@ -9,29 +9,35 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
+		<title>{{ page.title }}</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 		{% if commons.description -%}
-			<meta name="description" content="{{ commons.description }}">
+		<meta name="description" content="{{ commons.description }}">
 		{% endif -%}
 
 		{% if commons.keywords -%}
-			<meta name="keywords" content="{{ commons.keywords }}">
+		<meta name="keywords" content="{{ commons.keywords }}">
 		{% endif -%}
 
 		{%- if commons.author -%}
-			<meta name="author" content="{{ commons.author }}">
+		<meta name="author" content="{{ commons.author }}">
 		{% endif -%}
 
 		{%- if commons.generator -%}
-			<meta name="generator" content="{{ commons.generator }} {{ generator_version }}">
+		<meta name="generator" content="{{ commons.generator }} {{ generator_version }}">
+		{% endif -%}
+
+		{%- if commons.opengraph_enabled -%}
+		<meta property="og:title" content="{{ page.title }}" />
+		<meta property="og:type" content="article" />
+		<meta property="og:url" content="{{ page.url }}" />
+		<meta property="og:description" content="{{ page.description }}" />
+		<meta property="article:author" content="{{ page.author }}" />
+		<meta property="article:publisher" content="{{ commons.root_url }}" />
 		{% endif -%}
 
 		<link rel="shortcut icon" href="{{ commons.rel_root_url }}favicon.ico">
-
-		<title>{{ page.title }}</title>
-
 		<link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
 		<link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet">
 		<link href="{{ commons.rel_root_url }}css/publicstatic.css" rel="stylesheet">
@@ -40,7 +46,6 @@
 		{%- endif %}
 		<link href="{{ commons.rel_root_url }}favicon.ico" type="image/png" rel="shortcut icon">
 		<link href="{{ commons.rel_root_url }}{{ atom_feed }}" rel="alternate" title="drafts.cc feed" type="application/atom+xml">
-
 		<!--[if lt IE 9]>
 			<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script>
 			<script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.js"></script>
@@ -90,9 +95,7 @@
 			{%- endblock -%}
 
 			{%- block main -%}
-				{%- block content -%}
-					{{ page.content }}
-				{%- endblock -%}
+				{{ page.content }}
 			{%- endblock -%}
 
 			{%- block middle -%}

@@ -18,6 +18,8 @@ POST_NAME_FORMAT = "{year}{month}{day}-{name}.md"
 # regular expression to extract {name} from a base name of post source file
 RE_POST_NAME = re.compile(r"^[\d_-]*([^\.]*)", re.U)
 
+# Page description length limit (for page metadata)
+DESC_LEN = 300
 
 class NotImplementedException(errors.BasicException):
     """required functionality is not implemented"""
@@ -163,7 +165,7 @@ class ParseableSource(Source):
     def _parse(self):
         """Extract page header data and content from a list of lines
         and return the result as key-value couples."""
-        meta, content = ParseableSource._split(self.text())
+        meta, desc, content = ParseableSource._split(self.text())
         meta.update({
             'source': self._path,
             'title': meta.get('title', helpers.get_h1(content)),
@@ -173,25 +175,56 @@ class ParseableSource(Source):
             'source_url': self.source_url(),
             'created': helpers.parse_time(meta.get('created'), self._ctime),
             'updated': helpers.parse_time(meta.get('updated'), self._utime),
+            'description': meta.get('description', desc),
             'content': md(content.strip()),
         })
         return meta
 
     @staticmethod
     def _split(text):
-        """Coarse parser for the source file."""
-        result = {}
+        """Coarse parser for the source file. Returns page metadata hash,
+        page description (a piece of text from the beginning of the page),
+        and content."""
+        meta = {}
         lines = text.splitlines()
         num = 0
         for line in lines:
             match = ParseableSource._re_param.match(line)
             if match:
                 field = match.group(1).strip().lower()
-                result[field] = match.group(2).strip()
+                meta[field] = match.group(2).strip()
                 num += 1
             else:
                 break
-        return result, '\n'.join(lines[num:])
+
+        desc = ''
+        for line in lines[num:]:
+            desc = '\n'.join([desc, line.strip()])
+            if len(desc) > DESC_LEN: break
+        desc = ParseableSource._strip_md(desc.strip())
+
+        content = '\n'.join(lines[num:])
+
+        return meta, desc, content
+
+    @staticmethod
+    def _strip_md(text):
+        """Strip markdown syntax."""
+        _re_md_markup = [
+            (r"^\s*#+\s*|^\s*>\s+|^\s*-\s+|\*\*", ''),
+            (r"\[(.*?)\]\(.*?\)", r"\g<1>"),
+            (r"\[\[(.*?)\]\]", r"\g<1>"),
+            (r"<.*?>", ''),
+            (r"`([^`]+)`", r"\g<1>"),
+            (r"\n", ' '),
+        ]
+
+        for pattern, substitution in _re_md_markup:
+            text = re.sub(pattern, substitution, text, flags=re.U|re.M)
+            text = text.replace('\n', ' ')
+
+        return text
+
 
     @staticmethod
     def _tags(value):

@@ -240,6 +240,10 @@ DEFAULTS = {
         'value': "yuicompressor --type js --nomunge -o {dest} {source}",
         'desc': 'Shell command for JavaScript minification',
     },
+    'opengraph_enabled': {
+        'value': True,
+        'desc': 'Include OpenGraph metadata to the page header',
+    },
     'page_tpl': {
         'value': 'page',
         'desc': 'Template name for pages',
