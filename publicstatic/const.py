@@ -82,6 +82,7 @@ UNTITLED_POST = 'untitled-post'
 EXPORTS = [
     'author',
     'author_url',
+    'author_twitter',
     'build_path',
     'default_tags',
     'deploy_cmd',
@@ -101,6 +102,7 @@ EXPORTS = [
     'port',
     'post_location',
     'root_url',
+    'site_twitter',
     'source_url',
     'subtitle',
     'title',
@@ -119,11 +121,15 @@ DEFAULTS = {
     },
     'author': {
         'value': 'Anonymous',
-        'desc': 'Author name',
+        'desc': 'Primary author name',
+    },
+    'author_twitter': {
+        'value': '',
+        'desc': 'Primary author twitter account',
     },
     'author_url': {
         'value': 'http://example.net',
-        'desc': 'Author home page',
+        'desc': 'Primary author home page',
     },
     'build_path': {
         'value': BUILD_DIR,
@@ -180,10 +186,6 @@ DEFAULTS = {
     'humans_author_location': {
         'value': '',
         'desc': 'Site author location for humans.txt',
-    },
-    'humans_author_twitter': {
-        'value': '',
-        'desc': 'Site author twitter account for humans.txt',
     },
     'humans_doctype': {
         'value': 'HTML5',
@@ -280,6 +282,10 @@ DEFAULTS = {
         'value': 'http://example.com/',
         'desc': 'Root website URL',
     },
+    'site_twitter': {
+        'value': '',
+        'desc': 'Website twitter account',
+    },
     'source_url': {
         'value': 'http://github.com/username/example.com',
         'desc': 'Website source URL',
@@ -300,6 +306,10 @@ DEFAULTS = {
     'title': {
         'value': 'Brand New Blog',
         'desc': 'Site title',
+    },
+    'twittercards_enabled': {
+        'value': True,
+        'desc': 'Include Twitter Cards metadata to the page header',
     },
     'verbose': {
         'value': True,

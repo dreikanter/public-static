@@ -130,6 +130,7 @@ def commons():
         'menu': get('menu'),
         'time': datetime.now(),
         'author': get('author'),
+        'author_twitter': get('author_twitter'),
         'author_url': get('author_url'),
         'generator': const.GENERATOR,
         'generator_url': const.GENERATOR_URL,
@@ -140,7 +141,6 @@ def commons():
         'archive_rel_url': get('rel_root_url') + get('archive_location'),
         'tags_rel_url': tags_rel_url(),
         'sitemap_url': get('rel_root_url') + 'sitemap.xml',
-        'author_twitter': get('humans_author_twitter'),
         'author_location': get('humans_author_location'),
         'language': get('humans_language'),
         'doctype': get('humans_doctype'),
@@ -153,6 +153,8 @@ def commons():
         'datetime_format': get('datetime_format'),
         'date_format': get('date_format'),
         'opengraph_enabled': get('opengraph_enabled'),
+        'twittercards_enabled': get('twittercards_enabled'),
+        'site_twitter': get('site_twitter'),
     }
 
 

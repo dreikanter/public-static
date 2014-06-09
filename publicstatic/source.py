@@ -171,6 +171,9 @@ class ParseableSource(Source):
             'title': meta.get('title', helpers.get_h1(content)),
             'template': meta.get('template', self.default_template()),
             'author': meta.get('author', conf.get('author')),
+            'author_twitter':
+                meta.get('author_twitter', conf.get('author_twitter')),
+            'author_url': meta.get('author_url', conf.get('author_url')),
             'tags': list(ParseableSource._tags(meta.get('tags', ''))),
             'source_url': self.source_url(),
             'created': helpers.parse_time(meta.get('created'), self._ctime),
