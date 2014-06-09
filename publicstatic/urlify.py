@@ -333,14 +333,12 @@ EXCLUSIONS = [
     'the',
     'this',
     'that',
-    'to',
     'up',
     'via',
     'with',
 ]
 
 _base = re.compile(r"[a-zA-Z\d\s-]+")
-_exclude = re.compile('|'.join([r"\b%s\b" % word for word in EXCLUSIONS]))
 _space = re.compile(r"[\s_\-]+")
 
 
@@ -348,4 +346,5 @@ def urlify(text, exclude=EXCLUSIONS, ext_map={}):
     UBERMAP.update(ext_map)
     mapchar = lambda c: c if _base.match(c) else UBERMAP.get(ord(c), '')
     result = ''.join(map(mapchar, text)).lower()
-    return _space.sub('-', _exclude.sub('', result).strip())
+    exclude = re.compile('|'.join([r"\b%s\b" % word for word in exclude]))
+    return _space.sub('-', exclude.sub('', result)).strip('-')
