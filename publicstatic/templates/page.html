@@ -25,7 +25,7 @@
 		{% endif -%}
 
 		{%- if commons.generator -%}
-		<meta name="generator" content="{{ commons.generator }} {{ generator_version }}">
+		<meta name="generator" content="{{ commons.generator }} {{ commons.generator_version }}">
 		{% endif -%}
 
 		{%- if commons.opengraph_enabled -%}
@@ -41,7 +41,9 @@
 		<meta name="twitter:card" content="summary" />
 		<meta name="twitter:title" content="{{ page.title }}" />
 		<meta name="twitter:description" content="{{ page.description }}" />
+		{% if page.author_twitter -%}
 		<meta name="twitter:creator" content="{{ page.author_twitter }}" />
+		{% endif %}
 		{%- if commons.site_twitter -%}
 		<meta name="twitter:site" content="{{ commons.site_twitter }}" />
 		{% endif -%}
