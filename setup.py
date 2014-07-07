@@ -60,7 +60,7 @@ setup(
             'pub = %s:main' % PACKAGE_NAME
         ]
     },
-    # include_package_data=True,
+    include_package_data=True,
     zip_safe=False,
     classifiers=[
         'Development Status :: 4 - Beta',

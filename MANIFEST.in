@@ -1,0 +1,2 @@
+recursive-include publicstatic *
+global-exclude .DS_Store *.pyc
