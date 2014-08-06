@@ -75,6 +75,9 @@ BUILD_DIR = 'build'
 # default post name
 UNTITLED_POST = 'untitled-post'
 
+# post file prefix format
+PREFIX_FORMAT = '%Y%m%d'
+
 # parameters sequence for the configuration file
 EXPORTS = [
     'author',

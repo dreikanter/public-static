@@ -31,20 +31,6 @@ def browse(url, delay):
     open_new_tab(url)
 
 
-def parse_time(value, default=None):
-    """Converts string to datetime using the first of the preconfigured
-    time_format values that will work."""
-    if not value and default:
-        return default
-    for time_format in conf.get('time_format'):
-        try:
-            return datetime.strptime(value.strip(), time_format)
-        except ValueError:
-            pass
-    else:
-        raise Exception('bad date/time format')
-
-
 def check_build(path):
     """Check if the web content was built and exit if it isn't."""
     if not os.path.isdir(path):

@@ -43,9 +43,13 @@ class Source:
         self._path = os.path.join(base_dir, file_name)
         self._rel_path = os.path.relpath(file_name, base_dir)
         self._ext = os.path.splitext(file_name)[1].lower()
-        self._ctime = datetime.fromtimestamp(os.path.getctime(self._path))
-        self._utime = datetime.fromtimestamp(os.path.getmtime(self._path))
         self._processed = False
+        timestamp = self._timestamp()
+        if timestamp:
+            self._ctime = self._utime = timestamp
+        else:
+            self._ctime = datetime.fromtimestamp(os.path.getctime(self._path))
+            self._utime = datetime.fromtimestamp(os.path.getmtime(self._path))
 
     def __str__(self):
         """Human-readable string representation."""
@@ -105,6 +109,16 @@ class Source:
         if type(value) == bool:
             self._processed = value
         return self._processed
+
+    def _timestamp(self):
+        """Try getting timestamp from filename prefix.
+        Return None if there is no valid timestamp in file name."""
+        try:
+            file_name = os.path.basename(self._path)
+            timestamp = re.match(r'^\d+', file_name).group(0)
+            return datetime.strptime(timestamp, const.PREFIX_FORMAT)
+        except:
+            return None
 
 
 class ParseableSource(Source):
@@ -176,12 +190,26 @@ class ParseableSource(Source):
             'author_url': meta.get('author_url', conf.get('author_url')),
             'tags': list(ParseableSource._tags(meta.get('tags', ''))),
             'source_url': self.source_url(),
-            'created': helpers.parse_time(meta.get('created'), self._ctime),
-            'updated': helpers.parse_time(meta.get('updated'), self._utime),
+            'created': self._update_time(meta.get('created'), self._ctime),
+            'updated': self._update_time(meta.get('updated'), self._utime),
             'description': meta.get('description', desc),
             'content': md(content.strip()),
         })
         return meta
+
+    @staticmethod
+    def _update_time(value, default=None):
+        """Converts string to datetime using the first of the preconfigured
+        time_format values that will work."""
+        if not value and default:
+            return default
+        for time_format in conf.get('time_format'):
+            try:
+                return datetime.strptime(value.strip(), time_format)
+            except ValueError:
+                pass
+        else:
+            raise Exception('bad date/time format')
 
     @staticmethod
     def _split(text):
@@ -227,7 +255,6 @@ class ParseableSource(Source):
             text = text.replace('\n', ' ')
 
         return text
-
 
     @staticmethod
     def _tags(value):
