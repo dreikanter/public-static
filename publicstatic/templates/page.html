@@ -1,4 +1,5 @@
 {% from '_macros.html' import tags_list,
+                              tags_csv,
                               all_tags,
                               google_analytics,
                               disqus_comments,
@@ -16,8 +17,8 @@
 		<meta name="description" content="{{ commons.description }}">
 		{% endif -%}
 
-		{% if commons.keywords -%}
-		<meta name="keywords" content="{{ commons.keywords }}">
+		{% if page.tags -%}
+		<meta name="keywords" content="{{ tags_csv(page.tags) }}">
 		{% endif -%}
 
 		{%- if commons.author -%}

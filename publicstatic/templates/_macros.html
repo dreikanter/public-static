@@ -1,17 +1,27 @@
 {#
-	Generate a list of linked tag.
+	Generate a list of linked tags.
 #}
-{% macro tags_list(tags, count=False) -%}
+{% macro tags_list(tags) -%}
 
 	<span class="tags">
 	{%- for tag in tags -%}
 		<a href="{{ tag.url }}">{{ tag.name }}</a>
-		{%- if count -%}
-			<small class="text-muted">&nbsp;-&nbsp;{{ tag.count }}</small>
-		{%- endif -%}
 		{%- if not loop.last %}, {% endif %}
 	{%- endfor -%}
 	</span>
+
+{%- endmacro -%}
+
+
+{#
+	Generate a list of comma separated plain text tags.
+#}
+{% macro tags_csv(tags) -%}
+
+	{%- for tag in tags -%}
+		{{ tag.name }}
+		{%- if not loop.last %},{% endif %}
+	{%- endfor -%}
 
 {%- endmacro -%}
 
