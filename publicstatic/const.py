@@ -109,7 +109,7 @@ EXPORTS = [
 # configuration parameters
 DEFAULTS = {
     'archive_location': {
-        'value': 'archive/index.html',
+        'value': 'archive.html',
         'desc': 'Blog archive page location',
     },
     'atom_location': {
@@ -215,7 +215,7 @@ DEFAULTS = {
     'menu': {
         'value': [
             {'title': 'About', 'href': '/about.html'},
-            {'title': 'Archive', 'href': '/archive/'},
+            {'title': 'Archive', 'href': '/archive.html'},
         ],
         'desc': 'Navigation menu items',
     },
