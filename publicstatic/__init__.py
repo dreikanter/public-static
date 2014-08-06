@@ -23,7 +23,7 @@ def dispatch(args):
     command = args.get('command')
     source = args.get('source')
     if command == 'init':
-        publicstatic.init(source, args['force'])
+        publicstatic.init(args.get('path'), args['force'])
     elif command == 'build':
         publicstatic.build(source, args['output'])
     elif command == 'run':

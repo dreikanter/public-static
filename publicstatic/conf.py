@@ -68,13 +68,14 @@ def load(conf_path):
 def generate(conf_path, force):
     """Generates new configuration file using defaults."""
     global _path
-    _path = os.path.join(os.path.abspath(conf_path or '.'), const.CONF_NAME)
+    _path = os.path.join(os.path.abspath(conf_path), const.CONF_NAME)
 
     if not force and os.path.exists(_path):
         raise ConfigurationExistsException(path=_path)
 
-    if not os.path.isdir(site_dir()):
-        os.makedirs(site_dir())
+    dir_path = os.path.dirname(path())
+    if not os.path.isdir(dir_path):
+        os.makedirs(dir_path)
 
     header = "# %s\n\n" % const.CONF_HEADER
     exports = [opt for opt in const.DEFAULTS.keys() if opt in const.EXPORTS]

@@ -79,7 +79,7 @@ ARGS = {
         ['path'],
         {
             'nargs': '?',
-            'default': None,
+            'default': '.',
             'help': 'path to the new site directory (default is cwd)',
         },
     ),

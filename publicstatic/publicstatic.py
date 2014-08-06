@@ -28,8 +28,7 @@ def init(path=None, force=False):
     conf.generate(path, force)
     try:
         src = pathes.proto()
-        dest = conf.site()
-        existing = helpers.copydir(src, dest, force=force)
+        existing = helpers.copydir(src, pathes.site(), force=force)
         if len(existing):
             message = "some existing files were overwritten" if force else \
                 "some existing files were NOT overwritten (use --force " \
