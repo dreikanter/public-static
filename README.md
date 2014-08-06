@@ -1,4 +1,4 @@
-![](https://dl.dropboxusercontent.com/u/271466/PublicStaticLogo.png)
+# public-static
 
 This is a static website builder with the following features:
 
