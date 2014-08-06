@@ -133,12 +133,6 @@ def pages(cache):
 def posts(cache):
     """Build blog posts and copy the latest post to the site root."""
     for source in cache.posts():
-        print(source.path())
-        print(source.created())
-        print(source.updated())
-
-    exit()
-    for source in cache.posts():
         logger.info(_to('post', source.rel_path(), source.rel_dest()))
         helpers.makedirs(source.dest_dir())
         try:

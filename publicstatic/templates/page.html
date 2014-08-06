@@ -1,93 +1,93 @@
-{% from '_macros.html' import tags_list,
-                              tags_csv,
-                              all_tags,
-                              google_analytics,
-                              disqus_comments,
-                              disqus_counter,
-                              addthis,
-                              pluso,
-                              img -%}
+{% import '_macros.html' as macros -%}
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 	<head>
+		<link href="http://gmpg.org/xfn/11" rel="profile">
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+		<!-- Enable responsiveness on mobile devices-->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
 		<title>{{ page.title }}</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<!-- Common metadata -->
 		{% if commons.description -%}
-		<meta name="description" content="{{ commons.description }}">
+			<meta name="description" content="{{ commons.description }}">
 		{% endif -%}
 
 		{% if page.tags -%}
-		<meta name="keywords" content="{{ tags_csv(page.tags) }}">
+			<meta name="keywords" content="{{ macros.tags_csv(page.tags) }}">
 		{% endif -%}
 
 		{%- if commons.author -%}
-		<meta name="author" content="{{ commons.author }}">
+			<meta name="author" content="{{ commons.author }}">
 		{% endif -%}
 
 		{%- if commons.generator -%}
-		<meta name="generator" content="{{ commons.generator }} {{ commons.generator_version }}">
+			<meta name="generator" content="{{ commons.generator }} {{ commons.generator_version }}">
 		{% endif -%}
 
+		<!-- OpenGraph -->
 		{%- if commons.opengraph_enabled -%}
-		<meta property="og:title" content="{{ page.title }}" />
-		<meta property="og:type" content="article" />
-		<meta property="og:url" content="{{ page.url }}" />
-		<meta property="og:description" content="{{ page.description }}" />
-		<meta property="article:author" content="{{ page.author }}" />
-		<meta property="article:publisher" content="{{ commons.root_url }}" />
+			<meta property="og:title" content="{{ page.title }}" />
+			<meta property="og:type" content="article" />
+			<meta property="og:url" content="{{ page.url }}" />
+			<meta property="og:description" content="{{ page.description }}" />
+			<meta property="article:author" content="{{ page.author }}" />
+			<meta property="article:publisher" content="{{ commons.root_url }}" />
 		{% endif -%}
 
+		<!-- Twitter Cards -->
 		{%- if commons.twittercards_enabled -%}
-		<meta name="twitter:card" content="summary" />
-		<meta name="twitter:title" content="{{ page.title }}" />
-		<meta name="twitter:description" content="{{ page.description }}" />
-		{% if page.author_twitter -%}
-		<meta name="twitter:creator" content="{{ page.author_twitter }}" />
-		{% endif %}
-		{%- if commons.site_twitter -%}
-		<meta name="twitter:site" content="{{ commons.site_twitter }}" />
-		{% endif -%}
+			<meta name="twitter:card" content="summary" />
+			<meta name="twitter:title" content="{{ page.title }}" />
+			<meta name="twitter:description" content="{{ page.description }}" />
+			{% if page.author_twitter -%}
+				<meta name="twitter:creator" content="{{ page.author_twitter }}" />
+			{% endif %}
+			{%- if commons.site_twitter -%}
+				<meta name="twitter:site" content="{{ commons.site_twitter }}" />
+			{% endif -%}
 		{% endif -%}
 
-		<link rel="shortcut icon" href="{{ commons.rel_root_url }}favicon.ico">
-		<link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+		<!-- CSS -->
+		<link rel="stylesheet" href="{{ commons.rel_root_url }}css/poole.css">
+		<link rel="stylesheet" href="{{ commons.rel_root_url }}css/syntax.css">
 		<link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet">
-		<link href="{{ commons.rel_root_url }}css/publicstatic.css" rel="stylesheet">
+
+		<!-- Theme style customization -->
 		{%- if asset_exists('css/custom.css') %}
-		<link href="{{ commons.rel_root_url }}css/custom.css" rel="stylesheet">
+			<link href="{{ commons.rel_root_url }}css/custom.css" rel="stylesheet">
 		{%- endif %}
-		<link href="{{ commons.rel_root_url }}favicon.ico" type="image/png" rel="shortcut icon">
+
+		<!-- Icons -->
+		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="{{ commons.rel_root_url }}/apple-touch-icon-precomposed.png">
+		<link rel="shortcut icon" href="{{ commons.rel_root_url }}/favicon.ico">
+
+		<!-- Feed -->
 		<link href="{{ commons.rel_root_url }}{{ atom_feed }}" rel="alternate" title="drafts.cc feed" type="application/atom+xml">
-		<!--[if lt IE 9]>
-			<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script>
-			<script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.js"></script>
-		<![endif]-->
 	</head>
-
 	<body>
-		{% block nav %}
-			<div class="navbar navbar-default navbar-static-top">
-				<div class="container">
-					<div class="navbar-header">
-						<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-							<span class="icon-bar"></span>
-							<span class="icon-bar"></span>
-							<span class="icon-bar"></span>
-						</button>
-						<a class="navbar-brand" href="{{ commons.rel_root_url }}" title="{{ commons.site_title }}"><i class="fa fa-home"></i></a>
-					</div>
 
-					<div class="navbar-collapse collapse">
+		<div class="container content">
+			{% block nav %}
+				<div class="masthead">
+					<h3 class="masthead-title">
+						<a href="{{ commons.root_url }}" title="Home">{{ commons.site_title }}</a>
+						<small>{{ commons.site_subtitle }}</small>
 						{% if commons.menu -%}
-							<ul class="nav navbar-nav">
+							<p class="main-menu">
 								{% for item in commons.menu -%}
-									<li><a href="{{item.href}}">{{ item.title }}</a></li>
+									<a href="{{item.href}}">{{ item.title }}</a>
+									{%- if not loop.last %} &middot; {% endif %}
 								{%- endfor %}
-							</ul>
+							</p>
 						{%- endif %}
+					</h3>
+				</div>
 
-						{%- if commons.enable_search_form -%}
+<!--
+ 						{%- if commons.enable_search_form -%}
 							<form action="http://google.com/search" method="get" class="navbar-form navbar-right">
 								<div class="form-group">
 									<fieldset role="search">
@@ -98,12 +98,10 @@
 								<button type="submit" class="btn btn-sm btn-search"><i class="fa fa-search"></i></button>
 							</form>
 						{%- endif -%}
-					</div>
-				</div>
-			</div>
-		{% endblock %}
+ -->
 
-		<div class="container">
+			{% endblock %}
+
 			{%- block title -%}
 			{%- endblock -%}
 
@@ -116,25 +114,23 @@
 
 			{%- block comments -%}
 			{%- endblock-%}
+
+			{%- block footer -%}
+				<div class="footer">
+					<p>
+						<a href="{{ commons.root_url }}">{{ commons.site_title }}</a> • Created by <a href="{{ commons.author_url }}">{{ commons.author }}</a>, {{ commons.time.year }} • Licensed under <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/deed.en_US">CC BY-NC-SA 3.0</a><br>
+						Content sources <a href="{{ commons.source_url }}">at GitHub</a> • Generated with <a href="{{ commons.generator_url }}">{{ commons.generator }}</a> {{ commons.generator_version }}
+					</p>
+				</div>
+			{%- endblock -%}
 		</div>
 
-		{%- block footer -%}
-			<div class="container text-muted center footer">
-				<hr>
-				<a href="{{ commons.root_url }}">{{ commons.site_title }}</a> • Created by <a href="{{ commons.author_url }}">{{ commons.author }}</a>, {{ commons.time.year }} • Licensed under <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/deed.en_US">CC BY-NC-SA 3.0</a><br>
-				Content sources <a href="{{ commons.source_url }}">at GitHub</a> • Generated with <a href="{{ commons.generator_url }}">{{ commons.generator }}</a> {{ commons.generator_version }}
-			</div>
-		{%- endblock -%}
-
-		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>
-
 		{%- if commons.google_analytics_id -%}
-			{{- google_analytics(commons.google_analytics_id) -}}
+			{{- macros.google_analytics(commons.google_analytics_id) -}}
 		{%- endif -%}
 
 		{%- if commons.addthis_id -%}
-			{{- addthis(commons.addthis_id, page.url) -}}
+			{{- macros.addthis(commons.addthis_id, page.url) -}}
 		{%- endif -%}
 
 	</body>

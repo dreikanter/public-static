@@ -4,33 +4,29 @@
 	{% if page.prev_url or page.next_url -%}
 	<div class="header">
 		<h1>{{ page.title }}</h1>
-		<span class="text-muted small"><time pubdate datetime="{{ page.created|isoformat }}"><a href="{{ page.url }}">{{ page.created|strftime(commons.date_format) }}</a></time> • Tags: {{ tags_list(page.tags) }}{%- if page.source_url %} • <a href="{{ page.source_url }}">Source</a>{% endif -%}</span>
+		<span class="text-muted small"><time pubdate datetime="{{ page.created|isoformat }}"><a href="{{ page.url }}">{{ page.created|strftime(commons.date_format) }}</a></time> • Tags: {{ macros.tags_list(page.tags) }}{%- if page.source_url %} • <a href="{{ page.source_url }}">Source</a>{% endif -%}</span>
 	</div>
 	{% endif %}
 {% endblock %}
 
 {% block middle %}
-	<div class="row text-muted flipper">
-	  <div class="col-md-4">
-			{%- if page.prev_url -%}
-				&larr;&nbsp;<a href="{{ page.prev_url }}" title="{{ page.prev_title }}">Previous post</a>
-			{%- endif -%}
-	  </div>
-	  <div class="col-md-4 center">
-			{%- if commons.pluso_enabled -%}
-	  		{{- pluso(page.url) -}}
-			{%- endif -%}
-	  </div>
-	  <div class="col-md-4 right">
-			{%- if page.next_url %}
-				<a href="{{ page.next_url }}" title="{{ page.next_title }}">Next post</a>&nbsp;&rarr;
-			{%- endif -%}
-	  </div>
+	<div class="pagination">
+	  {%- if page.prev_url -%}
+	    <a class="pagination-item older" href="{{ page.prev_url }}" title="{{ page.prev_title }}">Older</a>
+	  {%- else -%}
+	    <span class="pagination-item older">Older</span>
+	  {%- endif -%}
+
+	  {%- if page.next_url -%}
+      <a class="pagination-item newer" href="{{ page.next_url }}" title="{{ page.next_title }}">Newer</a>
+	  {% else %}
+	    <span class="pagination-item newer">Newer</span>
+	  {% endif %}
 	</div>
 {% endblock %}
 
 {% block comments %}
 	{%- if commons.disqus_id -%}
-		{{- disqus_comments(commons.disqus_id, page.url) -}}
+		{{- macros.disqus_comments(commons.disqus_id, page.url) -}}
 	{%- endif -%}
 {% endblock %}
