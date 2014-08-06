@@ -87,7 +87,7 @@ def deploy(path=None):
         raise Exception('deploy command is not defined')
     cmd = conf.get('deploy_cmd').format(build_path=conf.get('build_path'))
     try:
-        output = subprocess.check_output(cmd.split())
+        output = subprocess.check_output(cmd, shell=True)
         logger.debug("Command output:\n%s" % output.decode('utf-8'))
         logger.info('done')
     except subprocess.CalledProcessError as e:
