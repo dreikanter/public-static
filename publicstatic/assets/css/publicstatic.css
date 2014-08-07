@@ -1,4 +1,4 @@
-body {
+/*body {
   min-height: 800px;
   font-size: 16px;
   line-height: 1.6;
@@ -16,6 +16,59 @@ blockquote p {
   font-style: italic;
   color: steelblue;
 }
+*/
+
+/* Poole customization */
+
+html {
+    font-family: "PT Serif", Georgia, serif;
+    // font-size: 18px;
+}
+h1, h2, h3 {
+    font-family: "PT Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: normal;
+    letter-spacing: -.02rem;
+}
+.container {
+  max-width: 42rem;
+}
+.footer {
+    text-align: center;
+    font-size: 0.75rem;
+}
+.mute {
+    color: silver;
+    background-color: inherit;
+}
+.mute a {
+    text-decoration: underline;
+    color: inherit;
+}
+.small-caps {
+    font-variant:small-caps;
+}
+.masthead {
+  margin-bottom: 1rem;
+}
+h3.site-title {
+  margin: 0;
+  padding: 0;
+  font-family: "PT Serif", Georgia, serif;
+  font-size: 1.2rem;
+  a {
+    color: black;
+  }
+}
+p.site-description {
+  clear: left;
+  color: gray;
+  a {
+    color: gray;
+    text-decoration: underline;
+  }
+}
+
+/* Inherited from PS original theme */
 
 pre {
   background-color: #fffff7;
