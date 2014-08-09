@@ -51,6 +51,16 @@ kbd {
   color: #6FADE4;
 }
 
+.navbar-default {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.navbar-brand {
+  font-size: inherit;
+  font-weight: bold;
+}
+
 .header h1 {
   margin-bottom: 5px;
 }
