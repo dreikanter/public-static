@@ -79,7 +79,6 @@ setup(
         'Topic :: Text Processing :: Markup :: HTML',
     ],
     dependency_links=[
-        'https://github.com/dreikanter/markdown-grid/'
-        'tarball/master#egg=mdx_grid'
+        'https://github.com/dreikanter/markdown-grid/tarball/master#egg=mdx_grid'
     ],
 )
